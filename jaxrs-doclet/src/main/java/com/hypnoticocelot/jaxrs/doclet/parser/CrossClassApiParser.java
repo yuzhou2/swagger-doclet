@@ -1,0 +1,147 @@
+/*
+ * Copyright © 2014 Avego Ltd., All Rights Reserved.
+ * For licensing terms please contact Avego LTD.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.hypnoticocelot.jaxrs.doclet.parser;
+
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.collect.Maps.uniqueIndex;
+import static com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper.parsePath;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.base.Function;
+import com.hypnoticocelot.jaxrs.doclet.DocletOptions;
+import com.hypnoticocelot.jaxrs.doclet.model.Api;
+import com.hypnoticocelot.jaxrs.doclet.model.ApiDeclaration;
+import com.hypnoticocelot.jaxrs.doclet.model.Method;
+import com.hypnoticocelot.jaxrs.doclet.model.Model;
+import com.hypnoticocelot.jaxrs.doclet.model.Operation;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Tag;
+
+/**
+ * The CrossClassApiParser represents an api class parser that supports ApiDeclaration being
+ * spread across multiple resource classes.
+ * @version $Id$
+ * @author conor.roche
+ */
+public class CrossClassApiParser {
+
+	private final DocletOptions options;
+	private final ClassDoc classDoc;
+	private final String rootPath;
+	private final String swaggerVersion;
+	private final String apiVersion;
+	private final String basePath;
+
+	/**
+	 * This creates a CrossClassApiParser
+	 * @param options
+	 * @param classDoc
+	 * @param swaggerVersion Swagger version
+	 * @param apiVersion Overall API version
+	 * @param basePath Overall base path
+	 */
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, String swaggerVersion, String apiVersion, String basePath) {
+		super();
+		this.options = options;
+		this.classDoc = classDoc;
+		this.rootPath = firstNonNull(parsePath(classDoc.annotations()), "");
+		this.swaggerVersion = swaggerVersion;
+		this.apiVersion = apiVersion;
+		this.basePath = basePath;
+	}
+
+	/**
+	 * This gets the root jaxrs path of the api resource class
+	 * @return The root path
+	 */
+	public String getRootPath() {
+		return this.rootPath;
+	}
+
+	/**
+	 * This parses the api declarations from the resource classes of the api
+	 * @param declarations The map of resource name to declaration which will be added to
+	 */
+	public void parse(Map<String, ApiDeclaration> declarations) {
+
+		for (MethodDoc method : this.classDoc.methods()) {
+			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method);
+			Method parsedMethod = methodParser.parse();
+			if (parsedMethod == null) {
+				continue;
+			}
+			// see which resource path to use for the method, if its got a resourceTag then use that
+			// otherwise use the root path
+			String resourcePath = getRootPath();
+			if (this.options.getResourceTags() != null) {
+				for (String resourceTag : this.options.getResourceTags()) {
+					Tag[] tags = method.tags(resourceTag);
+					if (tags != null && tags.length > 0) {
+						resourcePath = tags[0].text();
+						resourcePath = resourcePath.toLowerCase();
+						resourcePath = resourcePath.trim().replace(" ", "_");
+						if (!resourcePath.startsWith("/")) {
+							resourcePath = "/" + resourcePath;
+						}
+						break;
+					}
+				}
+			}
+
+			Set<Model> methodModels = methodParser.models();
+			Map<String, Model> idToModels = Collections.emptyMap();
+			try {
+				idToModels = uniqueIndex(methodModels, new Function<Model, String>() {
+
+					public String apply(Model model) {
+						return model.getId();
+					}
+				});
+			} catch (Exception ex) {
+				throw new IllegalStateException("dupe models, method : " + method + ", models: " + methodModels, ex);
+			}
+
+			ApiDeclaration declaration = declarations.get(resourcePath);
+			if (declaration == null) {
+				declaration = new ApiDeclaration(this.swaggerVersion, this.apiVersion, this.basePath, resourcePath, null, null);
+				declaration.setApis(new ArrayList<Api>());
+				declaration.setModels(new HashMap<String, Model>());
+				declarations.put(resourcePath, declaration);
+			}
+
+			// find api this method should be added to
+			String realMethodPath = parsedMethod.getPath();
+			Api methodApi = null;
+			for (Api api : declaration.getApis()) {
+				if (realMethodPath.equals(api.getPath())) {
+					methodApi = api;
+					break;
+				}
+			}
+			if (methodApi == null) {
+				methodApi = new Api(realMethodPath, "", new ArrayList<Operation>());
+				declaration.getApis().add(methodApi);
+			}
+
+			methodApi.getOperations().add(new Operation(parsedMethod));
+
+			declaration.getModels().putAll(idToModels);
+
+		}
+
+	}
+
+}

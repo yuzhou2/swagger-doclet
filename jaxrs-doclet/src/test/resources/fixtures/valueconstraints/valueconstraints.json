@@ -1,0 +1,76 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/valueconstraints",
+    "apis": [
+        {
+            "path": "/valueconstraints",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "POST",
+                    "nickname": "postData",
+                    "type": "Data",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "enumValue",
+                            "type": "string",
+                            "allowMultiple": false,
+                            "enum": [
+						        "VALUE1",
+						        "VALUE2"
+						    	]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "minGetterTag": {
+                	"type": "integer",
+                	"minimum": 1
+                },
+                "value": {
+                    "type": "string",
+                    "enum": [
+						        "VALUE1",
+						        "VALUE2"
+						    ]
+                },
+                "maxGetterTag": {
+                	"type": "integer",
+                	"maximum": 10
+                },
+                "minMaxFieldTag": {
+                	"type": "integer",
+                	"minimum": 2,
+                	"maximum": 8
+                },
+                "minMaxGetterTag": {
+                	"type": "integer",
+                	"minimum": 2,
+                	"maximum": 8
+                },
+                "minFieldTag": {
+                	"type": "integer",
+                	"minimum": 1
+                },
+                "maxFieldTag": {
+                	"type": "integer",
+                	"maximum": 10
+                }
+            }
+        }
+    }
+}

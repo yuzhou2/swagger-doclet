@@ -1,0 +1,34 @@
+{
+  "oauth2": {
+    "type": "oauth2",
+    "scopes": [
+      {
+        "scope": "write:pets",
+		"description": "modify pets in your account"
+      },
+      {
+        "scope": "read:pets",
+		"description": "read pets in your account"
+      }
+    ],
+    "grantTypes": {
+      "implicit": {
+        "loginEndpoint": {
+          "url": "http://petstore.swagger.wordnik.com/oauth/dialog"
+        },
+        "tokenName": "access_token"
+      },
+      "authorization_code": {
+        "tokenRequestEndpoint": {
+          "url": "http://petstore.swagger.wordnik.com/oauth/requestToken",
+          "clientIdName": "client_id",
+          "clientSecretName": "client_secret"
+        },
+        "tokenEndpoint": {
+          "url": "http://petstore.swagger.wordnik.com/oauth/token",
+          "tokenName": "access_code"
+        }
+      }
+    }
+  }
+}

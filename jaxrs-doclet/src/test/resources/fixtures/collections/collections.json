@@ -1,0 +1,73 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/collections",
+    "apis": [
+        {
+            "path": "/collections",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "getCollectionHolder",
+                    "type": "collectionHolder",
+                    "summary": "This gets the collection holder"
+                }
+            ]
+        }
+    ],
+    "models": {
+        "collectionHolder": {
+            "id": "collectionHolder",
+            "properties": {
+                "listStrings": {
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
+                },
+                "setItems": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                    	"$ref": "collectionItem"
+                    }
+                },
+                "listItems": {
+                    "type": "array",
+                    "items": {
+                    	"$ref": "collectionItem"
+                    }
+                },
+                "collectionStrings": {
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
+                },
+                "setStrings": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                    	"type": "string"
+                    }
+                },
+                "collectionItems": {
+                    "type": "array",
+                    "items": {
+                    	"$ref": "collectionItem"
+                    }
+                }
+            }
+        },
+         "collectionItem": {
+            "id": "collectionItem",
+            "properties": {
+            	"name" : {
+            		"type": "string"
+            	}
+            }
+        }
+    }
+}

@@ -1,0 +1,74 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/oauth2",
+    "apis": [
+        {
+            "path": "/oauth2",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "customScope",
+                    "type": "void",
+                    "authorizations": {
+					    "oauth2": [
+					        {
+					            "scope": "write:pets",
+					            "description": "modify pets in your account"
+					        }
+					    ]
+					}
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "customScopes",
+                    "type": "void",
+                    "authorizations": {
+					    "oauth2": [
+					        {
+					            "scope": "write:pets",
+					            "description": "modify pets in your account"
+					        },
+					        {
+					            "scope": "read:pets",
+					            "description": "read pets in your account"
+					        }
+					    ]
+					}
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "defaultNoAuth",
+                    "type": "void"
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "defaultAuth",
+                    "type": "void",
+                    "authorizations": {
+					    "oauth2": [
+					        {
+					            "scope": "read:pets",
+					            "description": "read pets in your account"
+					        }
+					    ]
+					}
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "noAuth1",
+                    "type": "void",
+                    "authorizations": {}
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "noAuth2",
+                    "type": "void",
+                    "authorizations": {}
+                }
+            ]
+        }
+    ]
+}
