@@ -9,17 +9,20 @@ public class ResourceListing {
 	private String basePath;
 	private List<ResourceListingAPI> apis;
 	private ApiAuthorizations authorizations;
+	private ApiInfo info;
 
 	@SuppressWarnings("unused")
 	private ResourceListing() {
 	}
 
-	public ResourceListing(String swaggerVersion, String apiVersion, String basePath, List<ResourceListingAPI> apis, ApiAuthorizations authorizations) {
+	public ResourceListing(String swaggerVersion, String apiVersion, String basePath, List<ResourceListingAPI> apis, ApiAuthorizations authorizations,
+			ApiInfo info) {
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
 		this.apis = apis;
 		this.authorizations = authorizations;
+		this.info = info;
 	}
 
 	public String getApiVersion() {
@@ -47,6 +50,14 @@ public class ResourceListing {
 	}
 
 	/**
+	 * This gets the info
+	 * @return the info
+	 */
+	public ApiInfo getInfo() {
+		return this.info;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -58,6 +69,7 @@ public class ResourceListing {
 		result = prime * result + ((this.apis == null) ? 0 : this.apis.hashCode());
 		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
 		result = prime * result + ((this.basePath == null) ? 0 : this.basePath.hashCode());
+		result = prime * result + ((this.info == null) ? 0 : this.info.hashCode());
 		result = prime * result + ((this.swaggerVersion == null) ? 0 : this.swaggerVersion.hashCode());
 		return result;
 	}
@@ -106,6 +118,13 @@ public class ResourceListing {
 		} else if (!this.basePath.equals(other.basePath)) {
 			return false;
 		}
+		if (this.info == null) {
+			if (other.info != null) {
+				return false;
+			}
+		} else if (!this.info.equals(other.info)) {
+			return false;
+		}
 		if (this.swaggerVersion == null) {
 			if (other.swaggerVersion != null) {
 				return false;
@@ -123,7 +142,7 @@ public class ResourceListing {
 	@Override
 	public String toString() {
 		return "ResourceListing [swaggerVersion=" + this.swaggerVersion + ", apiVersion=" + this.apiVersion + ", basePath=" + this.basePath + ", apis="
-				+ this.apis + ", authorizations=" + this.authorizations + "]";
+				+ this.apis + ", authorizations=" + this.authorizations + ", info=" + this.info + "]";
 	}
 
 }

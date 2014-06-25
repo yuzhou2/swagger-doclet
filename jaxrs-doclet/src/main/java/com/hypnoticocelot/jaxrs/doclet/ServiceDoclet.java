@@ -51,6 +51,7 @@ public class ServiceDoclet {
 		options.put("-propertyMaxTags", 2);
 
 		options.put("-apiAuthorizationsFile", 2);
+		options.put("-apiInfoFile", 2);
 		options.put("-unauthOperationTags", 2);
 		options.put("-authOperationTags", 2);
 		options.put("-unauthOperationTagValues", 2);

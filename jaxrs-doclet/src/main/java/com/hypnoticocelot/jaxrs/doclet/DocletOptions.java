@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hypnoticocelot.jaxrs.doclet.model.ApiAuthorizations;
+import com.hypnoticocelot.jaxrs.doclet.model.ApiInfo;
 import com.hypnoticocelot.jaxrs.doclet.translator.AnnotationAwareTranslator;
 import com.hypnoticocelot.jaxrs.doclet.translator.FirstNotNullTranslator;
 import com.hypnoticocelot.jaxrs.doclet.translator.NameBasedTranslator;
@@ -21,6 +22,88 @@ import com.hypnoticocelot.jaxrs.doclet.translator.Translator;
 public class DocletOptions {
 
 	public static final String DEFAULT_SWAGGER_UI_ZIP_PATH = "n/a";
+
+	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {
+		File file = new File(path);
+		checkArgument(file.isFile(), "Path after " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+		// load it as json and build the object from it
+		InputStream is = null;
+		try {
+			is = new BufferedInputStream(new FileInputStream(file));
+			return new ObjectMapper().readValue(is, resourceClass);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Failed to read model file: " + ex.getMessage(), ex);
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (Exception ex) {
+					// ignore
+				}
+			}
+		}
+	}
+
+	public static DocletOptions parse(String[][] options) {
+		DocletOptions parsedOptions = new DocletOptions();
+		for (String[] option : options) {
+			if (option[0].equals("-d")) {
+				parsedOptions.outputDirectory = new File(option[1]);
+				checkArgument(parsedOptions.outputDirectory.isDirectory(), "Path after -d is expected to be a directory!");
+			} else if (option[0].equals("-apiAuthorizationsFile")) {
+				parsedOptions.apiAuthorizations = loadModelFromJson("-apiAuthorizationsFile", option[1], ApiAuthorizations.class);
+			} else if (option[0].equals("-apiInfoFile")) {
+				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], ApiInfo.class);
+			} else if (option[0].equals("-docBasePath")) {
+				parsedOptions.docBasePath = option[1];
+			} else if (option[0].equals("-apiBasePath")) {
+				parsedOptions.apiBasePath = option[1];
+			} else if (option[0].equals("-apiVersion")) {
+				parsedOptions.apiVersion = option[1];
+			} else if (option[0].equals("-swaggerUiZipPath")) {
+				parsedOptions.swaggerUiZipPath = option[1];
+			} else if (option[0].equals("-excludeAnnotationClasses")) {
+				parsedOptions.excludeAnnotationClasses.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-disableModels")) {
+				parsedOptions.parseModels = false;
+			} else if (option[0].equals("-disableCopySwaggerUi")) {
+				parsedOptions.includeSwaggerUi = false;
+			} else if (option[0].equals("-crossClassResources")) {
+				parsedOptions.crossClassResources = true;
+			} else if (option[0].equals("-errorTags")) {
+				parsedOptions.errorTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-successTags")) {
+				parsedOptions.successTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-typesToTreatAsOpaque")) {
+				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeMethodTags")) {
+				parsedOptions.excludeMethodTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-resourceTags")) {
+				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-responseTypeTags")) {
+				parsedOptions.responseTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-methodCommentTags")) {
+				parsedOptions.methodCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-propertyCommentTags")) {
+				parsedOptions.propertyCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-propertyMinTags")) {
+				parsedOptions.propertyMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-propertyMaxTags")) {
+				parsedOptions.propertyMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-unauthOperationTags")) {
+				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-authOperationTags")) {
+				parsedOptions.authOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-unauthOperationTagValues")) {
+				parsedOptions.unauthOperationTagValues.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-authOperationScopes")) {
+				parsedOptions.authOperationScopes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-operationScopeTags")) {
+				parsedOptions.operationScopeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			}
+		}
+		return parsedOptions;
+	}
 
 	private File outputDirectory;
 	private String docBasePath = "http://localhost:8080";
@@ -55,9 +138,14 @@ public class DocletOptions {
 
 	private ApiAuthorizations apiAuthorizations;
 
+	private ApiInfo apiInfo;
+
 	private Recorder recorder = new ObjectMapperRecorder();
 	private Translator translator;
 
+	/**
+	 * This creates a DocletOptions
+	 */
 	public DocletOptions() {
 		this.excludeAnnotationClasses = new ArrayList<String>();
 		this.excludeAnnotationClasses.add("javax.ws.rs.HeaderParam");
@@ -144,83 +232,6 @@ public class DocletOptions {
 								.rootElement("org.codehaus.jackson.map.annotate.JsonRootName", "value"))
 
 				.addNext(new NameBasedTranslator());
-	}
-
-	public static DocletOptions parse(String[][] options) {
-		DocletOptions parsedOptions = new DocletOptions();
-		for (String[] option : options) {
-			if (option[0].equals("-d")) {
-				parsedOptions.outputDirectory = new File(option[1]);
-				checkArgument(parsedOptions.outputDirectory.isDirectory(), "Path after -d is expected to be a directory!");
-			} else if (option[0].equals("-apiAuthorizationsFile")) {
-				File apiAuthorizationsFile = new File(option[1]);
-				checkArgument(apiAuthorizationsFile.isFile(), "Path after -apiAuthorizationsFile (" + apiAuthorizationsFile.getAbsolutePath()
-						+ ") is expected to be an existing file!");
-				// load it as json and build the ApiOauth2Authorization object from it
-				InputStream is = null;
-				try {
-					is = new BufferedInputStream(new FileInputStream(apiAuthorizationsFile));
-					parsedOptions.apiAuthorizations = new ObjectMapper().readValue(is, ApiAuthorizations.class);
-				} catch (Exception ex) {
-					throw new IllegalArgumentException("Failed to read apiAuthorizationsFile: " + ex.getMessage(), ex);
-				} finally {
-					if (is != null) {
-						try {
-							is.close();
-						} catch (Exception ex) {
-							// ignore
-						}
-					}
-				}
-			} else if (option[0].equals("-docBasePath")) {
-				parsedOptions.docBasePath = option[1];
-			} else if (option[0].equals("-apiBasePath")) {
-				parsedOptions.apiBasePath = option[1];
-			} else if (option[0].equals("-apiVersion")) {
-				parsedOptions.apiVersion = option[1];
-			} else if (option[0].equals("-swaggerUiZipPath")) {
-				parsedOptions.swaggerUiZipPath = option[1];
-			} else if (option[0].equals("-excludeAnnotationClasses")) {
-				parsedOptions.excludeAnnotationClasses.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-disableModels")) {
-				parsedOptions.parseModels = false;
-			} else if (option[0].equals("-disableCopySwaggerUi")) {
-				parsedOptions.includeSwaggerUi = false;
-			} else if (option[0].equals("-crossClassResources")) {
-				parsedOptions.crossClassResources = true;
-			} else if (option[0].equals("-errorTags")) {
-				parsedOptions.errorTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-successTags")) {
-				parsedOptions.successTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-typesToTreatAsOpaque")) {
-				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-excludeMethodTags")) {
-				parsedOptions.excludeMethodTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-resourceTags")) {
-				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-responseTypeTags")) {
-				parsedOptions.responseTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-methodCommentTags")) {
-				parsedOptions.methodCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyCommentTags")) {
-				parsedOptions.propertyCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyMinTags")) {
-				parsedOptions.propertyMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyMaxTags")) {
-				parsedOptions.propertyMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-unauthOperationTags")) {
-				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-authOperationTags")) {
-				parsedOptions.authOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-unauthOperationTagValues")) {
-				parsedOptions.unauthOperationTagValues.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-authOperationScopes")) {
-				parsedOptions.authOperationScopes.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-operationScopeTags")) {
-				parsedOptions.operationScopeTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			}
-		}
-		return parsedOptions;
 	}
 
 	public File getOutputDirectory() {
@@ -432,6 +443,24 @@ public class DocletOptions {
 	 */
 	public DocletOptions setApiAuthorizations(ApiAuthorizations apiAuthorizations) {
 		this.apiAuthorizations = apiAuthorizations;
+		return this;
+	}
+
+	/**
+	 * This gets the apiInfo
+	 * @return the apiInfo
+	 */
+	public ApiInfo getApiInfo() {
+		return this.apiInfo;
+	}
+
+	/**
+	 * This sets the apiInfo
+	 * @param apiInfo the apiInfo to set
+	 * @return this
+	 */
+	public DocletOptions setApiInfo(ApiInfo apiInfo) {
+		this.apiInfo = apiInfo;
 		return this;
 	}
 

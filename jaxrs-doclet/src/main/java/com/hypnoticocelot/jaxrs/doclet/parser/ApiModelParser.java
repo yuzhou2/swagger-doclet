@@ -27,7 +27,7 @@ import com.sun.javadoc.Type;
 public class ApiModelParser {
 
 	private final DocletOptions options;
-	private final Translator translator;
+	final Translator translator;
 	private final Type rootType;
 	private final Set<Model> models;
 

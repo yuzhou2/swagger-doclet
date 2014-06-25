@@ -100,7 +100,7 @@ public class JaxRsAnnotationParser {
 
 		// write out json for api
 		ResourceListing listing = new ResourceListing(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getDocBasePath(), resources,
-				this.options.getApiAuthorizations());
+				this.options.getApiAuthorizations(), this.options.getApiInfo());
 		File docFile = new File(outputDirectory, "service.json");
 		recorder.record(docFile, listing);
 
