@@ -1,19 +1,25 @@
 package com.hypnoticocelot.jaxrs.doclet.apidocs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
+import java.io.InputStream;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FixtureLoader {
 
-    private FixtureLoader() {
-    }
+	private FixtureLoader() {
+	}
 
-    public static <T> T loadFixture(String path, Class<T> resourceClass) throws IOException {
-        return new ObjectMapper().readValue(
-                FixtureLoader.class.getResourceAsStream(path),
-                resourceClass
-        );
-    }
+	public static <T> T loadFixture(String path, Class<T> resourceClass) throws IOException {
+		InputStream is = null;
+		try {
+			is = FixtureLoader.class.getResourceAsStream(path);
+			return new ObjectMapper().readValue(is, resourceClass);
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+		}
+	}
 
 }

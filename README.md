@@ -90,7 +90,7 @@ $ curl localhost:8080/apidocs/service.json
     "path" : "/greetings_name.{format}",
     "description" : ""
   } ],
-  "swaggerVersion" : "1.1"
+  "swaggerVersion" : "1.2"
 }
 $
 ```
@@ -102,3 +102,9 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 ```
 <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiZipPath ../../../src/main/resources/swagger-ui.zip</additionalparam>
 ```
+
+## New Features Added for Carma
+
+
+
+

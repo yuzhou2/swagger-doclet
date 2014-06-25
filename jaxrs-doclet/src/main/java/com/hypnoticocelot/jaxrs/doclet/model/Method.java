@@ -1,105 +1,229 @@
 package com.hypnoticocelot.jaxrs.doclet.model;
 
-import com.google.common.base.Objects;
-
 import java.util.List;
 
 public class Method {
-    private HttpMethod method;
-    private String methodName;
-    private List<ApiParameter> apiParameters;
-    private List<ApiResponseMessage> responseMessages;
-    private String firstSentence;
-    private String comment;
-    private String returnType;
-    private String path;
 
-    @SuppressWarnings("unused")
-    private Method() {
-    }
+	private HttpMethod method;
+	private String methodName;
+	private List<ApiParameter> apiParameters;
+	private List<ApiResponseMessage> responseMessages;
+	private String firstSentence;
+	private String comment;
+	private String returnType;
+	private String path;
 
-    public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages, String firstSentence, String comment, String returnType) {
-        this.method = method;
-        this.methodName = methodName;
-        this.path = path;
-        this.apiParameters = apiParameters;
-        this.responseMessages = responseMessages;
-        this.firstSentence = firstSentence;
-        this.comment = comment;
-        this.returnType = returnType;
-    }
+	private List<String> consumes;
+	private List<String> produces;
 
-    public HttpMethod getMethod() {
-        return method;
-    }
+	private OperationAuthorizations authorizations;
 
-    public String getMethodName() {
-        return methodName;
-    }
+	@SuppressWarnings("unused")
+	private Method() {
+	}
 
-    public String getPath() {
-        return path;
-    }
+	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
+			String firstSentence, String comment, String returnType, List<String> consumes, List<String> produces, OperationAuthorizations authorizations) {
+		this.method = method;
+		this.methodName = methodName;
+		this.path = path;
+		this.apiParameters = apiParameters;
+		this.responseMessages = responseMessages;
+		this.firstSentence = firstSentence;
+		this.comment = comment;
+		this.returnType = returnType;
+		this.consumes = consumes;
+		this.produces = produces;
+		this.authorizations = authorizations;
+	}
 
-    public List<ApiParameter> getParameters() {
-        return apiParameters;
-    }
-    
-    public List<ApiResponseMessage> getResponseMessages() {
-        return responseMessages;
-    }
+	public HttpMethod getMethod() {
+		return this.method;
+	}
 
-    public String getFirstSentence() {
-        return firstSentence;
-    }
+	public String getMethodName() {
+		return this.methodName;
+	}
 
-    public String getComment() {
-        return comment;
-    }
+	public String getPath() {
+		return this.path;
+	}
 
-    public String getReturnType() {
-        return returnType;
-    }
+	public List<ApiParameter> getParameters() {
+		return this.apiParameters;
+	}
 
-    public void setReturnType(String returnType) {
-        this.returnType = returnType;
-    }
+	public List<ApiResponseMessage> getResponseMessages() {
+		return this.responseMessages;
+	}
 
-    public boolean isSubResource() {
-        return method == null;
-    }
+	public String getFirstSentence() {
+		return this.firstSentence;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Method that = (Method) o;
-        return Objects.equal(method, that.method)
-                && Objects.equal(methodName, that.methodName)
-                && Objects.equal(apiParameters, that.apiParameters)
-                && Objects.equal(responseMessages, that.responseMessages)
-                && Objects.equal(firstSentence, that.firstSentence)
-                && Objects.equal(comment, that.comment)
-                && Objects.equal(returnType, that.returnType)
-                && Objects.equal(path, that.path);
-    }
+	public String getComment() {
+		return this.comment;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(method, methodName, apiParameters, responseMessages, firstSentence, comment, returnType, path);
-    }
+	public String getReturnType() {
+		return this.returnType;
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("method", method)
-                .add("methodName", methodName)
-                .add("apiParameters", apiParameters)
-                .add("responseMessages", responseMessages)
-                .add("firstSentence", firstSentence)
-                .add("comment", comment)
-                .add("returnType", returnType)
-                .add("path", path)
-                .toString();
-    }
+	public void setReturnType(String returnType) {
+		this.returnType = returnType;
+	}
+
+	public boolean isSubResource() {
+		return this.method == null;
+	}
+
+	/**
+	 * This gets the consumes
+	 * @return the consumes
+	 */
+	public List<String> getConsumes() {
+		return this.consumes;
+	}
+
+	/**
+	 * This gets the produces
+	 * @return the produces
+	 */
+	public List<String> getProduces() {
+		return this.produces;
+	}
+
+	/**
+	 * This gets the authorizations
+	 * @return the authorizations
+	 */
+	public OperationAuthorizations getAuthorizations() {
+		return this.authorizations;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.apiParameters == null) ? 0 : this.apiParameters.hashCode());
+		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
+		result = prime * result + ((this.comment == null) ? 0 : this.comment.hashCode());
+		result = prime * result + ((this.consumes == null) ? 0 : this.consumes.hashCode());
+		result = prime * result + ((this.firstSentence == null) ? 0 : this.firstSentence.hashCode());
+		result = prime * result + ((this.method == null) ? 0 : this.method.hashCode());
+		result = prime * result + ((this.methodName == null) ? 0 : this.methodName.hashCode());
+		result = prime * result + ((this.path == null) ? 0 : this.path.hashCode());
+		result = prime * result + ((this.produces == null) ? 0 : this.produces.hashCode());
+		result = prime * result + ((this.responseMessages == null) ? 0 : this.responseMessages.hashCode());
+		result = prime * result + ((this.returnType == null) ? 0 : this.returnType.hashCode());
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Method other = (Method) obj;
+		if (this.apiParameters == null) {
+			if (other.apiParameters != null) {
+				return false;
+			}
+		} else if (!this.apiParameters.equals(other.apiParameters)) {
+			return false;
+		}
+		if (this.authorizations == null) {
+			if (other.authorizations != null) {
+				return false;
+			}
+		} else if (!this.authorizations.equals(other.authorizations)) {
+			return false;
+		}
+		if (this.comment == null) {
+			if (other.comment != null) {
+				return false;
+			}
+		} else if (!this.comment.equals(other.comment)) {
+			return false;
+		}
+		if (this.consumes == null) {
+			if (other.consumes != null) {
+				return false;
+			}
+		} else if (!this.consumes.equals(other.consumes)) {
+			return false;
+		}
+		if (this.firstSentence == null) {
+			if (other.firstSentence != null) {
+				return false;
+			}
+		} else if (!this.firstSentence.equals(other.firstSentence)) {
+			return false;
+		}
+		if (this.method != other.method) {
+			return false;
+		}
+		if (this.methodName == null) {
+			if (other.methodName != null) {
+				return false;
+			}
+		} else if (!this.methodName.equals(other.methodName)) {
+			return false;
+		}
+		if (this.path == null) {
+			if (other.path != null) {
+				return false;
+			}
+		} else if (!this.path.equals(other.path)) {
+			return false;
+		}
+		if (this.produces == null) {
+			if (other.produces != null) {
+				return false;
+			}
+		} else if (!this.produces.equals(other.produces)) {
+			return false;
+		}
+		if (this.responseMessages == null) {
+			if (other.responseMessages != null) {
+				return false;
+			}
+		} else if (!this.responseMessages.equals(other.responseMessages)) {
+			return false;
+		}
+		if (this.returnType == null) {
+			if (other.returnType != null) {
+				return false;
+			}
+		} else if (!this.returnType.equals(other.returnType)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Method [method=" + this.method + ", methodName=" + this.methodName + ", apiParameters=" + this.apiParameters + ", responseMessages="
+				+ this.responseMessages + ", firstSentence=" + this.firstSentence + ", comment=" + this.comment + ", returnType=" + this.returnType + ", path="
+				+ this.path + ", consumes=" + this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
+	}
+
 }

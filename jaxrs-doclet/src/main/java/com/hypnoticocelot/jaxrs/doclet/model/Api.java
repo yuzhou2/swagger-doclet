@@ -1,57 +1,56 @@
 package com.hypnoticocelot.jaxrs.doclet.model;
 
-import com.google.common.base.Objects;
-
 import java.util.Collection;
 
+import com.google.common.base.Objects;
+
 public class Api {
-    private String path;
-    private String description;
-    private Collection<Operation> operations;
 
-    @SuppressWarnings("unused")
-    private Api() {
-    }
+	private String path;
+	private String description;
+	private Collection<Operation> operations;
 
-    public Api(String path, String description, Collection<Operation> operations) {
-        this.path = path;
-        this.description = description;
-        this.operations = operations;
-    }
+	@SuppressWarnings("unused")
+	private Api() {
+	}
 
-    public String getPath() {
-        return path;
-    }
+	public Api(String path, String description, Collection<Operation> operations) {
+		this.path = path;
+		this.description = description;
+		this.operations = operations;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getPath() {
+		return this.path;
+	}
 
-    public Collection<Operation> getOperations() {
-        return operations;
-    }
+	public String getDescription() {
+		return this.description;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Api that = (Api) o;
-        return Objects.equal(path, that.path)
-                && Objects.equal(description, that.description)
-                && Objects.equal(operations, that.operations);
-    }
+	public Collection<Operation> getOperations() {
+		return this.operations;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(path, description, operations);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Api that = (Api) o;
+		return Objects.equal(this.path, that.path) && Objects.equal(this.description, that.description) && Objects.equal(this.operations, that.operations);
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("path", path)
-                .add("description", description)
-                .add("operations", operations)
-                .toString();
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.path, this.description, this.operations);
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this).add("path", this.path).add("description", this.description).add("operations", this.operations).toString();
+	}
 }

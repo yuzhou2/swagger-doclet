@@ -1,6 +1,6 @@
 {
     "apiVersion": "0",
-    "swaggerVersion": "1.1",
+    "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
     "resourcePath": "/primitives/longs",
     "apis": [
@@ -11,17 +11,18 @@
                 {
                     "httpMethod": "GET",
                     "nickname": "get",
-                    "responseClass": "long"
+                    "type": "integer"
                 },
                 {
                     "httpMethod": "POST",
                     "nickname": "create",
-                    "responseClass": "Response",
+                    "type": "Response",
                     "parameters": [
                         {
                             "paramType": "body",
                             "name": "value",
-                            "dataType": "long"
+                            "type": "integer",
+                            "format": "int64"
                         }
                     ]
                 }

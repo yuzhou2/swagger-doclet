@@ -1,50 +1,85 @@
 package com.hypnoticocelot.jaxrs.doclet.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 public class ApiResponseMessage {
 
-    private int code;
-    
-    @JsonProperty("reason") // swagger 1.1 name
-    private String message; // swagger 1.2 name
-    
-    @SuppressWarnings("unused")
-    private ApiResponseMessage() {
-    }
+	private int code;
 
-    public ApiResponseMessage(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-    
-    public int getCode() {
-        return code;
-    }
+	private String message;
 
-    public String getMessage() {
-        return message;
-    }
+	private String responseModel;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ApiResponseMessage that = (ApiResponseMessage) o;
-        return Objects.equal(code, that.code)
-                && Objects.equal(message, that.message);
-    }
+	@SuppressWarnings("unused")
+	private ApiResponseMessage() {
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(code, message);
-    }
+	/**
+	 * This creates a ApiResponseMessage with no specific response model for this error code
+	 * @param code
+	 * @param message
+	 */
+	public ApiResponseMessage(int code, String message) {
+		this.code = code;
+		this.message = message;
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("code", code)
-                .add("message", message)
-                .toString();
-    }}
+	/**
+	 * This creates a ApiResponseMessage with support for a custom model for this response code
+	 * @param code
+	 * @param message
+	 * @param responseModel
+	 */
+	public ApiResponseMessage(int code, String message, String responseModel) {
+		super();
+		this.code = code;
+		this.message = message;
+		this.responseModel = responseModel;
+	}
+
+	/**
+	 * This gets the code
+	 * @return the code
+	 */
+	public int getCode() {
+		return this.code;
+	}
+
+	/**
+	 * This gets the message
+	 * @return the message
+	 */
+	public String getMessage() {
+		return this.message;
+	}
+
+	/**
+	 * This gets the responseModel
+	 * @return the responseModel
+	 */
+	public String getResponseModel() {
+		return this.responseModel;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		ApiResponseMessage that = (ApiResponseMessage) o;
+		return Objects.equal(this.code, that.code) && Objects.equal(this.message, that.message) && Objects.equal(this.responseModel, that.responseModel);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.code, this.message, this.responseModel);
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this).add("code", this.code).add("message", this.message).add("responseModel", this.responseModel).toString();
+	}
+}

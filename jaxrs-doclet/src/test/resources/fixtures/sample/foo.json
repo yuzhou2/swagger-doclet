@@ -1,6 +1,6 @@
 {
     "apiVersion": "0",
-    "swaggerVersion": "1.1",
+    "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
     "resourcePath": "/foo",
     "apis": [
@@ -11,30 +11,31 @@
                 {
                     "httpMethod": "GET",
                     "nickname": "sayHello",
-                    "responseClass": "string",
+                    "type": "string",
                     "parameters": [
                         {
                             "paramType": "query",
                             "name": "name",
-                            "dataType": "string"
+                            "type": "string",
+                            "allowMultiple": false
                         }
                     ],
-                    "errorResponses": [
+                    "responseMessages": [
                         {
                             "code": 404,
-                            "reason": "not found"
+                            "message": "not found"
                         }
                     ]
                 },
                 {
                     "httpMethod": "POST",
                     "nickname": "createSpeech",
-                    "responseClass": "int",
+                    "type": "integer",
                     "parameters": [
                         {
                             "paramType": "body",
                             "name": "speech",
-                            "dataType": "string"
+                            "type": "string"
                         }
                     ]
                 }
@@ -47,12 +48,12 @@
                 {
                     "httpMethod": "POST",
                     "nickname": "createSpeechWithAnnotatedPayload",
-                    "responseClass": "int",
+                    "type": "integer",
                     "parameters": [
                         {
                             "paramType": "body",
                             "name": "speech",
-                            "dataType": "string"
+                            "type": "string"
                         }
                     ]
                 }
@@ -65,13 +66,13 @@
                 {
                     "httpMethod": "POST",
                     "nickname": "createSub",
-                    "responseClass": "int",
+                    "type": "integer",
                     "parameters": [
 
                         {
                             "paramType": "path",
                             "name": "fooId",
-                            "dataType": "string"
+                            "type": "string"
                         }
                     ]
                 }
@@ -84,17 +85,18 @@
                 {
                     "httpMethod": "GET",
                     "nickname": "sayHello",
-                    "responseClass": "string",
+                    "type": "string",
                     "parameters": [
                         {
                             "paramType": "query",
                             "name": "name",
-                            "dataType": "string"
+                            "type": "string",
+                            "allowMultiple": false
                         },
                         {
                             "paramType": "path",
                             "name": "fooId",
-                            "dataType": "string"
+                            "type": "string"
                         }
                     ]
                 }

@@ -1,6 +1,6 @@
 {
     "apiVersion": "0",
-    "swaggerVersion": "1.1",
+    "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
     "resourcePath": "/objects",
     "apis": [
@@ -11,7 +11,7 @@
                 {
                     "httpMethod": "GET",
                     "nickname": "get",
-                    "responseClass": "object"
+                    "type": "Object"
                 }
             ]
         }

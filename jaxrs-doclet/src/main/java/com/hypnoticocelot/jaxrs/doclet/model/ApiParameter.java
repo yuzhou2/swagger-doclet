@@ -1,83 +1,110 @@
 package com.hypnoticocelot.jaxrs.doclet.model;
 
-import com.google.common.base.Objects;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.google.common.base.Strings.emptyToNull;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
+
 public class ApiParameter {
-    private String paramType;
-    private String name;
-    private String description;
-    private String dataType;
 
-    @SuppressWarnings("unused")
-    private ApiParameter() {
-    }
+	private String paramType;
+	private String name;
+	private String description;
+	private String type;
+	private String format;
+	private List<String> allowableValues;
+	private Boolean allowMultiple;
 
-    public ApiParameter(String paramType, String name, String description, String dataType) {
-        this.paramType = paramType;
-        this.name = name;
-        this.description = emptyToNull(description);
-        this.dataType = dataType;
-    }
+	// TODO support min max for non enum/array types
 
-    public String getParamType() {
-        return paramType;
-    }
+	@SuppressWarnings("unused")
+	private ApiParameter() {
+	}
 
-    public String getName() {
-        return name;
-    }
+	public ApiParameter(String paramType, String name, String description, String type, String format, List<String> allowableValues, Boolean allowMultiple) {
+		this.paramType = paramType;
+		this.name = name;
+		this.description = emptyToNull(description);
+		this.type = type;
+		this.format = format;
+		this.allowableValues = allowableValues;
+		this.allowMultiple = allowMultiple;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getParamType() {
+		return this.paramType;
+	}
 
-    public String getDataType() {
-        return dataType;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public boolean getRequired() {
-        return !paramType.equals("query");
-    }
+	public String getDescription() {
+		return this.description;
+	}
 
-    public AllowableValues getAllowableValues() {
-        if (dataType.equals("boolean")) {
-            List<String> values = new ArrayList<String>();
-            values.add("false");
-            values.add("true");
-            return new AllowableValues(values);
-        } else {
-            return null;
-        }
-    }
+	public String getType() {
+		return this.type;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ApiParameter that = (ApiParameter) o;
-        return Objects.equal(paramType, that.paramType)
-                && Objects.equal(name, that.name)
-                && Objects.equal(description, that.description)
-                && Objects.equal(dataType, that.dataType);
-    }
+	/**
+	 * This gets the format
+	 * @return the format
+	 */
+	public String getFormat() {
+		return this.format;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(paramType, name, description, dataType);
-    }
+	/**
+	 * This gets whether the parameter is required
+	 * @return Whether the parameter is required
+	 *         TODO: may want to be more explicit here
+	 */
+	public boolean getRequired() {
+		return !this.paramType.equals("query");
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("paramType", paramType)
-                .add("name", name)
-                .add("description", description)
-                .add("dataType", dataType)
-                .toString();
-    }
+	/**
+	 * This gets the allowableValues
+	 * @return the allowableValues
+	 */
+	@JsonProperty("enum")
+	public List<String> getAllowableValues() {
+		return this.allowableValues;
+	}
+
+	/**
+	 * This gets the allowMultiple
+	 * @return the allowMultiple
+	 */
+	public Boolean getAllowMultiple() {
+		return this.allowMultiple;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		ApiParameter that = (ApiParameter) o;
+		return Objects.equal(this.paramType, that.paramType) && Objects.equal(this.name, that.name) && Objects.equal(this.description, that.description)
+				&& Objects.equal(this.type, that.type) && Objects.equal(this.format, that.format) && Objects.equal(this.allowableValues, that.allowableValues)
+				&& Objects.equal(this.allowMultiple, that.allowMultiple);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.paramType, this.name, this.description, this.type, this.format, this.allowableValues, this.allowMultiple);
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this).add("paramType", this.paramType).add("name", this.name).add("description", this.description).add("type", this.type)
+				.add("format", this.format).add("enum", this.allowableValues).add("allowMultiple", this.allowMultiple).toString();
+	}
 }
