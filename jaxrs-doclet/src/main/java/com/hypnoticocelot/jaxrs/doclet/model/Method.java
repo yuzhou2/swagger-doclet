@@ -8,8 +8,8 @@ public class Method {
 	private String methodName;
 	private List<ApiParameter> apiParameters;
 	private List<ApiResponseMessage> responseMessages;
-	private String firstSentence;
-	private String comment;
+	private String summary;
+	private String notes;
 	private String returnType;
 	private String path;
 
@@ -23,14 +23,14 @@ public class Method {
 	}
 
 	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
-			String firstSentence, String comment, String returnType, List<String> consumes, List<String> produces, OperationAuthorizations authorizations) {
+			String summary, String notes, String returnType, List<String> consumes, List<String> produces, OperationAuthorizations authorizations) {
 		this.method = method;
 		this.methodName = methodName;
 		this.path = path;
 		this.apiParameters = apiParameters;
 		this.responseMessages = responseMessages;
-		this.firstSentence = firstSentence;
-		this.comment = comment;
+		this.summary = summary;
+		this.notes = notes;
 		this.returnType = returnType;
 		this.consumes = consumes;
 		this.produces = produces;
@@ -57,12 +57,20 @@ public class Method {
 		return this.responseMessages;
 	}
 
-	public String getFirstSentence() {
-		return this.firstSentence;
+	/**
+	 * This gets the summary
+	 * @return the summary
+	 */
+	public String getSummary() {
+		return this.summary;
 	}
 
-	public String getComment() {
-		return this.comment;
+	/**
+	 * This gets the notes
+	 * @return the notes
+	 */
+	public String getNotes() {
+		return this.notes;
 	}
 
 	public String getReturnType() {
@@ -111,15 +119,15 @@ public class Method {
 		int result = 1;
 		result = prime * result + ((this.apiParameters == null) ? 0 : this.apiParameters.hashCode());
 		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
-		result = prime * result + ((this.comment == null) ? 0 : this.comment.hashCode());
 		result = prime * result + ((this.consumes == null) ? 0 : this.consumes.hashCode());
-		result = prime * result + ((this.firstSentence == null) ? 0 : this.firstSentence.hashCode());
 		result = prime * result + ((this.method == null) ? 0 : this.method.hashCode());
 		result = prime * result + ((this.methodName == null) ? 0 : this.methodName.hashCode());
+		result = prime * result + ((this.notes == null) ? 0 : this.notes.hashCode());
 		result = prime * result + ((this.path == null) ? 0 : this.path.hashCode());
 		result = prime * result + ((this.produces == null) ? 0 : this.produces.hashCode());
 		result = prime * result + ((this.responseMessages == null) ? 0 : this.responseMessages.hashCode());
 		result = prime * result + ((this.returnType == null) ? 0 : this.returnType.hashCode());
+		result = prime * result + ((this.summary == null) ? 0 : this.summary.hashCode());
 		return result;
 	}
 
@@ -153,25 +161,11 @@ public class Method {
 		} else if (!this.authorizations.equals(other.authorizations)) {
 			return false;
 		}
-		if (this.comment == null) {
-			if (other.comment != null) {
-				return false;
-			}
-		} else if (!this.comment.equals(other.comment)) {
-			return false;
-		}
 		if (this.consumes == null) {
 			if (other.consumes != null) {
 				return false;
 			}
 		} else if (!this.consumes.equals(other.consumes)) {
-			return false;
-		}
-		if (this.firstSentence == null) {
-			if (other.firstSentence != null) {
-				return false;
-			}
-		} else if (!this.firstSentence.equals(other.firstSentence)) {
 			return false;
 		}
 		if (this.method != other.method) {
@@ -182,6 +176,13 @@ public class Method {
 				return false;
 			}
 		} else if (!this.methodName.equals(other.methodName)) {
+			return false;
+		}
+		if (this.notes == null) {
+			if (other.notes != null) {
+				return false;
+			}
+		} else if (!this.notes.equals(other.notes)) {
 			return false;
 		}
 		if (this.path == null) {
@@ -212,6 +213,13 @@ public class Method {
 		} else if (!this.returnType.equals(other.returnType)) {
 			return false;
 		}
+		if (this.summary == null) {
+			if (other.summary != null) {
+				return false;
+			}
+		} else if (!this.summary.equals(other.summary)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -222,8 +230,8 @@ public class Method {
 	@Override
 	public String toString() {
 		return "Method [method=" + this.method + ", methodName=" + this.methodName + ", apiParameters=" + this.apiParameters + ", responseMessages="
-				+ this.responseMessages + ", firstSentence=" + this.firstSentence + ", comment=" + this.comment + ", returnType=" + this.returnType + ", path="
-				+ this.path + ", consumes=" + this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
+				+ this.responseMessages + ", summary=" + this.summary + ", notes=" + this.notes + ", returnType=" + this.returnType + ", path=" + this.path
+				+ ", consumes=" + this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
 	}
 
 }

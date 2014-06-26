@@ -35,7 +35,7 @@ public enum Gender {
 	 * Returns the gender represented by the specified string. Anything starting with an "m" returns MALE, anything starting with "f" returns FEMALE, and
 	 * anything else returns OTHER.
 	 * @param str
-	 * @return
+	 * @return The matching gender or other
 	 */
 	public static Gender getGender(String str) {
 		if (str != null && str.toLowerCase().startsWith("m")) {

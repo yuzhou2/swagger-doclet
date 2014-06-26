@@ -32,8 +32,8 @@ public class Operation {
 		this.type = emptyToNull(AnnotationHelper.typeOf(method.getReturnType())[0]);
 		this.parameters = method.getParameters().isEmpty() ? null : method.getParameters();
 		this.responseMessages = method.getResponseMessages().isEmpty() ? null : method.getResponseMessages();
-		this.summary = emptyToNull(method.getFirstSentence());
-		this.notes = emptyToNull(method.getComment());
+		this.summary = emptyToNull(method.getSummary());
+		this.notes = emptyToNull(method.getNotes());
 		this.consumes = method.getConsumes() == null || method.getConsumes().isEmpty() ? null : method.getConsumes();
 		this.produces = method.getProduces() == null || method.getProduces().isEmpty() ? null : method.getProduces();
 		this.authorizations = method.getAuthorizations();

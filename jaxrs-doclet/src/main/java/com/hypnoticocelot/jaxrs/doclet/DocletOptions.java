@@ -84,6 +84,8 @@ public class DocletOptions {
 				parsedOptions.responseTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-methodCommentTags")) {
 				parsedOptions.methodCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-methodSummaryTags")) {
+				parsedOptions.methodSummaryTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-propertyCommentTags")) {
 				parsedOptions.propertyCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-propertyMinTags")) {
@@ -121,6 +123,7 @@ public class DocletOptions {
 	private List<String> resourceTags;
 	private List<String> responseTypeTags;
 	private List<String> methodCommentTags;
+	private List<String> methodSummaryTags;
 	private List<String> propertyCommentTags;
 
 	private List<String> propertyMinTags;
@@ -183,6 +186,10 @@ public class DocletOptions {
 		this.methodCommentTags = new ArrayList<String>();
 		this.methodCommentTags.add("description");
 		this.methodCommentTags.add("comment");
+
+		this.methodSummaryTags = new ArrayList<String>();
+		this.methodSummaryTags.add("summary");
+		this.methodSummaryTags.add("endpointName");
 
 		this.propertyCommentTags = new ArrayList<String>();
 		this.propertyCommentTags.add("description");
@@ -321,11 +328,19 @@ public class DocletOptions {
 	}
 
 	/**
-	 * This gets a list of javadoc tag names that can be used for the operation description
-	 * @return list of javadoc tag names that can be used for the operation description
+	 * This gets a list of javadoc tag names that can be used for the operation notes
+	 * @return list of javadoc tag names that can be used for the operation notes
 	 */
 	public List<String> getMethodCommentTags() {
 		return this.methodCommentTags;
+	}
+
+	/**
+	 * This gets a list of javadoc tag names that can be used for the operation summary
+	 * @return a list of javadoc tag names that can be used for the operation summary
+	 */
+	public List<String> getMethodSummaryTags() {
+		return this.methodSummaryTags;
 	}
 
 	/**

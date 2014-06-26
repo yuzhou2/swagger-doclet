@@ -206,21 +206,19 @@ public class ApiMethodParser {
 		}
 		String firstSentences = sentences.toString();
 
+		// default plugin behaviour
 		String summary = firstSentences;
-		String comment = this.methodDoc.commentText();
-		comment = comment.replace(summary, "");
+		String notes = this.methodDoc.commentText();
+		notes = notes.replace(summary, "");
 
-		// look for custom comment tags to use instead
-		String customComment = getMethodTagValue(this.options.getMethodCommentTags());
-
-		if (customComment != null) {
-			if (customComment.length() > 70) {
-				summary = customComment.substring(0, 70) + "...";
-				comment = customComment;
-			} else {
-				summary = customComment;
-				comment = "";
-			}
+		// look for custom notes/summary tags to use instead
+		String customNotes = getMethodTagValue(this.options.getMethodCommentTags());
+		if (customNotes != null) {
+			notes = customNotes;
+		}
+		String customSummary = getMethodTagValue(this.options.getMethodSummaryTags());
+		if (customSummary != null) {
+			summary = customSummary;
 		}
 
 		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
@@ -301,7 +299,7 @@ public class ApiMethodParser {
 
 		}
 
-		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, comment, returnType, consumes, produces,
+		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnType, consumes, produces,
 				authorizations);
 	}
 

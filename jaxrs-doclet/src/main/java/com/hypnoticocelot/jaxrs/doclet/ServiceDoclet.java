@@ -41,11 +41,11 @@ public class ServiceDoclet {
 		options.put("-errorTags", 2);
 		options.put("-typesToTreatAsOpaque", 2);
 
-		// swagger 1.2
 		options.put("-responseTypeTags", 2);
 		options.put("-successTags", 2);
 		options.put("-resourceTags", 2);
 		options.put("-methodCommentTags", 2);
+		options.put("-methodSummaryTags", 2);
 		options.put("-propertyCommentTags", 2);
 		options.put("-propertyMinTags", 2);
 		options.put("-propertyMaxTags", 2);
