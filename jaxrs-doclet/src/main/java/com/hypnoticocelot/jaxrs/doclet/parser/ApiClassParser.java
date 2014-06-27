@@ -6,8 +6,6 @@ import static com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper.parsePath;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -59,7 +57,7 @@ public class ApiClassParser {
 		return this.rootPath;
 	}
 
-	public Collection<Api> parse() {
+	public List<Api> parse() {
 		List<Api> apis = new ArrayList<Api>();
 		Map<String, Collection<Method>> apiMethods = new HashMap<String, Collection<Method>>();
 
@@ -103,12 +101,6 @@ public class ApiClassParser {
 			}));
 			apis.add(new Api(apiEntries.getKey(), "", operations));
 		}
-		Collections.sort(apis, new Comparator<Api>() {
-
-			public int compare(Api o1, Api o2) {
-				return o1.getPath().compareTo(o2.getPath());
-			}
-		});
 		return apis;
 	}
 

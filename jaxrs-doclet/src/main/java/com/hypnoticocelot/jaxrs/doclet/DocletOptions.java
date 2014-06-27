@@ -70,6 +70,12 @@ public class DocletOptions {
 				parsedOptions.includeSwaggerUi = false;
 			} else if (option[0].equals("-crossClassResources")) {
 				parsedOptions.crossClassResources = true;
+			} else if (option[0].equals("-sortApisByPath")) {
+				parsedOptions.sortApisByPath = true;
+			} else if (option[0].equals("-sortResourcesByPath")) {
+				parsedOptions.sortResourcesByPath = true;
+			} else if (option[0].equals("-sortResourcesByPriority")) {
+				parsedOptions.sortResourcesByPriority = true;
 			} else if (option[0].equals("-errorTags")) {
 				parsedOptions.errorTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-successTags")) {
@@ -136,8 +142,14 @@ public class DocletOptions {
 	private List<String> authOperationScopes; // default scopes to add if authOperationTags is present but no scopes
 	private List<String> operationScopeTags; // explicit scopes that are required for authorization for a method
 
+	private List<String> resourcePriorityTags;
+	private List<String> resourceDescriptionTags;
+
 	private boolean parseModels = true;
 	private boolean crossClassResources = false;
+	private boolean sortResourcesByPath = false;
+	private boolean sortResourcesByPriority = false;
+	private boolean sortApisByPath = true;
 
 	private ApiAuthorizations apiAuthorizations;
 
@@ -223,6 +235,13 @@ public class DocletOptions {
 		this.operationScopeTags.add("oauth2Scope");
 
 		this.authOperationScopes = new ArrayList<String>();
+
+		this.resourcePriorityTags = new ArrayList<String>();
+		this.resourcePriorityTags.add("resourcePriority");
+		this.resourcePriorityTags.add("resourceOrder");
+
+		this.resourceDescriptionTags = new ArrayList<String>();
+		this.resourceDescriptionTags.add("resourceDescription");
 
 		this.translator = new FirstNotNullTranslator()
 				.addNext(
@@ -352,6 +371,22 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This gets list of javadoc tag names that can be used for ordering resources in the resource listing
+	 * @return the list of javadoc tag names that can be used for ordering resources in the resource listing
+	 */
+	public List<String> getResourcePriorityTags() {
+		return this.resourcePriorityTags;
+	}
+
+	/**
+	 * This gets list of javadoc tag names that can be used for the description of resources
+	 * @return the list of javadoc tag names that can be used for the description of resources
+	 */
+	public List<String> getResourceDescriptionTags() {
+		return this.resourceDescriptionTags;
+	}
+
+	/**
 	 * This gets the propertyMinTags
 	 * @return the propertyMinTags
 	 */
@@ -422,6 +457,60 @@ public class DocletOptions {
 
 	public DocletOptions setTranslator(Translator translator) {
 		this.translator = translator;
+		return this;
+	}
+
+	/**
+	 * This gets the sortResourcesByPath
+	 * @return the sortResourcesByPath
+	 */
+	public boolean isSortResourcesByPath() {
+		return this.sortResourcesByPath;
+	}
+
+	/**
+	 * This sets the sortResourcesByPath
+	 * @param sortResourcesByPath the sortResourcesByPath to set
+	 * @return this
+	 */
+	public DocletOptions setSortResourcesByPath(boolean sortResourcesByPath) {
+		this.sortResourcesByPath = sortResourcesByPath;
+		return this;
+	}
+
+	/**
+	 * This gets the sortResourcesByPriority
+	 * @return the sortResourcesByPriority
+	 */
+	public boolean isSortResourcesByPriority() {
+		return this.sortResourcesByPriority;
+	}
+
+	/**
+	 * This sets the sortResourcesByPriority
+	 * @param sortResourcesByPriority the sortResourcesByPriority to set
+	 * @return this
+	 */
+	public DocletOptions setSortResourcesByPriority(boolean sortResourcesByPriority) {
+		this.sortResourcesByPriority = sortResourcesByPriority;
+		return this;
+	}
+
+	/**
+	 * This gets the sortOperationsByPath
+	 * @return the sortOperationsByPath
+	 */
+	public boolean isSortApisByPath() {
+		return this.sortApisByPath;
+	}
+
+	/**
+	 * This sets the sortApisByPath
+	 * @param sortApisByPath the sortApisByPath to set
+	 * @return this
+	 */
+	public DocletOptions setSortApisByPath(boolean sortApisByPath) {
+		this.sortApisByPath = sortApisByPath;
 		return this;
 	}
 

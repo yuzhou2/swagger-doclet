@@ -4,8 +4,7 @@
     "basePath": "http://localhost:8080",
     "apis": [
         {
-            "path": "/oauth2.{format}",
-            "description": ""
+            "path": "/oauth2.{format}"
         }
     ],
     "authorizations": {

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,23 +45,40 @@ public class JaxRsAnnotationParser {
 	public boolean run() {
 		try {
 
-			Collection<ApiDeclaration> declarations = null;
+			List<ApiDeclaration> declarations = null;
 
 			if (this.options.isCrossClassResources()) {
-				// parse with the v2 parser that supports enpoints of the same resource being spread across resource files
+				// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
 				Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
 				for (ClassDoc classDoc : this.rootDoc.classes()) {
 					CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, SWAGGER_VERSION, this.options.getApiVersion(),
 							this.options.getApiBasePath());
 					classParser.parse(resourceToDeclaration);
 				}
-				declarations = resourceToDeclaration.values();
+				Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();
+
+				declarations = new ArrayList<ApiDeclaration>(declarationColl);
+
 			} else {
 				// use the original parse mode which treats each resource as a separate api
 				declarations = new ArrayList<ApiDeclaration>();
 				for (ClassDoc classDoc : this.rootDoc.classes()) {
+
+					// look for a class level priority tag for the resource listing
+					int priorityVal = Integer.MAX_VALUE;
+					String priority = AnnotationHelper.getTagValue(classDoc, this.options.getResourcePriorityTags());
+					if (priority != null) {
+						try {
+							priorityVal = Integer.parseInt(priority);
+						} catch (NumberFormatException ex) {
+							System.err.println("Warning invalid priority tag value: " + priority + " on class doc: " + classDoc);
+						}
+					}
+					// look for a class level description tag for the resource listing
+					String description = AnnotationHelper.getTagValue(classDoc, this.options.getResourceDescriptionTags());
+
 					ApiClassParser classParser = new ApiClassParser(this.options, classDoc, Arrays.asList(this.rootDoc.classes()));
-					Collection<Api> apis = classParser.parse();
+					List<Api> apis = classParser.parse();
 					if (apis.isEmpty()) {
 						continue;
 					}
@@ -74,9 +93,49 @@ public class JaxRsAnnotationParser {
 					// The idea (and need) for the declaration is that "/foo" and "/foo/annotated" are stored in separate
 					// Api classes but are part of the same resource.
 					declarations.add(new ApiDeclaration(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath(),
-							classParser.getRootPath(), apis, models));
+							classParser.getRootPath(), apis, models, priorityVal, description));
 				}
 			}
+
+			// sort the api declarations if needed
+			if (this.options.isSortResourcesByPriority()) {
+				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
+
+					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
+						return Integer.valueOf(dec1.getPriority()).compareTo(dec2.getPriority());
+					}
+
+				});
+			} else if (this.options.isSortResourcesByPath()) {
+				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
+
+					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
+						if (dec1 == null) {
+							return -1;
+						}
+						return dec1.getDescription().compareTo(dec2.getDescription());
+					}
+
+				});
+			}
+
+			// sort apis of each declaration
+			if (this.options.isSortApisByPath()) {
+				for (ApiDeclaration dec : declarations) {
+					if (dec.getApis() != null) {
+						Collections.sort(dec.getApis(), new Comparator<Api>() {
+
+							public int compare(Api o1, Api o2) {
+								if (o1 == null || o1.getPath() == null) {
+									return -1;
+								}
+								return o1.getPath().compareTo(o2.getPath());
+							}
+						});
+					}
+				}
+			}
+
 			writeApis(declarations);
 			return true;
 		} catch (IOException e) {
@@ -92,7 +151,7 @@ public class JaxRsAnnotationParser {
 			String resourcePath = api.getResourcePath();
 			if (!Strings.isNullOrEmpty(resourcePath)) {
 				String resourceName = resourcePath.replaceFirst("/", "").replaceAll("/", "_").replaceAll("[\\{\\}]", "");
-				resources.add(new ResourceListingAPI("/" + resourceName + ".{format}", ""));
+				resources.add(new ResourceListingAPI("/" + resourceName + ".{format}", api.getDescription()));
 				File apiFile = new File(outputDirectory, resourceName + ".json");
 				recorder.record(apiFile, api);
 			}

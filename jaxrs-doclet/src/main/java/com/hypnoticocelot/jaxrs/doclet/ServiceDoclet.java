@@ -70,6 +70,10 @@ public class ServiceDoclet {
 		// where operations in an api can be spread across multiple resource classes
 		options.put("-crossClassResources", 1);
 
+		options.put("-sortResourcesByPath", 1);
+		options.put("-sortResourcesByPriority", 1);
+		options.put("-sortApisByPath", 1);
+
 		Integer value = options.get(option);
 		if (value != null) {
 			return value;

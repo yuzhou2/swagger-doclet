@@ -1,6 +1,7 @@
 package com.hypnoticocelot.jaxrs.doclet.parser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -8,6 +9,7 @@ import com.hypnoticocelot.jaxrs.doclet.DocletOptions;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
 public class AnnotationHelper {
@@ -199,11 +201,81 @@ public class AnnotationHelper {
 		return null;
 	}
 
+	/**
+	 * This gets whether the given type is primitive
+	 * @param type The type to check
+	 * @return True if the given type is primitive
+	 */
 	public static boolean isPrimitive(Type type) {
 		if (type == null) {
 			return false;
 		}
 		return PRIMITIVES.contains(typeOf(type.qualifiedTypeName())[0]);
+	}
+
+	/**
+	 * This gets whether the given item has any of the given tags
+	 * @param item The javadoc item
+	 * @param matchTags The names of the tags to look for
+	 * @return True if the item has any of the given tags
+	 */
+	public static boolean hasTag(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+		if (matchTags != null) {
+			for (String matchTag : matchTags) {
+				Tag[] tags = item.tags(matchTag);
+				if (tags != null && tags.length > 0) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This gets the value of the first tag found from the given collection of tag names
+	 * @param item The item to get the tag value of
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @return The value of the first tag found with the name in the given collection
+	 */
+	public static String getTagValue(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+		String customValue = null;
+		if (matchTags != null) {
+			for (String matchTag : matchTags) {
+				Tag[] tags = item.tags(matchTag);
+				if (tags != null && tags.length > 0) {
+					customValue = tags[0].text().trim();
+					break;
+				}
+			}
+		}
+		return customValue;
+	}
+
+	/**
+	 * This gets values of any of the javadoc tags that are in the given collection
+	 * @param item The javadoc item to get the tags of
+	 * @param matchTags The names of the tags to get
+	 * @return A list of tag values or null if none were found
+	 */
+	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+		List<String> res = null;
+		if (matchTags != null) {
+			for (String matchTag : matchTags) {
+				Tag[] tags = item.tags(matchTag);
+				if (tags != null && tags.length > 0) {
+					for (Tag tag : tags) {
+						if (res == null) {
+							res = new ArrayList<String>();
+						}
+						String customValue = tag.text().trim();
+						if (customValue.length() > 0) {
+							res.add(customValue);
+						}
+					}
+				}
+			}
+		}
+		return res == null || res.isEmpty() ? null : res;
 	}
 
 	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {

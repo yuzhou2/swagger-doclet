@@ -116,10 +116,29 @@ public class CrossClassApiParser {
 
 			ApiDeclaration declaration = declarations.get(resourcePath);
 			if (declaration == null) {
-				declaration = new ApiDeclaration(this.swaggerVersion, this.apiVersion, this.basePath, resourcePath, null, null);
+				declaration = new ApiDeclaration(this.swaggerVersion, this.apiVersion, this.basePath, resourcePath, null, null, Integer.MAX_VALUE, null);
 				declaration.setApis(new ArrayList<Api>());
 				declaration.setModels(new HashMap<String, Model>());
 				declarations.put(resourcePath, declaration);
+			}
+
+			// look for a method level priority tag for the resource listing and set on the resource if the resource hasnt had one set
+			int priorityVal = Integer.MAX_VALUE;
+			String priority = AnnotationHelper.getTagValue(method, this.options.getResourcePriorityTags());
+			if (priority != null) {
+				try {
+					priorityVal = Integer.parseInt(priority);
+				} catch (NumberFormatException ex) {
+					System.err.println("Warning invalid priority tag value: " + priority + " on method doc: " + method);
+				}
+			}
+			if (priorityVal > 0 && declaration.getPriority() <= 0) {
+				declaration.setPriority(priorityVal);
+			}
+			// look for a method level description tag for the resource listing and set on the resource if the resource hasnt had one set
+			String description = AnnotationHelper.getTagValue(method, this.options.getResourceDescriptionTags());
+			if (description != null && declaration.getDescription() == null) {
+				declaration.setDescription(description);
 			}
 
 			// find api this method should be added to

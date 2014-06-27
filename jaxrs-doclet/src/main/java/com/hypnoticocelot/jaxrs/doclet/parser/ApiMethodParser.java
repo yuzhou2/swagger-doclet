@@ -177,7 +177,7 @@ public class ApiMethodParser {
 
 		// look for a custom return type, this is useful where we return a jaxrs Response
 		// but typically return a different object
-		String customReturnType = getMethodTagValue(this.options.getResponseTypeTags());
+		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
 
 		if (customReturnType != null) {
 			// find a corresponding @see tag which we can use to obtain a
@@ -212,11 +212,11 @@ public class ApiMethodParser {
 		notes = notes.replace(summary, "");
 
 		// look for custom notes/summary tags to use instead
-		String customNotes = getMethodTagValue(this.options.getMethodCommentTags());
+		String customNotes = AnnotationHelper.getTagValue(this.methodDoc, this.options.getMethodCommentTags());
 		if (customNotes != null) {
 			notes = customNotes;
 		}
-		String customSummary = getMethodTagValue(this.options.getMethodSummaryTags());
+		String customSummary = AnnotationHelper.getTagValue(this.methodDoc, this.options.getMethodSummaryTags());
 		if (customSummary != null) {
 			summary = customSummary;
 		}
@@ -244,12 +244,12 @@ public class ApiMethodParser {
 		// in this case set the authentication object to {} to indicate we override
 		// at the operation level
 		// a) if method has an explicit unauth tag
-		if (methodHasTag(this.options.getUnauthOperationTags())) {
+		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getUnauthOperationTags())) {
 			authorizations = new OperationAuthorizations();
 		} else {
 
 			// otherwise if method has scope tags then add those to indicate method requires scope
-			List<String> scopeValues = getMethodTagValues(this.options.getOperationScopeTags());
+			List<String> scopeValues = AnnotationHelper.getTagValues(this.methodDoc, this.options.getOperationScopeTags());
 			if (scopeValues != null) {
 				List<Oauth2Scope> oauth2Scopes = new ArrayList<Oauth2Scope>();
 				for (String scopeVal : scopeValues) {
@@ -266,7 +266,7 @@ public class ApiMethodParser {
 			// if not scopes see if its auth and whether we need to add default scope to it
 			if (scopeValues == null || scopeValues.isEmpty()) {
 				// b) if method has an auth tag that starts with one of the known values that indicates whether auth required.
-				String authSpec = getMethodTagValue(this.options.getAuthOperationTags());
+				String authSpec = AnnotationHelper.getTagValue(this.methodDoc, this.options.getAuthOperationTags());
 				if (authSpec != null) {
 
 					boolean unauthFound = false;
@@ -305,53 +305,6 @@ public class ApiMethodParser {
 
 	public Set<Model> models() {
 		return this.models;
-	}
-
-	private boolean methodHasTag(Collection<String> matchTags) {
-		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = this.methodDoc.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private String getMethodTagValue(Collection<String> matchTags) {
-		String customValue = null;
-		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = this.methodDoc.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					customValue = tags[0].text().trim();
-					break;
-				}
-			}
-		}
-		return customValue;
-	}
-
-	private List<String> getMethodTagValues(Collection<String> matchTags) {
-		List<String> res = null;
-		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = this.methodDoc.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					for (Tag tag : tags) {
-						if (res == null) {
-							res = new ArrayList<String>();
-						}
-						String customValue = tag.text().trim();
-						if (customValue.length() > 0) {
-							res.add(customValue);
-						}
-					}
-				}
-			}
-		}
-		return res == null || res.isEmpty() ? null : res;
 	}
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {

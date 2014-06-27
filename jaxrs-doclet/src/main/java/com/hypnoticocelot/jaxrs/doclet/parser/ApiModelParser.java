@@ -21,7 +21,6 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParameterizedType;
-import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
 public class ApiModelParser {
@@ -148,7 +147,7 @@ public class ApiModelParser {
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem) {
 		// method
-		String description = getDocItemTag(docItem, this.options.getPropertyCommentTags());
+		String description = AnnotationHelper.getTagValue(docItem, this.options.getPropertyCommentTags());
 		if (description == null) {
 			description = docItem.commentText();
 		}
@@ -159,28 +158,11 @@ public class ApiModelParser {
 	}
 
 	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		return getDocItemTag(docItem, this.options.getPropertyMinTags());
+		return AnnotationHelper.getTagValue(docItem, this.options.getPropertyMinTags());
 	}
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		return getDocItemTag(docItem, this.options.getPropertyMaxTags());
-	}
-
-	private String getDocItemTag(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
-		String customValue = null;
-		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = item.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					String val = tags[0].text().trim();
-					if (val.trim().length() > 0) {
-						customValue = val;
-						break;
-					}
-				}
-			}
-		}
-		return customValue;
+		return AnnotationHelper.getTagValue(docItem, this.options.getPropertyMaxTags());
 	}
 
 	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types) {
