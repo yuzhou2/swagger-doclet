@@ -99,6 +99,7 @@ public class JaxRsAnnotationParser {
 
 			// sort the api declarations if needed
 			if (this.options.isSortResourcesByPriority()) {
+
 				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
 
 					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
@@ -106,6 +107,7 @@ public class JaxRsAnnotationParser {
 					}
 
 				});
+
 			} else if (this.options.isSortResourcesByPath()) {
 				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
 

@@ -132,7 +132,7 @@ public class CrossClassApiParser {
 					System.err.println("Warning invalid priority tag value: " + priority + " on method doc: " + method);
 				}
 			}
-			if (priorityVal > 0 && declaration.getPriority() <= 0) {
+			if (priorityVal != Integer.MAX_VALUE && declaration.getPriority() == Integer.MAX_VALUE) {
 				declaration.setPriority(priorityVal);
 			}
 			// look for a method level description tag for the resource listing and set on the resource if the resource hasnt had one set
