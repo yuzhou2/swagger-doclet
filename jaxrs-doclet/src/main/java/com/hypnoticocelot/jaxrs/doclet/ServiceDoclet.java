@@ -38,11 +38,13 @@ public class ServiceDoclet {
 		options.put("-swaggerUiZipPath", 2);
 		options.put("-excludeParamAnnotations", 2);
 		options.put("-disableModels", 1);
-		options.put("-errorTags", 2);
 		options.put("-typesToTreatAsOpaque", 2);
 
 		options.put("-responseTypeTags", 2);
+		options.put("-defaultErrorTypeTags", 2);
 		options.put("-successTags", 2);
+		options.put("-errorTags", 2);
+
 		options.put("-resourceTags", 2);
 		options.put("-methodCommentTags", 2);
 		options.put("-methodSummaryTags", 2);

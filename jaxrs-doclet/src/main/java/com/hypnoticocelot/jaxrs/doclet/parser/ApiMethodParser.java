@@ -51,8 +51,10 @@ public class ApiMethodParser {
 	private final HttpMethod httpMethod;
 	private final Method parentMethod;
 	private final Map<String, Type> classSeeTypes;
+	private final String classDefaultErrorType;
+	private final String methodDefaultErrorType;
 
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Map<String, Type> classSeeTypes) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Map<String, Type> classSeeTypes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -61,9 +63,11 @@ public class ApiMethodParser {
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentMethod = null;
 		this.classSeeTypes = classSeeTypes;
+		this.classDefaultErrorType = classDefaultErrorType;
+		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Map<String, Type> classSeeTypes) {
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Map<String, Type> classSeeTypes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.methodDoc = methodDoc;
@@ -72,6 +76,8 @@ public class ApiMethodParser {
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
 		this.classSeeTypes = classSeeTypes;
+		this.classDefaultErrorType = classDefaultErrorType;
+		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
 	public Method parse() {
@@ -165,6 +171,17 @@ public class ApiMethodParser {
 							if (matcher.groupCount() > 2) {
 								responseModelClass = trimLeadingChars(matcher.group(3), '`');
 							}
+							// for errors, if no custom one use the method level one if there is one
+							if (statusCode >= 400) {
+								if (responseModelClass == null) {
+									responseModelClass = this.methodDefaultErrorType;
+								}
+								// for errors, if no custom one use the class level one if there is one
+								if (responseModelClass == null) {
+									responseModelClass = this.classDefaultErrorType;
+								}
+							}
+
 							String responseModel = null;
 							if (responseModelClass != null) {
 								Type responseType = seeTypes.get(responseModelClass);
@@ -187,15 +204,17 @@ public class ApiMethodParser {
 			}
 		}
 
-		// return type
+		// ************************************
+		// Return type
+		// ************************************
 		Type type = this.methodDoc.returnType();
 		String returnType = this.translator.typeName(type).value();
 		if (this.options.isParseModels()) {
 			this.models.addAll(new ApiModelParser(this.options, this.translator, type).parse());
 		}
 
-		// look for a custom return type, this is useful where we return a jaxrs Response
-		// but typically return a different object
+		// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
+		// but typically return a different object in its entity (such as for a 201 created response)
 		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
 		if (customReturnType != null) {
 			// lookup the type from see tags and use that for return type
@@ -209,6 +228,9 @@ public class ApiMethodParser {
 			}
 		}
 
+		// ************************************
+		// Summary and notes
+		// ************************************
 		// First Sentence of Javadoc method description
 		Tag[] fst = this.methodDoc.firstSentenceTags();
 		StringBuilder sentences = new StringBuilder();
@@ -231,9 +253,6 @@ public class ApiMethodParser {
 		if (customSummary != null) {
 			summary = customSummary;
 		}
-
-		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
-		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
 
 		// ************************************
 		// Auth support
@@ -310,10 +329,21 @@ public class ApiMethodParser {
 
 		}
 
+		// ************************************
+		// Produces & consumes
+		// ************************************
+		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
+		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
+
+		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnType, consumes, produces,
 				authorizations);
 	}
 
+	/**
+	 * This gets the parsed models found for this method
+	 * @return the set of parsed models found for this method
+	 */
 	public Set<Model> models() {
 		return this.models;
 	}

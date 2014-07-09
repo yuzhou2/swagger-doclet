@@ -97,6 +97,8 @@ public class DocletOptions {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
 				parsedOptions.responseTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-defaultErrorTypeTags")) {
+				parsedOptions.defaultErrorTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-methodCommentTags")) {
 				parsedOptions.methodCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-methodSummaryTags")) {
@@ -133,10 +135,12 @@ public class DocletOptions {
 	private List<String> typesToTreatAsOpaque;
 	private List<String> errorTags;
 	private List<String> successTags;
+	private List<String> responseTypeTags;
+	private List<String> defaultErrorTypeTags;
+
 	private List<String> excludeParamAnnotations;
 	private List<String> excludeMethodTags;
 	private List<String> resourceTags;
-	private List<String> responseTypeTags;
 	private List<String> methodCommentTags;
 	private List<String> methodSummaryTags;
 	private List<String> propertyCommentTags;
@@ -207,6 +211,9 @@ public class DocletOptions {
 		this.responseTypeTags = new ArrayList<String>();
 		this.responseTypeTags.add("responseType");
 		this.responseTypeTags.add("outputType");
+
+		this.defaultErrorTypeTags = new ArrayList<String>();
+		this.defaultErrorTypeTags.add("defaultErrorType");
 
 		this.methodCommentTags = new ArrayList<String>();
 		this.methodCommentTags.add("description");
@@ -361,6 +368,14 @@ public class DocletOptions {
 	 */
 	public List<String> getResponseTypeTags() {
 		return this.responseTypeTags;
+	}
+
+	/**
+	 * This gets the defaultErrorTypeTags
+	 * @return the defaultErrorTypeTags
+	 */
+	public List<String> getDefaultErrorTypeTags() {
+		return this.defaultErrorTypeTags;
 	}
 
 	/**

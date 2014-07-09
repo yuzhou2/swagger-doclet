@@ -15,7 +15,8 @@
                     "responseMessages": [
                         {
                             "code": 404,
-                            "message": "not found"
+                            "message": "not found",
+                            "responseModel" : "Response2"
                         }
                     ]
                 },
@@ -42,11 +43,13 @@
                     "responseMessages": [
                         {
                             "code": 401,
-                            "message": "not authA"
+                            "message": "not authA",
+                            "responseModel" : "Response3"
                         },
                         {
                             "code": 401,
-                            "message": "not authB"
+                            "message": "not authB",
+                            "responseModel" : "Response3"
                         },
                         {
                             "code": 401,
@@ -63,8 +66,24 @@
         }
     ],
     "models": {
+        "Response2": {
+            "id": "Response2",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "Response1": {
             "id": "Response1",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response3": {
+            "id": "Response3",
             "properties": {
                 "value": {
                     "type": "string"

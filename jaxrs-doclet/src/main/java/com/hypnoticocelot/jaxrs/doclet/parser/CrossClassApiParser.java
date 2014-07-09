@@ -16,6 +16,7 @@ import static com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper.parsePath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,10 +79,20 @@ public class CrossClassApiParser {
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
 
+		// read the class see tags
 		Map<String, Type> seeTypes = AnnotationHelper.readSeeTypes(this.classDoc);
 
+		// read default error type for class
+		String defaultErrorTypeClass = AnnotationHelper.getTagValue(this.classDoc, this.options.getDefaultErrorTypeTags());
+		Type defaultErrorType = seeTypes.get(defaultErrorTypeClass);
+
+		Set<Model> classModels = new HashSet<Model>();
+		if (this.options.isParseModels() && defaultErrorType != null) {
+			classModels.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
+		}
+
 		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method, seeTypes);
+			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method, seeTypes, defaultErrorTypeClass);
 			Method parsedMethod = methodParser.parse();
 			if (parsedMethod == null) {
 				continue;
@@ -105,6 +116,7 @@ public class CrossClassApiParser {
 			}
 
 			Set<Model> methodModels = methodParser.models();
+			methodModels.addAll(classModels);
 			Map<String, Model> idToModels = Collections.emptyMap();
 			try {
 				idToModels = uniqueIndex(methodModels, new Function<Model, String>() {

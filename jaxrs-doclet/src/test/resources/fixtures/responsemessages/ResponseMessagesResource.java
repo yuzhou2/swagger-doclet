@@ -17,6 +17,9 @@ import javax.ws.rs.Path;
  * @version $Id$
  * @author conor.roche
  * @see fixtures.responsemessages.Response1
+ * @see fixtures.responsemessages.Response2
+ * @see fixtures.responsemessages.Response3
+ * @defaultErrorType fixtures.responsemessages.Response2
  */
 @Path("/responsemessages")
 public class ResponseMessagesResource {
@@ -39,6 +42,7 @@ public class ResponseMessagesResource {
 	}
 
 	/**
+	 * @defaultErrorType fixtures.responsemessages.Response3
 	 * @successCode 200|ok
 	 * @errorCode 401|not authA
 	 * @errorCode 401|-|not authB
