@@ -36,7 +36,7 @@ public class ServiceDoclet {
 		options.put("-apiBasePath", 2);
 		options.put("-apiVersion", 2);
 		options.put("-swaggerUiZipPath", 2);
-		options.put("-excludeAnnotationClasses", 2);
+		options.put("-excludeParamAnnotations", 2);
 		options.put("-disableModels", 1);
 		options.put("-errorTags", 2);
 		options.put("-typesToTreatAsOpaque", 2);
@@ -70,6 +70,12 @@ public class ServiceDoclet {
 		// where operations in an api can be spread across multiple resource classes
 		options.put("-crossClassResources", 1);
 
+		// control deprecation exclusion
+		options.put("-disableDeprecatedMethodExclusion", 1);
+		options.put("-disableDeprecatedFieldExclusion", 1);
+		options.put("-disableDeprecatedParamExclusion", 1);
+
+		// sort options
 		options.put("-sortResourcesByPath", 1);
 		options.put("-sortResourcesByPriority", 1);
 		options.put("-sortApisByPath", 1);

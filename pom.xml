@@ -15,7 +15,7 @@
 
 	<modules>
 		<module>jaxrs-doclet</module>
-		<!-- <module>jaxrs-doclet-sample-dropwizard</module> -->
+		<module>jaxrs-doclet-sample-dropwizard</module>
 	</modules>
 
 	<developers>
@@ -111,6 +111,9 @@
 	<properties>
 		<dropwizard.version>0.6.2</dropwizard.version>
 		<orig.jackson.version>1.9.2</orig.jackson.version>
+		<jackson.version>2.1.4</jackson.version>
+		<guava.version>14.0.1</guava.version>
+		<jersey.version>1.17.1</jersey.version>
 	</properties>
 
 	<dependencies>
@@ -119,25 +122,25 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.1.4</version>
+			<version>${jackson.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
+			<version>${guava.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>${jersey.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-core</artifactId>
-			<version>1.17.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

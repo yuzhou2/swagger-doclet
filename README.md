@@ -61,7 +61,7 @@ An example project using Dropwizard is included in `jaxrs-doclet-sample-dropwiza
 ```
 $ cd jaxrs-doclet-sample-dropwizard
 $ mvn package
-$ java -jar target/jaxrs-doclet-sample-dropwizard-0.0.4-SNAPSHOT.jar server sample.yml
+$ java -jar target/jaxrs-doclet-sample-dropwizard-0.0.4_carma-SNAPSHOT.jar server sample.yml
 ```
 
 The example server should be running on port 8080:

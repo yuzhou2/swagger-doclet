@@ -62,8 +62,8 @@ public class DocletOptions {
 				parsedOptions.apiVersion = option[1];
 			} else if (option[0].equals("-swaggerUiZipPath")) {
 				parsedOptions.swaggerUiZipPath = option[1];
-			} else if (option[0].equals("-excludeAnnotationClasses")) {
-				parsedOptions.excludeAnnotationClasses.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeParamAnnotations")) {
+				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
 			} else if (option[0].equals("-disableCopySwaggerUi")) {
@@ -76,6 +76,12 @@ public class DocletOptions {
 				parsedOptions.sortResourcesByPath = true;
 			} else if (option[0].equals("-sortResourcesByPriority")) {
 				parsedOptions.sortResourcesByPriority = true;
+			} else if (option[0].equals("-disableDeprecatedMethodExclusion")) {
+				parsedOptions.excludeDeprecatedMethods = false;
+			} else if (option[0].equals("-disableDeprecatedFieldExclusion")) {
+				parsedOptions.excludeDeprecatedFields = false;
+			} else if (option[0].equals("-disableDeprecatedParamExclusion")) {
+				parsedOptions.excludeDeprecatedParams = false;
 			} else if (option[0].equals("-errorTags")) {
 				parsedOptions.errorTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-successTags")) {
@@ -124,7 +130,7 @@ public class DocletOptions {
 	private List<String> typesToTreatAsOpaque;
 	private List<String> errorTags;
 	private List<String> successTags;
-	private List<String> excludeAnnotationClasses;
+	private List<String> excludeParamAnnotations;
 	private List<String> excludeMethodTags;
 	private List<String> resourceTags;
 	private List<String> responseTypeTags;
@@ -145,6 +151,10 @@ public class DocletOptions {
 	private List<String> resourcePriorityTags;
 	private List<String> resourceDescriptionTags;
 
+	private boolean excludeDeprecatedMethods = true;
+	private boolean excludeDeprecatedFields = true;
+	private boolean excludeDeprecatedParams = true;
+
 	private boolean parseModels = true;
 	private boolean crossClassResources = false;
 	private boolean sortResourcesByPath = false;
@@ -162,9 +172,9 @@ public class DocletOptions {
 	 * This creates a DocletOptions
 	 */
 	public DocletOptions() {
-		this.excludeAnnotationClasses = new ArrayList<String>();
-		this.excludeAnnotationClasses.add("javax.ws.rs.HeaderParam");
-		this.excludeAnnotationClasses.add("javax.ws.rs.core.Context");
+		this.excludeParamAnnotations = new ArrayList<String>();
+		this.excludeParamAnnotations.add("javax.ws.rs.HeaderParam");
+		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 
 		this.errorTags = new ArrayList<String>();
 		this.errorTags.add("errorResponse"); // swagger 1.1
@@ -280,10 +290,6 @@ public class DocletOptions {
 		return this.swaggerUiZipPath;
 	}
 
-	public List<String> getExcludeAnnotationClasses() {
-		return this.excludeAnnotationClasses;
-	}
-
 	public List<String> getErrorTags() {
 		return this.errorTags;
 	}
@@ -302,6 +308,14 @@ public class DocletOptions {
 	 */
 	public List<String> getExcludeMethodTags() {
 		return this.excludeMethodTags;
+	}
+
+	/**
+	 * This gets the excludeParamAnnotations
+	 * @return the excludeParamAnnotations
+	 */
+	public List<String> getExcludeParamAnnotations() {
+		return this.excludeParamAnnotations;
 	}
 
 	/**
@@ -529,6 +543,60 @@ public class DocletOptions {
 	 */
 	public DocletOptions setIncludeSwaggerUi(boolean includeSwaggerUi) {
 		this.includeSwaggerUi = includeSwaggerUi;
+		return this;
+	}
+
+	/**
+	 * This gets the excludeDeprecatedMethods
+	 * @return the excludeDeprecatedMethods
+	 */
+	public boolean isExcludeDeprecatedMethods() {
+		return this.excludeDeprecatedMethods;
+	}
+
+	/**
+	 * This sets the excludeDeprecatedMethods
+	 * @param excludeDeprecatedMethods the excludeDeprecatedMethods to set
+	 * @return this
+	 */
+	public DocletOptions setExcludeDeprecatedMethods(boolean excludeDeprecatedMethods) {
+		this.excludeDeprecatedMethods = excludeDeprecatedMethods;
+		return this;
+	}
+
+	/**
+	 * This gets the excludeDeprecatedFields
+	 * @return the excludeDeprecatedFields
+	 */
+	public boolean isExcludeDeprecatedFields() {
+		return this.excludeDeprecatedFields;
+	}
+
+	/**
+	 * This sets the excludeDeprecatedFields
+	 * @param excludeDeprecatedFields the excludeDeprecatedFields to set
+	 * @return this
+	 */
+	public DocletOptions setExcludeDeprecatedFields(boolean excludeDeprecatedFields) {
+		this.excludeDeprecatedFields = excludeDeprecatedFields;
+		return this;
+	}
+
+	/**
+	 * This gets the excludeDeprecatedParams
+	 * @return the excludeDeprecatedParams
+	 */
+	public boolean isExcludeDeprecatedParams() {
+		return this.excludeDeprecatedParams;
+	}
+
+	/**
+	 * This sets the excludeDeprecatedParams
+	 * @param excludeDeprecatedParams the excludeDeprecatedParams to set
+	 * @return this
+	 */
+	public DocletOptions setExcludeDeprecatedParams(boolean excludeDeprecatedParams) {
+		this.excludeDeprecatedParams = excludeDeprecatedParams;
 		return this;
 	}
 

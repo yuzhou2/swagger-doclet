@@ -1,11 +1,15 @@
 package com.hypnoticocelot.jaxrs.doclet.parser;
 
+import static com.google.common.collect.Collections2.filter;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Predicate;
-import com.hypnoticocelot.jaxrs.doclet.DocletOptions;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
@@ -251,6 +255,45 @@ public class AnnotationHelper {
 		return customValue;
 	}
 
+	// TODO
+
+	private static final Set<String> DEPRECATED_TAGS = new HashSet<String>();
+	private static final Set<String> DEPRECATED_ANNOTATIONS = new HashSet<String>();
+	static {
+		DEPRECATED_TAGS.add("deprecated");
+		DEPRECATED_TAGS.add("Deprecated");
+		DEPRECATED_ANNOTATIONS.add("java.lang.Deprecated");
+	}
+
+	/**
+	 * This gets whether the given annotations have one of the deprecated ones
+	 * @param annotations The annotations to check
+	 * @return True if the annotations array contains a deprecated one
+	 */
+	public static boolean hasDeprecated(AnnotationDesc[] annotations) {
+		if (annotations != null && annotations.length > 0) {
+			List<AnnotationDesc> allAnnotations = Arrays.asList(annotations);
+			Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(DEPRECATED_ANNOTATIONS));
+			if (!excluded.isEmpty()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This gets whether the given item is marked as deprecated either via a javadoc tag
+	 * or an annotation
+	 * @param item The item to check
+	 * @return True if the item is flagged as deprecated
+	 */
+	public static boolean isDeprecated(com.sun.javadoc.ProgramElementDoc item) {
+		if (hasTag(item, DEPRECATED_TAGS)) {
+			return true;
+		}
+		return hasDeprecated(item.annotations());
+	}
+
 	/**
 	 * This gets values of any of the javadoc tags that are in the given collection
 	 * @param item The javadoc item to get the tags of
@@ -280,15 +323,15 @@ public class AnnotationHelper {
 
 	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {
 
-		private final DocletOptions options;
+		private final Collection<String> annotationClasses;
 
-		public ExcludedAnnotations(DocletOptions options) {
-			this.options = options;
+		public ExcludedAnnotations(Collection<String> annotationClasses) {
+			this.annotationClasses = annotationClasses;
 		}
 
 		public boolean apply(AnnotationDesc annotationDesc) {
 			String annotationClass = annotationDesc.annotationType().qualifiedTypeName();
-			return this.options.getExcludeAnnotationClasses().contains(annotationClass);
+			return this.annotationClasses.contains(annotationClass);
 		}
 	}
 

@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -93,21 +94,30 @@ public class ApiModelParser {
 		// add fields
 		FieldDoc[] fieldDocs = classDoc.fields();
 
+		Set<String> excludeFields = new HashSet<String>();
+
 		if (fieldDocs != null) {
 			for (FieldDoc field : fieldDocs) {
-				// TODO: remove fields that have excludeFieldTags on them
 
-				// ignore static, transient fields
-				if (!field.isStatic() && !field.isTransient()) {
+				// ignore static or transient fields
+				if (field.isStatic() || field.isTransient()) {
+					continue;
+				}
 
-					String description = getFieldDescription(field);
-					String min = getFieldMin(field);
-					String max = getFieldMax(field);
+				String name = this.translator.fieldName(field).value();
 
-					String name = this.translator.fieldName(field).value();
-					if (name != null && !elements.containsKey(name)) {
-						elements.put(name, new TypeRef(field.type(), description, min, max));
-					}
+				// ignore deprecated fields
+				if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
+					excludeFields.add(name);
+					continue;
+				}
+
+				String description = getFieldDescription(field);
+				String min = getFieldMin(field);
+				String max = getFieldMax(field);
+
+				if (name != null && !elements.containsKey(name)) {
+					elements.put(name, new TypeRef(field.type(), description, min, max));
 				}
 			}
 		}
@@ -118,7 +128,27 @@ public class ApiModelParser {
 			for (MethodDoc method : methodDocs) {
 				String name = this.translator.methodName(method).value();
 				if (name != null) {
+
+					// skip if the field has already been excluded
+					if (excludeFields.contains(name)) {
+						continue;
+					}
+
+					boolean excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+
+					// skip if this method is to be excluded
+					if (excludeMethod) {
+
+						// remove the field if it was found already
+						if (elements.containsKey(name)) {
+							elements.remove(name);
+						}
+
+						continue;
+					}
+
 					if (elements.containsKey(name)) {
+
 						TypeRef typeRef = elements.get(name);
 						// the field was already found e.g. class had a field and this is the getter
 						// check if there are tags on the getter we can use to fill in description, min and max

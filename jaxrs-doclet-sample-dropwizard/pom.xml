@@ -10,10 +10,6 @@
 
     <artifactId>jaxrs-doclet-sample-dropwizard</artifactId>
 
-    <properties>
-        <dropwizard.version>0.6.2</dropwizard.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
@@ -34,6 +30,21 @@
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
     </dependencies>
 

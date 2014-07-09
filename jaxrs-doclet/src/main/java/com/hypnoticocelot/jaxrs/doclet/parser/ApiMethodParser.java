@@ -79,14 +79,14 @@ public class ApiMethodParser {
 			return null;
 		}
 
-		// check we shouldnt exclude from the api doc
-		if (this.options.getExcludeMethodTags() != null) {
-			for (String excludeTag : this.options.getExcludeMethodTags()) {
-				Tag[] tags = this.methodDoc.tags(excludeTag);
-				if (tags != null && tags.length > 0) {
-					return null;
-				}
-			}
+		// exclude if its deprecated and options indicate we shouldnt include deprecated
+		if (this.options.isExcludeDeprecatedMethods() && AnnotationHelper.isDeprecated(this.methodDoc)) {
+			return null;
+		}
+
+		// exclude if it has exclusion tags
+		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getExcludeMethodTags())) {
+			return null;
 		}
 
 		String path = this.parentPath + methodPath;
@@ -309,8 +309,15 @@ public class ApiMethodParser {
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {
 		List<AnnotationDesc> allAnnotations = Arrays.asList(parameter.annotations());
-		Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(this.options));
+
+		// remove any params annotated with exclude param annotations e.g. jaxrs Context
+		Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(this.options.getExcludeParamAnnotations()));
 		if (!excluded.isEmpty()) {
+			return false;
+		}
+
+		// remove any deprecated params
+		if (this.options.isExcludeDeprecatedParams() && AnnotationHelper.hasDeprecated(parameter.annotations())) {
 			return false;
 		}
 
