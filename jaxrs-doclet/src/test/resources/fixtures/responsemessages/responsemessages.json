@@ -1,0 +1,75 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/responsemessages",
+    "apis": [
+        {
+            "path": "/responsemessages",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "swagger11",
+                    "type": "void",
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "not found"
+                        }
+                    ]
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "swagger12",
+                    "type": "void",
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "ok"
+                        },
+                        {
+                            "code": 404,
+                            "message": "not found",
+                            "responseModel" : "Response1"
+                        }
+                    ]
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "carma",
+                    "type": "void",
+                    "responseMessages": [
+                        {
+                            "code": 401,
+                            "message": "not authA"
+                        },
+                        {
+                            "code": 401,
+                            "message": "not authB"
+                        },
+                        {
+                            "code": 401,
+                            "message": "not_authC|If user not authenticated",
+                            "responseModel" : "Response1"
+                        },
+                        {
+                            "code": 200,
+                            "message": "ok"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Response1": {
+            "id": "Response1",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

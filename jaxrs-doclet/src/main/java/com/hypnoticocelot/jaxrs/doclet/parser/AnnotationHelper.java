@@ -5,14 +5,17 @@ import static com.google.common.collect.Collections2.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
@@ -239,7 +242,8 @@ public class AnnotationHelper {
 	 * This gets the value of the first tag found from the given collection of tag names
 	 * @param item The item to get the tag value of
 	 * @param matchTags The collection of tag names of the tag to get a value of
-	 * @return The value of the first tag found with the name in the given collection
+	 * @return The value of the first tag found with the name in the given collection or null if either the tag
+	 *         was not present or had no value
 	 */
 	public static String getTagValue(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
 		String customValue = null;
@@ -248,14 +252,15 @@ public class AnnotationHelper {
 				Tag[] tags = item.tags(matchTag);
 				if (tags != null && tags.length > 0) {
 					customValue = tags[0].text().trim();
+					if (customValue.length() == 0) {
+						customValue = null;
+					}
 					break;
 				}
 			}
 		}
 		return customValue;
 	}
-
-	// TODO
 
 	private static final Set<String> DEPRECATED_TAGS = new HashSet<String>();
 	private static final Set<String> DEPRECATED_ANNOTATIONS = new HashSet<String>();
@@ -319,6 +324,24 @@ public class AnnotationHelper {
 			}
 		}
 		return res == null || res.isEmpty() ? null : res;
+	}
+
+	/**
+	 * This builds a map of FQN to type for all see annotations
+	 * on the given items javadoc
+	 * @param item The item to get the see types of
+	 * @return A map of see types or an empty map if there were no see tags.
+	 */
+	public static Map<String, Type> readSeeTypes(com.sun.javadoc.ProgramElementDoc item) {
+		Map<String, Type> types = new HashMap<String, Type>();
+		SeeTag[] seeTags = item.seeTags();
+		if (seeTags != null) {
+			for (SeeTag seeTag : seeTags) {
+				Type type = seeTag.referencedClass();
+				types.put(seeTag.referencedClassName(), type);
+			}
+		}
+		return types;
 	}
 
 	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {

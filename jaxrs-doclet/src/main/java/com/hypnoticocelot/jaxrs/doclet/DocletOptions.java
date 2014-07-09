@@ -21,6 +21,9 @@ import com.hypnoticocelot.jaxrs.doclet.translator.Translator;
 
 public class DocletOptions {
 
+	/**
+	 * This is the default swagger ui zip path
+	 */
 	public static final String DEFAULT_SWAGGER_UI_ZIP_PATH = "n/a";
 
 	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {

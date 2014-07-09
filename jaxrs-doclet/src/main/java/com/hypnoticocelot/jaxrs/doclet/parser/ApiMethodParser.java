@@ -35,15 +35,13 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
-import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
 public class ApiMethodParser {
 
-	private static final Pattern[] THREE_GROUP_RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+)\\|(.*)\\|(.+)") };
-
-	private static final Pattern[] TWO_GROUP_RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+) (.+)"), Pattern.compile("(\\d+)\\|(.+)") };
+	// pattern that can match a code, a description and an optional response model type
+	private static final Pattern[] RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+)([^`]+)(`.*)?") };
 
 	private final DocletOptions options;
 	private final Translator translator;
@@ -52,8 +50,9 @@ public class ApiMethodParser {
 	private final Set<Model> models;
 	private final HttpMethod httpMethod;
 	private final Method parentMethod;
+	private final Map<String, Type> classSeeTypes;
 
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Map<String, Type> classSeeTypes) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -61,9 +60,10 @@ public class ApiMethodParser {
 		this.models = new LinkedHashSet<Model>();
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentMethod = null;
+		this.classSeeTypes = classSeeTypes;
 	}
 
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc) {
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Map<String, Type> classSeeTypes) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.methodDoc = methodDoc;
@@ -71,6 +71,7 @@ public class ApiMethodParser {
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
+		this.classSeeTypes = classSeeTypes;
 	}
 
 	public Method parse() {
@@ -132,7 +133,15 @@ public class ApiMethodParser {
 			parameters.addAll(this.parentMethod.getParameters());
 		}
 
+		// ************************************
 		// response messages
+		// ************************************
+
+		// build map of types from seeTags
+		Map<String, Type> seeTypes = new HashMap<String, Type>();
+		seeTypes.putAll(AnnotationHelper.readSeeTypes(this.methodDoc));
+		seeTypes.putAll(this.classSeeTypes);
+
 		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
 
 		List<String> responseTags = new ArrayList<String>(this.options.getErrorTags());
@@ -140,62 +149,64 @@ public class ApiMethodParser {
 
 		for (String tagName : responseTags) {
 			for (Tag tagValue : this.methodDoc.tags(tagName)) {
-				// check 3 group patterns
 				boolean matched = false;
-				for (Pattern pattern : THREE_GROUP_RESPONSE_MESSAGE_PATTERNS) {
-					Matcher matcher = pattern.matcher(tagValue.text());
-					if (matcher.find()) {
-						String errorCode = matcher.group(2);
-						String desc = matcher.group(3);
-						if (errorCode.trim().length() > 0 && !errorCode.trim().equals("-")) {
-							desc = errorCode + "|" + desc;
-						}
-						responseMessages.add(new ApiResponseMessage(Integer.valueOf(matcher.group(1)), desc));
-						matched = true;
-						break;
-					}
-				}
 
-				// check 2 group patterns
 				if (!matched) {
-					for (Pattern pattern : TWO_GROUP_RESPONSE_MESSAGE_PATTERNS) {
+					for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
 						Matcher matcher = pattern.matcher(tagValue.text());
 						if (matcher.find()) {
-							responseMessages.add(new ApiResponseMessage(Integer.valueOf(matcher.group(1)), matcher.group(2)));
+
+							int statusCode = Integer.valueOf(matcher.group(1).trim());
+							// trim special chars the desc may start with
+							String desc = trimLeadingChars(matcher.group(2), '|', '-');
+
+							// see if it has a custom response model
+							String responseModelClass = null;
+							if (matcher.groupCount() > 2) {
+								responseModelClass = trimLeadingChars(matcher.group(3), '`');
+							}
+							String responseModel = null;
+							if (responseModelClass != null) {
+								Type responseType = seeTypes.get(responseModelClass);
+								if (responseType != null) {
+									responseModel = this.translator.typeName(responseType).value();
+									if (this.options.isParseModels()) {
+										this.models.addAll(new ApiModelParser(this.options, this.translator, responseType).parse());
+									}
+								}
+							}
+
+							responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
 							matched = true;
 							break;
 						}
 					}
+
 				}
+
 			}
 		}
 
 		// return type
-		// TODO: check this and support custom response model per response code
 		Type type = this.methodDoc.returnType();
 		String returnType = this.translator.typeName(type).value();
+		if (this.options.isParseModels()) {
+			this.models.addAll(new ApiModelParser(this.options, this.translator, type).parse());
+		}
 
 		// look for a custom return type, this is useful where we return a jaxrs Response
 		// but typically return a different object
 		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
-
 		if (customReturnType != null) {
-			// find a corresponding @see tag which we can use to obtain a
-			// Type reference
-			SeeTag[] seeTags = this.methodDoc.seeTags();
-			if (seeTags != null) {
-				for (SeeTag seeTag : seeTags) {
-					if (customReturnType.equals(seeTag.referencedClassName())) {
-						type = seeTag.referencedClass();
-						returnType = this.translator.typeName(type).value();
-						break;
-					}
+			// lookup the type from see tags and use that for return type
+			Type customType = seeTypes.get(customReturnType);
+			if (customType != null) {
+				returnType = this.translator.typeName(customType).value();
+				// also add this custom return type to the models
+				if (this.options.isParseModels()) {
+					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
 				}
 			}
-		}
-
-		if (this.options.isParseModels()) {
-			this.models.addAll(new ApiModelParser(this.options, this.translator, type).parse());
 		}
 
 		// First Sentence of Javadoc method description
@@ -305,6 +316,38 @@ public class ApiMethodParser {
 
 	public Set<Model> models() {
 		return this.models;
+	}
+
+	private static String trimLeadingChars(String str, char... trimChars) {
+		if (str == null || str.trim().isEmpty()) {
+			return str;
+		}
+		StringBuilder newStr = new StringBuilder();
+		boolean foundNonTrimChar = false;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (foundNonTrimChar) {
+				newStr.append(c);
+			} else {
+				if (Character.isWhitespace(c)) {
+					// trim
+				} else {
+					// see if a non trim char, if so add it and set flag
+					boolean isTrimChar = false;
+					for (char trimC : trimChars) {
+						if (c == trimC) {
+							isTrimChar = true;
+							break;
+						}
+					}
+					if (!isTrimChar) {
+						foundNonTrimChar = true;
+						newStr.append(c);
+					}
+				}
+			}
+		}
+		return newStr.length() == 0 ? null : newStr.toString().trim();
 	}
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {

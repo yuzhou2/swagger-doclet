@@ -1,0 +1,88 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/responsemodel",
+    "apis": [
+        {
+            "path": "/responsemodel",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "unspecifiedResponse",
+                    "type": "Response"
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "responseDefinedViaReturn",
+                    "type": "Response1"
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "responseDefinedViaTag",
+                    "type": "Response2"
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "responseDefinedViaResponseCode",
+                    "type": "Response",
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "if ok",
+                            "responseModel" : "Response1"
+                        },
+                        {
+                            "code": 404,
+                            "message": "if no result found",
+                            "responseModel" : "Response2"
+                        },
+                        {
+                            "code": 500,
+                            "message": "if an internal error occurred"
+                        }
+                    ]
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "responseMix",
+                    "type": "Response2",
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "if no result found",
+                            "responseModel" : "Response3"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Response1": {
+            "id": "Response1",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response2": {
+            "id": "Response2",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response3": {
+            "id": "Response3",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

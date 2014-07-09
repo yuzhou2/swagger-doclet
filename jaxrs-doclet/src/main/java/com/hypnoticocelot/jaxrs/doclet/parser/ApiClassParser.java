@@ -61,9 +61,12 @@ public class ApiClassParser {
 		List<Api> apis = new ArrayList<Api>();
 		Map<String, Collection<Method>> apiMethods = new HashMap<String, Collection<Method>>();
 
+		// read the class see tags
+		Map<String, Type> seeTypes = AnnotationHelper.readSeeTypes(this.classDoc);
+
 		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method) : new ApiMethodParser(
-					this.options, this.parentMethod, method);
+			ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, seeTypes)
+					: new ApiMethodParser(this.options, this.parentMethod, method, seeTypes);
 			Method parsedMethod = methodParser.parse();
 			if (parsedMethod == null) {
 				continue;

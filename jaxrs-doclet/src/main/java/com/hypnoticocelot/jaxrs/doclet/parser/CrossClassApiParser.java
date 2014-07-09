@@ -29,6 +29,7 @@ import com.hypnoticocelot.jaxrs.doclet.model.Operation;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Tag;
+import com.sun.javadoc.Type;
 
 /**
  * The CrossClassApiParser represents an api class parser that supports ApiDeclaration being
@@ -77,8 +78,10 @@ public class CrossClassApiParser {
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
 
+		Map<String, Type> seeTypes = AnnotationHelper.readSeeTypes(this.classDoc);
+
 		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method);
+			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method, seeTypes);
 			Method parsedMethod = methodParser.parse();
 			if (parsedMethod == null) {
 				continue;
