@@ -7,7 +7,7 @@ swagger-ui.
 
 To use the Swagger Doclet in your Maven project, add the following to your POM file.
 
-```xml
+```
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -52,6 +52,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
         </plugins>
     </build>
 </xml>
+
 ```
 
 ## Example
@@ -103,7 +104,17 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiZipPath ../../../src/main/resources/swagger-ui.zip</additionalparam>
 ```
 
-## New Features Added for Carma
+## New Features/Fixes in this fork:
+
+### Fixes
+Issue 72 (PUT params)
+Issue 71 (return type overriding via doclet tags) 
+Issue 70 support parameterized return types and typesToTreatAsOpaque option
+Issue 64 adding short and char to primitives
+
+
+
+
 
 
 

@@ -208,6 +208,8 @@ public class ApiMethodParser {
 		// Return type
 		// ************************************
 		Type type = this.methodDoc.returnType();
+		type = firstNonNull(ApiModelParser.getTypeArgument(type), type);
+
 		String returnType = this.translator.typeName(type).value();
 		if (this.options.isParseModels()) {
 			this.models.addAll(new ApiModelParser(this.options, this.translator, type).parse());
@@ -399,7 +401,7 @@ public class ApiMethodParser {
 			return true;
 		}
 
-		return (allAnnotations.isEmpty() || httpMethod == HttpMethod.POST);
+		return (allAnnotations.isEmpty() || httpMethod == HttpMethod.POST || httpMethod == HttpMethod.PUT);
 	}
 
 	private String commentForParameter(MethodDoc method, Parameter parameter) {

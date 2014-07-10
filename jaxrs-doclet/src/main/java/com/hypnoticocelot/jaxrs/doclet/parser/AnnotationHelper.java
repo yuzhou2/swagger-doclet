@@ -41,6 +41,7 @@ public class AnnotationHelper {
 			add("float");
 			add("double");
 			add("short");
+			add("char");
 			add("string");
 			add("date");
 			add("number");
@@ -95,6 +96,8 @@ public class AnnotationHelper {
 		} else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")) {
 			return new String[] { "number", "double" };
 		} else if (javaType.toLowerCase().equals("string") || javaType.equalsIgnoreCase("java.lang.String")) {
+			return new String[] { "string", null };
+		} else if (javaType.toLowerCase().equals("char") || javaType.equalsIgnoreCase("java.lang.Character")) {
 			return new String[] { "string", null };
 		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
 			return new String[] { "boolean", null };

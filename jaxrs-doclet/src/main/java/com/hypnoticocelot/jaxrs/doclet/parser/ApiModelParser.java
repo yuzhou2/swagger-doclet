@@ -286,7 +286,7 @@ public class ApiModelParser {
 				});
 			}
 
-			Type containerOf = parseParameterisedTypeOf(type);
+			Type containerOf = getTypeArgument(type);
 			String itemsRef = null;
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
@@ -314,14 +314,19 @@ public class ApiModelParser {
 	private void parseNestedModels(Collection<TypeRef> types) {
 		for (TypeRef type : types) {
 			parseModel(type.type);
-			Type pt = parseParameterisedTypeOf(type.type);
+			Type pt = getTypeArgument(type.type);
 			if (pt != null) {
 				parseModel(pt);
 			}
 		}
 	}
 
-	private Type parseParameterisedTypeOf(Type type) {
+	/**
+	 * This gets the type of the given type, if its parameterized it returns the first type argument.
+	 * @param type The type (may be parameterized)
+	 * @return The raw type if not parameterized otherwise the type of the first parameterized argument
+	 */
+	public static Type getTypeArgument(Type type) {
 		Type result = null;
 		ParameterizedType pt = type.asParameterizedType();
 		if (pt != null) {
