@@ -149,134 +149,140 @@ public class ApiModelParser {
 
 		for (ClassDoc classDoc : classes) {
 
+			AnnotationParser p = new AnnotationParser(classDoc);
+			String xmlAccessorType = p.getAnnotationValue("javax.xml.bind.annotation.XmlAccessorType", "value");
+
 			boolean superClass = !classDoc.equals(rootClassDoc);
 
 			// add fields
-			FieldDoc[] fieldDocs = classDoc.fields();
-
 			Set<String> excludeFields = new HashSet<String>();
+			if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
+				FieldDoc[] fieldDocs = classDoc.fields();
 
-			if (fieldDocs != null) {
-				for (FieldDoc field : fieldDocs) {
+				if (fieldDocs != null) {
+					for (FieldDoc field : fieldDocs) {
 
-					// ignore static or transient fields
-					if (field.isStatic() || field.isTransient()) {
-						continue;
-					}
+						// ignore static or transient fields or _ prefixed ones
+						if (field.isStatic() || field.isTransient() || field.name().charAt(0) == '_') {
+							continue;
+						}
 
-					// if super class ignore private fields
-					if (superClass && field.isPrivate()) {
-						continue;
-					}
+						// if super class ignore private fields
+						if (superClass && field.isPrivate()) {
+							continue;
+						}
 
-					String name = this.translator.fieldName(field).value();
-					rawToTranslatedFields.put(field.name(), name);
+						String name = this.translator.fieldName(field).value();
+						rawToTranslatedFields.put(field.name(), name);
 
-					// ignore deprecated fields
-					if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
-						excludeFields.add(field.name());
-						continue;
-					}
+						// ignore deprecated fields
+						if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
+							excludeFields.add(field.name());
+							continue;
+						}
 
-					// ignore fields we are to explicitly exclude
-					if (AnnotationHelper.hasTag(field, this.options.getExcludeFieldTags())) {
-						excludeFields.add(field.name());
-						continue;
-					}
+						// ignore fields we are to explicitly exclude
+						if (AnnotationHelper.hasTag(field, this.options.getExcludeFieldTags())) {
+							excludeFields.add(field.name());
+							continue;
+						}
 
-					String description = getFieldDescription(field);
-					String min = getFieldMin(field);
-					String max = getFieldMax(field);
+						String description = getFieldDescription(field);
+						String min = getFieldMin(field);
+						String max = getFieldMax(field);
 
-					if (name != null && !elements.containsKey(name)) {
+						if (name != null && !elements.containsKey(name)) {
 
-						Type fieldType = getModelType(field.type(), nested);
-						elements.put(field.name(), new TypeRef(fieldType, description, min, max));
+							Type fieldType = getModelType(field.type(), nested);
+							elements.put(field.name(), new TypeRef(fieldType, description, min, max));
+						}
 					}
 				}
 			}
 
 			// add methods
-			MethodDoc[] methodDocs = classDoc.methods();
-			if (methodDocs != null) {
-				for (MethodDoc method : methodDocs) {
+			if (!"javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
+				MethodDoc[] methodDocs = classDoc.methods();
+				if (methodDocs != null) {
+					for (MethodDoc method : methodDocs) {
 
-					// ignore static methods and private methods
-					if (method.isStatic() || method.isPrivate()) {
-						continue;
-					}
-
-					// we tie getters and their corresponding methods together via this rawFieldName
-					String rawFieldName = nameTranslator.methodName(method).value();
-
-					// this is either an overridden name of the field on a getter or a non getter method
-					// with a supported annotation
-					String translatedNameViaMethod = this.translator.methodName(method).value();
-
-					if (translatedNameViaMethod != null) {
-
-						boolean isFieldGetter = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
-
-						boolean excludeMethod = false;
-
-						// ignore deprecated methods
-						excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
-
-						// ignore methods we are to explicitly exclude
-						if (AnnotationHelper.hasTag(method, this.options.getExcludeMethodTags())) {
-							excludeMethod = true;
+						// ignore static methods and private methods
+						if (method.isStatic() || method.isPrivate() || method.name().charAt(0) == '_') {
+							continue;
 						}
 
-						if (isFieldGetter) {
+						// we tie getters and their corresponding methods together via this rawFieldName
+						String rawFieldName = nameTranslator.methodName(method).value();
 
-							// skip if the field has already been excluded
-							if (excludeFields.contains(rawFieldName)) {
-								continue;
+						// this is either an overridden name of the field on a getter or a non getter method
+						// with a supported annotation
+						String translatedNameViaMethod = this.translator.methodName(method).value();
+
+						if (translatedNameViaMethod != null) {
+
+							boolean isFieldGetter = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
+
+							boolean excludeMethod = false;
+
+							// ignore deprecated methods
+							excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+
+							// ignore methods we are to explicitly exclude
+							if (AnnotationHelper.hasTag(method, this.options.getExcludeMethodTags())) {
+								excludeMethod = true;
 							}
 
-							// skip if this method is to be excluded but also remove the field from the elements
-							// so it doesnt appear in the model
-							if (excludeMethod) {
-								elements.remove(rawFieldName);
-								continue;
+							if (isFieldGetter) {
+
+								// skip if the field has already been excluded
+								if (excludeFields.contains(rawFieldName)) {
+									continue;
+								}
+
+								// skip if this method is to be excluded but also remove the field from the elements
+								// so it doesnt appear in the model
+								if (excludeMethod) {
+									elements.remove(rawFieldName);
+									continue;
+								}
+
+								// see if the field name should be overwritten via annotations on the getter
+								String nameViaField = rawToTranslatedFields.get(rawFieldName);
+								if (!translatedNameViaMethod.equals(nameViaField)) {
+									rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
+								}
+
+								TypeRef typeRef = elements.get(rawFieldName);
+								// the field was already found e.g. class had a field and this is the getter
+								// check if there are tags on the getter we can use to fill in description, min and max
+								if (typeRef.description == null) {
+									typeRef.description = getFieldDescription(method);
+								}
+								if (typeRef.min == null) {
+									typeRef.min = getFieldMin(method);
+								}
+								if (typeRef.max == null) {
+									typeRef.max = getFieldMax(method);
+								}
+
+							} else {
+
+								// skip if this method is to be excluded
+								if (excludeMethod) {
+									continue;
+								}
+
+								// this is a getter or other method where there wasn't a specific field
+								String description = getFieldDescription(method);
+								String min = getFieldMin(method);
+								String max = getFieldMax(method);
+
+								Type returnType = getModelType(method.returnType(), nested);
+
+								elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max));
 							}
 
-							// see if the field name should be overwritten via annotations on the getter
-							String nameViaField = rawToTranslatedFields.get(rawFieldName);
-							if (!translatedNameViaMethod.equals(nameViaField)) {
-								rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
-							}
-
-							TypeRef typeRef = elements.get(rawFieldName);
-							// the field was already found e.g. class had a field and this is the getter
-							// check if there are tags on the getter we can use to fill in description, min and max
-							if (typeRef.description == null) {
-								typeRef.description = getFieldDescription(method);
-							}
-							if (typeRef.min == null) {
-								typeRef.min = getFieldMin(method);
-							}
-							if (typeRef.max == null) {
-								typeRef.max = getFieldMax(method);
-							}
-
-						} else {
-
-							// skip if this method is to be excluded
-							if (excludeMethod) {
-								continue;
-							}
-
-							// this is a getter or other method where there wasn't a specific field
-							String description = getFieldDescription(method);
-							String min = getFieldMin(method);
-							String max = getFieldMax(method);
-
-							Type returnType = getModelType(method.returnType(), nested);
-
-							elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max));
 						}
-
 					}
 				}
 			}
