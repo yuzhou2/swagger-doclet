@@ -1,7 +1,7 @@
-# Swagger Doclet [![Build Status](https://travis-ci.org/ryankennedy/swagger-jaxrs-doclet.png)](https://travis-ci.org/ryankennedy/swagger-jaxrs-doclet)
+# Swagger Doclet 
 
 A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to
-swagger-ui.
+swagger-ui. Forked from https://github.com/ryankennedy/swagger-jaxrs-doclet to add support for swagger 1.2 and includes various fixes described below. This is used as a basis for the Carma API https://api-dev.car.ma/apidoc/ref/index.html Note you can win $1000,000 using this API see http://carmacarpool.com/prize
 
 ## Usage
 
@@ -37,7 +37,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.hypnoticocelot</groupId>
                                 <artifactId>jaxrs-doclet</artifactId>
-                                <version>0.0.4-SNAPSHOT</version>
+                                <version>0.0.4_carma-SNAPSHOT</version>
                             </docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -107,6 +107,7 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 ## New Features/Fixes in this fork:
 
 ### Fixes
+
 Issue 72 (PUT params)  
 
 Issue 71 (return type overriding via doclet tags) 
@@ -141,6 +142,9 @@ Response Message Model
 Updated Allowable Values
 
 Produces/Consumes
+
+Model field descriptions
+
 
 
 
