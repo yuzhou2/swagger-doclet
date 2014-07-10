@@ -59,6 +59,13 @@ public class JaxRsAnnotationParser {
 
 				declarations = new ArrayList<ApiDeclaration>(declarationColl);
 
+				// clear any empty models
+				for (ApiDeclaration api : declarations) {
+					if (api.getModels() != null && api.getModels().isEmpty()) {
+						api.setModels(null);
+					}
+				}
+
 			} else {
 				// use the original parse mode which treats each resource as a separate api
 				declarations = new ArrayList<ApiDeclaration>();
@@ -112,10 +119,13 @@ public class JaxRsAnnotationParser {
 				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
 
 					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
-						if (dec1 == null) {
+						if (dec1 == null || dec1.getResourcePath() == null) {
+							return 1;
+						}
+						if (dec2 == null || dec2.getResourcePath() == null) {
 							return -1;
 						}
-						return dec1.getDescription().compareTo(dec2.getDescription());
+						return dec1.getResourcePath().compareTo(dec2.getResourcePath());
 					}
 
 				});
