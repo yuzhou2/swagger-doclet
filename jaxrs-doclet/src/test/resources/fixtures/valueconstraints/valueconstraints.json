@@ -41,16 +41,16 @@
                 	"type": "integer",
                 	"minimum": 1
                 },
+                "maxGetterTag": {
+                	"type": "integer",
+                	"maximum": 10
+                },
                 "value": {
                     "type": "string",
                     "enum": [
 						        "VALUE1",
 						        "VALUE2"
 						    ]
-                },
-                "maxGetterTag": {
-                	"type": "integer",
-                	"maximum": 10
                 },
                 "minMaxFieldTag": {
                 	"type": "integer",

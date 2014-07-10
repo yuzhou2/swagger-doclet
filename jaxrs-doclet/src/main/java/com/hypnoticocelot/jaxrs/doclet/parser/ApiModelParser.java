@@ -55,7 +55,8 @@ public class ApiModelParser {
 		boolean isWildcard = qName.equals("?");
 		boolean isTypeToTreatAsOpaque = this.options.getTypesToTreatAsOpaque().contains(qName);
 		ClassDoc classDoc = type.asClassDoc();
-		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || alreadyStoredType(type)) {
+		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || classDoc.isEnum()
+				|| alreadyStoredType(type)) {
 			return;
 		}
 
@@ -177,33 +178,31 @@ public class ApiModelParser {
 						continue;
 					}
 
-					// read the corresponding raw field name, this ensures this is a getter method e.g. one
-					// that will be returned in the json
+					// we tie getters and their corresponding methods together via this rawFieldName
 					String rawFieldName = nameTranslator.methodName(method).value();
 
-					if (rawFieldName != null) {
+					// this is either an overridden name of the field on a getter or a non getter method
+					// with a supported annotation
+					String translatedNameViaMethod = this.translator.methodName(method).value();
 
-						// skip if the field has already been excluded
-						if (excludeFields.contains(rawFieldName)) {
-							continue;
-						}
+					if (translatedNameViaMethod != null) {
 
+						boolean isFieldGetter = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
 						boolean excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
 
-						// skip if this method is to be excluded
-						if (excludeMethod) {
+						if (isFieldGetter) {
 
-							// remove the field if it was found already
-							if (elements.containsKey(rawFieldName)) {
-								elements.remove(rawFieldName);
+							// skip if the field has already been excluded
+							if (excludeFields.contains(rawFieldName)) {
+								continue;
 							}
 
-							continue;
-						}
-
-						String translatedNameViaMethod = this.translator.methodName(method).value();
-
-						if (elements.containsKey(rawFieldName)) {
+							// skip if this method is to be excluded but also remove the field from the elements
+							// so it doesnt appear in the model
+							if (excludeMethod) {
+								elements.remove(rawFieldName);
+								continue;
+							}
 
 							// see if the field name should be overwritten via annotations on the getter
 							String nameViaField = rawToTranslatedFields.get(rawFieldName);
@@ -225,12 +224,19 @@ public class ApiModelParser {
 							}
 
 						} else {
-							// this is a getter where there wasn't a specific field
+
+							// skip if this method is to be excluded
+							if (excludeMethod) {
+								continue;
+							}
+
+							// this is a getter or other method where there wasn't a specific field
 							String description = getFieldDescription(method);
 							String min = getFieldMin(method);
 							String max = getFieldMax(method);
 							elements.put(translatedNameViaMethod, new TypeRef(method.returnType(), description, min, max));
 						}
+
 					}
 				}
 			}

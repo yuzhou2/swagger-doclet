@@ -112,6 +112,8 @@ Issue 71 (return type overriding via doclet tags)
 Issue 70 support parameterized return types and typesToTreatAsOpaque option
 Issue 64 adding short and char to primitives
 
+Support old jackson annotations
+
 
 
 
