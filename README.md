@@ -120,6 +120,7 @@ Issue 65 Support header params
 
 Issue 64 adding short and char to primitives
 
+Issue 60 various issues such as XmlAccessor apart from the Map value extraction part
 
 Issue 58 Swagger ui zip path
 

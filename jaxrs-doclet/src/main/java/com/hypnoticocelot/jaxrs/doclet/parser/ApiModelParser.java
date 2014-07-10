@@ -424,6 +424,12 @@ public class ApiModelParser {
 		return type;
 	}
 
+	/**
+	 * This gets the return type for a resource method, it supports wrapper types
+	 * @param options
+	 * @param type
+	 * @return The type to use for the resource method
+	 */
 	public static Type getReturnType(DocletOptions options, Type type) {
 		if (type != null) {
 			ParameterizedType pt = type.asParameterizedType();

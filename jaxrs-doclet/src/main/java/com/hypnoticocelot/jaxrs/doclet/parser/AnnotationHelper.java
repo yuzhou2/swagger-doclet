@@ -149,6 +149,19 @@ public class AnnotationHelper {
 	}
 
 	/**
+	 * This gets whether the given type is a Map
+	 * @param javaType The java type
+	 * @return True if this is a map
+	 */
+	public static boolean isMap(String javaType) {
+		try {
+			return java.util.Map.class.isAssignableFrom(Class.forName(javaType));
+		} catch (ClassNotFoundException ex) {
+			return false;
+		}
+	}
+
+	/**
 	 * Determines the string representation of the parameter type.
 	 */
 	public static String paramTypeOf(Parameter parameter) {
