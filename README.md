@@ -1,7 +1,7 @@
 # Swagger Doclet 
 
 A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to
-swagger-ui. Forked from https://github.com/ryankennedy/swagger-jaxrs-doclet to add support for swagger 1.2 and includes various fixes described below. This is used as a basis for the Carma API https://api-dev.car.ma/apidoc/ref/index.html Note you can win $1000,000 using this API see http://carmacarpool.com/prize
+swagger-ui. Forked from https://github.com/ryankennedy/swagger-jaxrs-doclet to add support for swagger 1.2 and includes various fixes described below. This is used as a basis for the Carma API https://api-dev.car.ma/apidoc/ref/index.html Note you can win $1,000,000 using this API see http://carmacarpool.com/prize
 
 ## Usage
 
@@ -106,7 +106,9 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 
 ## New Features/Fixes in this fork:
 
-### Fixes
+### Fixes Added or Merged from https://github.com/ryankennedy/swagger-jaxrs-doclet
+
+Issue 73 Support old jackson annotations
 
 Issue 72 (add PUT params to model)  
 
@@ -114,15 +116,16 @@ Issue 71 (return type overriding via doclet tags)
 
 Issue 70 support parameterized return types and typesToTreatAsOpaque option
 
+Issue 65 Support header params
+
 Issue 64 adding short and char to primitives
 
-Issue 73 Support old jackson annotations
-
-Issue 63 support exclude resources (via exclude tags and also via deprecation annotations/tags)
 
 Issue 58 Swagger ui zip path
 
 Issue 52 Model inheritance
+
+
 
 
 ### Features
@@ -148,6 +151,10 @@ Model field descriptions
 #### Other features:
 
 Support resource operations being spread across multiple resource classes
+Support custum/override put/post body model type
+support exclude resources/fields (via exclude tags and also via deprecation annotations/tags)
+
+
 
 
 

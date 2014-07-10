@@ -189,7 +189,6 @@ public class DocletOptions {
 	 */
 	public DocletOptions() {
 		this.excludeParamAnnotations = new ArrayList<String>();
-		this.excludeParamAnnotations.add("javax.ws.rs.HeaderParam");
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 
 		this.errorTags = new ArrayList<String>();

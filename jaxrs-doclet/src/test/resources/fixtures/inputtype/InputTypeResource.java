@@ -1,5 +1,6 @@
 package fixtures.inputtype;
 
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -36,7 +37,7 @@ public class InputTypeResource {
 	 */
 	@POST
 	@Path("/postData2b")
-	public Response postData2b(@QueryParam("p1") int p1, Data1 data) {
+	public Response postData2b(@HeaderParam("X-forwarded-for") String xFwd, @QueryParam("p1") int p1, Data1 data) {
 		return Response.ok().build();
 	}
 

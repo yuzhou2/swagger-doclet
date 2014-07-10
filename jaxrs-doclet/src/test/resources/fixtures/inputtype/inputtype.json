@@ -14,6 +14,11 @@
                     "type": "Response",
                     "parameters": [
                     	{
+                            "paramType": "header",
+                            "name": "X-forwarded-for",
+                            "type": "string"
+                        },
+                    	{
                             "paramType": "query",
                             "name": "p1",
                             "type": "integer",
