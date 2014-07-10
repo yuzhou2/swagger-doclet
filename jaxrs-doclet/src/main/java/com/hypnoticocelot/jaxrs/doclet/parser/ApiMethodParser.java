@@ -43,6 +43,47 @@ public class ApiMethodParser {
 	// pattern that can match a code, a description and an optional response model type
 	private static final Pattern[] RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+)([^`]+)(`.*)?") };
 
+	private static String trimLeadingChars(String str, char... trimChars) {
+		if (str == null || str.trim().isEmpty()) {
+			return str;
+		}
+		StringBuilder newStr = new StringBuilder();
+		boolean foundNonTrimChar = false;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (foundNonTrimChar) {
+				newStr.append(c);
+			} else {
+				if (Character.isWhitespace(c)) {
+					// trim
+				} else {
+					// see if a non trim char, if so add it and set flag
+					boolean isTrimChar = false;
+					for (char trimC : trimChars) {
+						if (c == trimC) {
+							isTrimChar = true;
+							break;
+						}
+					}
+					if (!isTrimChar) {
+						foundNonTrimChar = true;
+						newStr.append(c);
+					}
+				}
+			}
+		}
+		return newStr.length() == 0 ? null : newStr.toString().trim();
+	}
+
+	private static String commentForParameter(MethodDoc method, Parameter parameter) {
+		for (ParamTag tag : method.paramTags()) {
+			if (tag.parameterName().equals(parameter.name())) {
+				return tag.parameterComment();
+			}
+		}
+		return "";
+	}
+
 	private final DocletOptions options;
 	private final Translator translator;
 	private final String parentPath;
@@ -50,11 +91,11 @@ public class ApiMethodParser {
 	private final Set<Model> models;
 	private final HttpMethod httpMethod;
 	private final Method parentMethod;
-	private final Map<String, Type> classSeeTypes;
+	private final Collection<ClassDoc> classes;
 	private final String classDefaultErrorType;
 	private final String methodDefaultErrorType;
 
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Map<String, Type> classSeeTypes, String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -62,12 +103,12 @@ public class ApiMethodParser {
 		this.models = new LinkedHashSet<Model>();
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentMethod = null;
-		this.classSeeTypes = classSeeTypes;
+		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Map<String, Type> classSeeTypes, String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.methodDoc = methodDoc;
@@ -75,7 +116,7 @@ public class ApiMethodParser {
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
-		this.classSeeTypes = classSeeTypes;
+		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
@@ -143,11 +184,6 @@ public class ApiMethodParser {
 		// response messages
 		// ************************************
 
-		// build map of types from seeTags
-		Map<String, Type> seeTypes = new HashMap<String, Type>();
-		seeTypes.putAll(AnnotationHelper.readSeeTypes(this.methodDoc));
-		seeTypes.putAll(this.classSeeTypes);
-
 		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
 
 		List<String> responseTags = new ArrayList<String>(this.options.getErrorTags());
@@ -184,7 +220,7 @@ public class ApiMethodParser {
 
 							String responseModel = null;
 							if (responseModelClass != null) {
-								Type responseType = seeTypes.get(responseModelClass);
+								Type responseType = AnnotationHelper.findModel(this.classes, responseModelClass);
 								if (responseType != null) {
 									responseModel = this.translator.typeName(responseType).value();
 									if (this.options.isParseModels()) {
@@ -220,7 +256,7 @@ public class ApiMethodParser {
 		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
 		if (customReturnType != null) {
 			// lookup the type from see tags and use that for return type
-			Type customType = seeTypes.get(customReturnType);
+			Type customType = AnnotationHelper.findModel(this.classes, customReturnType);
 			if (customType != null) {
 				returnType = this.translator.typeName(customType).value();
 				// also add this custom return type to the models
@@ -350,38 +386,6 @@ public class ApiMethodParser {
 		return this.models;
 	}
 
-	private static String trimLeadingChars(String str, char... trimChars) {
-		if (str == null || str.trim().isEmpty()) {
-			return str;
-		}
-		StringBuilder newStr = new StringBuilder();
-		boolean foundNonTrimChar = false;
-		for (int i = 0; i < str.length(); i++) {
-			char c = str.charAt(i);
-			if (foundNonTrimChar) {
-				newStr.append(c);
-			} else {
-				if (Character.isWhitespace(c)) {
-					// trim
-				} else {
-					// see if a non trim char, if so add it and set flag
-					boolean isTrimChar = false;
-					for (char trimC : trimChars) {
-						if (c == trimC) {
-							isTrimChar = true;
-							break;
-						}
-					}
-					if (!isTrimChar) {
-						foundNonTrimChar = true;
-						newStr.append(c);
-					}
-				}
-			}
-		}
-		return newStr.length() == 0 ? null : newStr.toString().trim();
-	}
-
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {
 		List<AnnotationDesc> allAnnotations = Arrays.asList(parameter.annotations());
 
@@ -402,15 +406,6 @@ public class ApiMethodParser {
 		}
 
 		return (allAnnotations.isEmpty() || httpMethod == HttpMethod.POST || httpMethod == HttpMethod.PUT);
-	}
-
-	private String commentForParameter(MethodDoc method, Parameter parameter) {
-		for (ParamTag tag : method.paramTags()) {
-			if (tag.parameterName().equals(parameter.name())) {
-				return tag.parameterComment();
-			}
-		}
-		return "";
 	}
 
 }

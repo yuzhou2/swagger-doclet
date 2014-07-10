@@ -108,7 +108,7 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 
 ### Fixes
 
-Issue 72 (PUT params)  
+Issue 72 (add PUT params to model)  
 
 Issue 71 (return type overriding via doclet tags) 
 
@@ -118,7 +118,7 @@ Issue 64 adding short and char to primitives
 
 Issue 73 Support old jackson annotations
 
-Issue 63 support exclude resources (via exclude tags and also via deprecation)
+Issue 63 support exclude resources (via exclude tags and also via deprecation annotations/tags)
 
 Issue 58 Swagger ui zip path
 
@@ -127,7 +127,7 @@ Issue 52 Model inheritance
 
 ### Features
 
-Full 1.2 swagger spec support including 
+#### Full 1.2 swagger spec support including: 
 
 Authorizations
 
@@ -144,6 +144,11 @@ Updated Allowable Values
 Produces/Consumes
 
 Model field descriptions
+
+#### Other features:
+
+Support resource operations being spread across multiple resource classes
+
 
 
 

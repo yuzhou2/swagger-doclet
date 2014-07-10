@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.sun.javadoc.AnnotationDesc;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.SeeTag;
@@ -345,6 +346,23 @@ public class AnnotationHelper {
 			}
 		}
 		return types;
+	}
+
+	/**
+	 * This finds a model class by the given name
+	 * @param classes The model classes
+	 * @param qualifiedClassName The FQN of the class
+	 * @return {@link ClassDoc} found among all classes processed by the doclet based on a given <code>qualifiedClassName</code>; <code>null</code> if not found
+	 */
+	public static ClassDoc findModel(Collection<ClassDoc> classes, String qualifiedClassName) {
+		if (classes != null && qualifiedClassName != null) {
+			for (ClassDoc cls : classes) {
+				if (qualifiedClassName.equals(cls.qualifiedName())) {
+					return cls;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {

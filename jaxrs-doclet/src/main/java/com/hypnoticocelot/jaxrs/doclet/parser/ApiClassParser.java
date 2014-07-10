@@ -61,20 +61,17 @@ public class ApiClassParser {
 		List<Api> apis = new ArrayList<Api>();
 		Map<String, Collection<Method>> apiMethods = new HashMap<String, Collection<Method>>();
 
-		// read the class see tags
-		Map<String, Type> seeTypes = AnnotationHelper.readSeeTypes(this.classDoc);
-
 		// read default error type for class
 		String defaultErrorTypeClass = AnnotationHelper.getTagValue(this.classDoc, this.options.getDefaultErrorTypeTags());
-		Type defaultErrorType = seeTypes.get(defaultErrorTypeClass);
+		Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
 
 		if (this.options.isParseModels() && defaultErrorType != null) {
 			this.models.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
 		}
 
 		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, seeTypes, defaultErrorTypeClass)
-					: new ApiMethodParser(this.options, this.parentMethod, method, seeTypes, defaultErrorTypeClass);
+			ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, this.classes,
+					defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes, defaultErrorTypeClass);
 			Method parsedMethod = methodParser.parse();
 			if (parsedMethod == null) {
 				continue;

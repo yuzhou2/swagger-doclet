@@ -7,9 +7,6 @@ import javax.ws.rs.Path;
  * The ResponseModelResource represents a jaxrs resource for testing response messages
  * @version $Id$
  * @author conor.roche
- * @see fixtures.responsemessages.Response1
- * @see fixtures.responsemessages.Response2
- * @see fixtures.responsemessages.Response3
  * @defaultErrorType fixtures.responsemessages.Response2
  */
 @Path("/responsemessages")

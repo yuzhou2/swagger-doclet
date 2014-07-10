@@ -5,6 +5,7 @@ import static com.google.common.collect.Maps.uniqueIndex;
 import static com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper.parsePath;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ public class CrossClassApiParser {
 
 	private final DocletOptions options;
 	private final ClassDoc classDoc;
+	private final Collection<ClassDoc> classes;
 	private final String rootPath;
 	private final String swaggerVersion;
 	private final String apiVersion;
@@ -40,16 +42,18 @@ public class CrossClassApiParser {
 
 	/**
 	 * This creates a CrossClassApiParser
-	 * @param options
-	 * @param classDoc
+	 * @param options The options for parsing
+	 * @param classDoc The class doc
+	 * @param classes The doclet classes
 	 * @param swaggerVersion Swagger version
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
 	 */
-	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, String swaggerVersion, String apiVersion, String basePath) {
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, String swaggerVersion, String apiVersion, String basePath) {
 		super();
 		this.options = options;
 		this.classDoc = classDoc;
+		this.classes = classes;
 		this.rootPath = firstNonNull(parsePath(classDoc.annotations()), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
@@ -70,12 +74,9 @@ public class CrossClassApiParser {
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
 
-		// read the class see tags
-		Map<String, Type> seeTypes = AnnotationHelper.readSeeTypes(this.classDoc);
-
 		// read default error type for class
 		String defaultErrorTypeClass = AnnotationHelper.getTagValue(this.classDoc, this.options.getDefaultErrorTypeTags());
-		Type defaultErrorType = seeTypes.get(defaultErrorTypeClass);
+		Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
 
 		Set<Model> classModels = new HashSet<Model>();
 		if (this.options.isParseModels() && defaultErrorType != null) {
@@ -83,7 +84,7 @@ public class CrossClassApiParser {
 		}
 
 		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method, seeTypes, defaultErrorTypeClass);
+			ApiMethodParser methodParser = new ApiMethodParser(this.options, this.rootPath, method, this.classes, defaultErrorTypeClass);
 			Method parsedMethod = methodParser.parse();
 			if (parsedMethod == null) {
 				continue;

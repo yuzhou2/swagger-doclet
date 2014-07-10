@@ -45,14 +45,16 @@ public class JaxRsAnnotationParser {
 	public boolean run() {
 		try {
 
+			Collection<ClassDoc> docletClasses = Arrays.asList(this.rootDoc.classes());
+
 			List<ApiDeclaration> declarations = null;
 
 			if (this.options.isCrossClassResources()) {
 				// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
 				Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
 				for (ClassDoc classDoc : this.rootDoc.classes()) {
-					CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, SWAGGER_VERSION, this.options.getApiVersion(),
-							this.options.getApiBasePath());
+					CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, SWAGGER_VERSION,
+							this.options.getApiVersion(), this.options.getApiBasePath());
 					classParser.parse(resourceToDeclaration);
 				}
 				Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();
@@ -84,7 +86,7 @@ public class JaxRsAnnotationParser {
 					// look for a class level description tag for the resource listing
 					String description = AnnotationHelper.getTagValue(classDoc, this.options.getResourceDescriptionTags());
 
-					ApiClassParser classParser = new ApiClassParser(this.options, classDoc, Arrays.asList(this.rootDoc.classes()));
+					ApiClassParser classParser = new ApiClassParser(this.options, classDoc, docletClasses);
 					List<Api> apis = classParser.parse();
 					if (apis.isEmpty()) {
 						continue;
