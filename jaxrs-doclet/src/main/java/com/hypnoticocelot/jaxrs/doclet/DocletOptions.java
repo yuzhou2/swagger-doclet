@@ -91,6 +91,8 @@ public class DocletOptions {
 				parsedOptions.successTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-typesToTreatAsOpaque")) {
 				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-genericWrapperTypes")) {
+				parsedOptions.genericWrapperTypes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeMethodTags")) {
 				parsedOptions.excludeMethodTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeFieldTags")) {
@@ -135,6 +137,7 @@ public class DocletOptions {
 	private boolean includeSwaggerUi = true;
 
 	private List<String> typesToTreatAsOpaque;
+	private List<String> genericWrapperTypes;
 	private List<String> errorTags;
 	private List<String> successTags;
 	private List<String> responseTypeTags;
@@ -200,6 +203,10 @@ public class DocletOptions {
 		this.typesToTreatAsOpaque.add("java.util.UUID");
 		// dont document MultipartFormDataInput as doclet can't handle it
 		this.typesToTreatAsOpaque.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
+
+		// types which simply wrap an entity
+		this.genericWrapperTypes = new ArrayList<String>();
+		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
 
 		this.excludeMethodTags = new ArrayList<String>();
 		this.excludeMethodTags.add("hidden");
@@ -354,6 +361,15 @@ public class DocletOptions {
 
 	public List<String> getTypesToTreatAsOpaque() {
 		return this.typesToTreatAsOpaque;
+	}
+
+	/**
+	 * This gets a list of FQN of types which simply wrap the
+	 * real underlying data type
+	 * @return The type
+	 */
+	public List<String> getGenericWrapperTypes() {
+		return this.genericWrapperTypes;
 	}
 
 	public boolean isParseModels() {

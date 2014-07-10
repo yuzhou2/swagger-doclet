@@ -40,6 +40,8 @@ public class ServiceDoclet {
 		options.put("-disableModels", 1);
 		options.put("-typesToTreatAsOpaque", 2);
 
+		options.put("-genericWrapperTypes", 2);
+
 		options.put("-responseTypeTags", 2);
 		options.put("-defaultErrorTypeTags", 2);
 		options.put("-successTags", 2);

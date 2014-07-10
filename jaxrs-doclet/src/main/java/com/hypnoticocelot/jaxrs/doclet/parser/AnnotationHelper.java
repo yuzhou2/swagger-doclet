@@ -104,7 +104,7 @@ public class AnnotationHelper {
 			return new String[] { "boolean", null };
 		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
 			return new String[] { "string", "date-time" };
-		} else if (isCollectionPackage(javaType)
+		} else if (isCollection(javaType)
 				&& (javaType.toLowerCase().endsWith("list") || javaType.toLowerCase().endsWith("array") || javaType.toLowerCase().endsWith("collection"))) {
 			return new String[] { "array", null };
 		} else if (isSet(javaType)) {
@@ -127,15 +127,24 @@ public class AnnotationHelper {
 	 * @return True if this is a Set
 	 */
 	public static boolean isSet(String javaType) {
-		// TODO: check if implements the Set interface
-		return isCollectionPackage(javaType) && javaType.toLowerCase().endsWith("set");
+		try {
+			return java.util.Set.class.isAssignableFrom(Class.forName(javaType));
+		} catch (ClassNotFoundException ex) {
+			return false;
+		}
 	}
 
-	static boolean isCollectionPackage(String javaType) {
-		// TODO: support other packages where the classes extend collections
-		return javaType.toLowerCase().startsWith("java.util") || javaType.toLowerCase().startsWith("java.util.concurrent")
-				|| javaType.toLowerCase().startsWith("org.apache.commons.collection") || javaType.toLowerCase().startsWith("gnu.trove")
-				|| javaType.toLowerCase().startsWith("com.google.common.collect");
+	/**
+	 * This gets whether the given type is a Collection
+	 * @param javaType The java type
+	 * @return True if this is a collection
+	 */
+	public static boolean isCollection(String javaType) {
+		try {
+			return java.util.Collection.class.isAssignableFrom(Class.forName(javaType));
+		} catch (ClassNotFoundException ex) {
+			return false;
+		}
 	}
 
 	/**

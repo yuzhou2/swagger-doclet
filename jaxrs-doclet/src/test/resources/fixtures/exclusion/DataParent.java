@@ -8,12 +8,12 @@ package fixtures.exclusion;
 @SuppressWarnings("javadoc")
 public class DataParent {
 
-	protected String parentField;
+	protected String parentField = "1";
 
 	/**
 	 * @hidden
 	 */
-	protected String parentFieldExclusion;
+	protected String parentFieldExclusion = "2";
 
 	private String parentMethodExclusion;
 
@@ -30,6 +30,14 @@ public class DataParent {
 
 	public String getParentMethod() {
 		return null;
+	}
+
+	protected final void setParentField(String parentField) {
+		this.parentField = parentField;
+	}
+
+	protected final void setParentFieldExclusion(String parentFieldExclusion) {
+		this.parentFieldExclusion = parentFieldExclusion;
 	}
 
 }

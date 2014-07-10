@@ -244,7 +244,7 @@ public class ApiMethodParser {
 		// Return type
 		// ************************************
 		Type type = this.methodDoc.returnType();
-		type = firstNonNull(ApiModelParser.getTypeArgument(type), type);
+		type = firstNonNull(ApiModelParser.getReturnType(this.options, type), type);
 
 		String returnType = this.translator.typeName(type).value();
 		if (this.options.isParseModels()) {
@@ -258,6 +258,7 @@ public class ApiMethodParser {
 			// lookup the type from see tags and use that for return type
 			Type customType = AnnotationHelper.findModel(this.classes, customReturnType);
 			if (customType != null) {
+				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
 				returnType = this.translator.typeName(customType).value();
 				// also add this custom return type to the models
 				if (this.options.isParseModels()) {

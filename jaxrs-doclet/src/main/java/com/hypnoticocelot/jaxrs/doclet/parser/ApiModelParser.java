@@ -26,6 +26,7 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
 
 public class ApiModelParser {
 
@@ -33,6 +34,8 @@ public class ApiModelParser {
 	final Translator translator;
 	private final Type rootType;
 	private final Set<Model> models;
+
+	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
 	public ApiModelParser(DocletOptions options, Translator translator, Type rootType) {
 		this.options = options;
@@ -42,11 +45,12 @@ public class ApiModelParser {
 	}
 
 	public Set<Model> parse() {
-		parseModel(this.rootType);
+		parseModel(this.rootType, false);
 		return this.models;
 	}
 
-	private void parseModel(Type type) {
+	private void parseModel(Type type, boolean nested) {
+
 		String qName = type.qualifiedTypeName();
 		boolean isPrimitive = AnnotationHelper.isPrimitive(type);
 		boolean isJavaxType = qName.startsWith("javax.");
@@ -54,14 +58,30 @@ public class ApiModelParser {
 		boolean isClass = qName.equals("java.lang.Class");
 		boolean isWildcard = qName.equals("?");
 		boolean isTypeToTreatAsOpaque = this.options.getTypesToTreatAsOpaque().contains(qName);
+
 		ClassDoc classDoc = type.asClassDoc();
+
 		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || classDoc.isEnum()
 				|| alreadyStoredType(type)) {
 			return;
 		}
 
-		Map<String, TypeRef> types = findReferencedTypes(classDoc);
-		Map<String, Property> elements = findReferencedElements(types);
+		// if parameterized then build map of the param vars
+		ParameterizedType pt = type.asParameterizedType();
+		if (pt != null) {
+			Type[] typeArgs = pt.typeArguments();
+			if (typeArgs != null && typeArgs.length > 0) {
+				TypeVariable[] vars = classDoc.typeParameters();
+				int i = 0;
+				for (TypeVariable var : vars) {
+					this.varsToTypes.put(var.qualifiedTypeName(), typeArgs[i]);
+					i++;
+				}
+			}
+		}
+
+		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
+		Map<String, Property> elements = findReferencedElements(types, nested);
 		if (!elements.isEmpty()) {
 			this.models.add(new Model(this.translator.typeName(type).value(), elements));
 			parseNestedModels(types.values());
@@ -115,7 +135,7 @@ public class ApiModelParser {
 		return classes;
 	}
 
-	private Map<String, TypeRef> findReferencedTypes(ClassDoc rootClassDoc) {
+	private Map<String, TypeRef> findReferencedTypes(ClassDoc rootClassDoc, boolean nested) {
 
 		Map<String, TypeRef> elements = new HashMap<String, TypeRef>();
 
@@ -169,7 +189,9 @@ public class ApiModelParser {
 					String max = getFieldMax(field);
 
 					if (name != null && !elements.containsKey(name)) {
-						elements.put(field.name(), new TypeRef(field.type(), description, min, max));
+
+						Type fieldType = getModelType(field.type(), nested);
+						elements.put(field.name(), new TypeRef(fieldType, description, min, max));
 					}
 				}
 			}
@@ -249,7 +271,10 @@ public class ApiModelParser {
 							String description = getFieldDescription(method);
 							String min = getFieldMin(method);
 							String max = getFieldMax(method);
-							elements.put(translatedNameViaMethod, new TypeRef(method.returnType(), description, min, max));
+
+							Type returnType = getModelType(method.returnType(), nested);
+
+							elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max));
 						}
 
 					}
@@ -288,14 +313,16 @@ public class ApiModelParser {
 		return AnnotationHelper.getTagValue(docItem, this.options.getPropertyMaxTags());
 	}
 
-	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types) {
+	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types, boolean nested) {
 		Map<String, Property> elements = new HashMap<String, Property>();
 		for (Map.Entry<String, TypeRef> entry : types.entrySet()) {
 			String typeName = entry.getKey();
+
 			Type type = entry.getValue().type;
 			ClassDoc typeClassDoc = type.asClassDoc();
 
 			String propertyType = this.translator.typeName(type).value();
+
 			List<String> allowableValues = null;
 			if (typeClassDoc != null && typeClassDoc.isEnum()) {
 				propertyType = "string";
@@ -307,7 +334,7 @@ public class ApiModelParser {
 				});
 			}
 
-			Type containerOf = getTypeArgument(type);
+			Type containerOf = getContainerType(type);
 			String itemsRef = null;
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
@@ -334,29 +361,89 @@ public class ApiModelParser {
 
 	private void parseNestedModels(Collection<TypeRef> types) {
 		for (TypeRef type : types) {
-			parseModel(type.type);
-			Type pt = getTypeArgument(type.type);
+			parseModel(type.type, true);
+
+			// parse paramaterized types
+			ParameterizedType pt = type.type.asParameterizedType();
 			if (pt != null) {
-				parseModel(pt);
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null) {
+					for (Type paramType : typeArgs) {
+						parseModel(paramType, true);
+					}
+				}
 			}
 		}
 	}
 
-	/**
-	 * This gets the type of the given type, if its parameterized it returns the first type argument.
-	 * @param type The type (may be parameterized)
-	 * @return The raw type if not parameterized otherwise the type of the first parameterized argument
-	 */
-	public static Type getTypeArgument(Type type) {
+	private Type getContainerType(Type type) {
 		Type result = null;
 		ParameterizedType pt = type.asParameterizedType();
-		if (pt != null) {
+		if (pt != null && AnnotationHelper.isCollection(type.qualifiedTypeName())) {
 			Type[] typeArgs = pt.typeArguments();
 			if (typeArgs != null && typeArgs.length > 0) {
 				result = typeArgs[0];
 			}
 		}
+		// if its a ref to a param type replace with the type impl
+		if (result != null) {
+			Type paramType = getVarType(result.asTypeVariable());
+			if (paramType != null) {
+				return paramType;
+			}
+		}
 		return result;
+	}
+
+	private Type getModelType(Type type, boolean nested) {
+		if (type != null) {
+
+			ParameterizedType pt = type.asParameterizedType();
+			if (pt != null) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null && typeArgs.length > 0) {
+					// if its a generic wrapper type then return the wrapped type
+					if (this.options.getGenericWrapperTypes().contains(type.qualifiedTypeName())) {
+						return typeArgs[0];
+					}
+					// TODO what about maps?
+				}
+			}
+			// if its a ref to a param type replace with the type impl
+			Type paramType = getVarType(type.asTypeVariable());
+			if (paramType != null) {
+				return paramType;
+			}
+		}
+		return type;
+	}
+
+	public static Type getReturnType(DocletOptions options, Type type) {
+		if (type != null) {
+			ParameterizedType pt = type.asParameterizedType();
+			if (pt != null) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null && typeArgs.length > 0) {
+					// if its a generic wrapper type then return the wrapped type
+					if (options.getGenericWrapperTypes().contains(type.qualifiedTypeName())) {
+						return typeArgs[0];
+					}
+				}
+			}
+		}
+		return type;
+	}
+
+	private Type getVarType(TypeVariable var) {
+		Type res = null;
+		if (var != null) {
+			Type type = this.varsToTypes.get(var.qualifiedTypeName());
+			while (type != null) {
+				res = type;
+				type = this.varsToTypes.get(type.qualifiedTypeName());
+			}
+		}
+		return res;
 	}
 
 	private boolean alreadyStoredType(final Type type) {
