@@ -184,8 +184,8 @@ public class DocletOptions {
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 
 		this.errorTags = new ArrayList<String>();
-		this.errorTags.add("errorResponse"); // swagger 1.1
-		this.errorTags.add("responseMessage"); // swagger 1.2
+		this.errorTags.add("errorResponse");
+		this.errorTags.add("responseMessage");
 		this.errorTags.add("errorCode");
 
 		this.successTags = new ArrayList<String>();

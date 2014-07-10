@@ -107,12 +107,40 @@ To override the swagger ui included with the doclet, create your own swagger-ui.
 ## New Features/Fixes in this fork:
 
 ### Fixes
-Issue 72 (PUT params)
+Issue 72 (PUT params)  
+
 Issue 71 (return type overriding via doclet tags) 
+
 Issue 70 support parameterized return types and typesToTreatAsOpaque option
+
 Issue 64 adding short and char to primitives
 
-Support old jackson annotations
+Issue 73 Support old jackson annotations
+
+Issue 63 support exclude resources (via exclude tags and also via deprecation)
+
+Issue 58 Swagger ui zip path
+
+Issue 52 Model inheritance
+
+
+### Features
+
+Full 1.2 swagger spec support including 
+
+Authorizations
+
+Info
+
+New data types and formats
+
+Response Messages
+
+Response Message Model
+
+Updated Allowable Values
+
+Produces/Consumes
 
 
 
