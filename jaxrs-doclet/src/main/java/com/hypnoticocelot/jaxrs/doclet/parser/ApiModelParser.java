@@ -158,6 +158,12 @@ public class ApiModelParser {
 						continue;
 					}
 
+					// ignore fields we are to explicitly exclude
+					if (AnnotationHelper.hasTag(field, this.options.getExcludeFieldTags())) {
+						excludeFields.add(field.name());
+						continue;
+					}
+
 					String description = getFieldDescription(field);
 					String min = getFieldMin(field);
 					String max = getFieldMax(field);
@@ -188,7 +194,16 @@ public class ApiModelParser {
 					if (translatedNameViaMethod != null) {
 
 						boolean isFieldGetter = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
-						boolean excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+
+						boolean excludeMethod = false;
+
+						// ignore deprecated methods
+						excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+
+						// ignore methods we are to explicitly exclude
+						if (AnnotationHelper.hasTag(method, this.options.getExcludeMethodTags())) {
+							excludeMethod = true;
+						}
 
 						if (isFieldGetter) {
 

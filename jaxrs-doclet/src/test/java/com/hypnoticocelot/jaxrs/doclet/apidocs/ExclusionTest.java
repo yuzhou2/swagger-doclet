@@ -18,7 +18,7 @@ import com.hypnoticocelot.jaxrs.doclet.model.ApiDeclaration;
 import com.hypnoticocelot.jaxrs.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
-public class ObjectTest {
+public class ExclusionTest {
 
 	private Recorder recorderMock;
 	private DocletOptions options;
@@ -31,10 +31,10 @@ public class ObjectTest {
 
 	@Test
 	public void testStart() throws IOException {
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.object");
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.exclusion");
 		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final ApiDeclaration api = loadFixture("/fixtures/object/object.json", ApiDeclaration.class);
+		final ApiDeclaration api = loadFixture("/fixtures/exclusion/exclusion.json", ApiDeclaration.class);
 		verify(this.recorderMock).record(any(File.class), eq(api));
 	}
 

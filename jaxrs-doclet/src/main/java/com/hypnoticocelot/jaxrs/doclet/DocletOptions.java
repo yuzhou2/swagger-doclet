@@ -93,6 +93,8 @@ public class DocletOptions {
 				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeMethodTags")) {
 				parsedOptions.excludeMethodTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeFieldTags")) {
+				parsedOptions.excludeFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
@@ -140,6 +142,7 @@ public class DocletOptions {
 
 	private List<String> excludeParamAnnotations;
 	private List<String> excludeMethodTags;
+	private List<String> excludeFieldTags;
 	private List<String> resourceTags;
 	private List<String> methodCommentTags;
 	private List<String> methodSummaryTags;
@@ -202,6 +205,11 @@ public class DocletOptions {
 		this.excludeMethodTags.add("hidden");
 		this.excludeMethodTags.add("hide");
 		this.excludeMethodTags.add("exclude");
+
+		this.excludeFieldTags = new ArrayList<String>();
+		this.excludeFieldTags.add("hidden");
+		this.excludeFieldTags.add("hide");
+		this.excludeFieldTags.add("exclude");
 
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
@@ -318,6 +326,14 @@ public class DocletOptions {
 	 */
 	public List<String> getExcludeMethodTags() {
 		return this.excludeMethodTags;
+	}
+
+	/**
+	 * This gets the excludeFieldTags
+	 * @return the excludeFieldTags
+	 */
+	public List<String> getExcludeFieldTags() {
+		return this.excludeFieldTags;
 	}
 
 	/**
