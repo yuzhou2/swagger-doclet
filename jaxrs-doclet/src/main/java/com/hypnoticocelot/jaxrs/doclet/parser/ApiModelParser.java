@@ -4,7 +4,9 @@ import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -17,6 +19,7 @@ import com.google.common.base.Predicate;
 import com.hypnoticocelot.jaxrs.doclet.DocletOptions;
 import com.hypnoticocelot.jaxrs.doclet.model.Model;
 import com.hypnoticocelot.jaxrs.doclet.model.Property;
+import com.hypnoticocelot.jaxrs.doclet.translator.NameBasedTranslator;
 import com.hypnoticocelot.jaxrs.doclet.translator.Translator;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
@@ -44,12 +47,15 @@ public class ApiModelParser {
 	}
 
 	private void parseModel(Type type) {
-		boolean isPrimitive = /* type.isPrimitive()? || */AnnotationHelper.isPrimitive(type);
-		boolean isJavaxType = type.qualifiedTypeName().startsWith("javax.");
-		boolean isBaseObject = type.qualifiedTypeName().equals("java.lang.Object");
-		boolean isTypeToTreatAsOpaque = this.options.getTypesToTreatAsOpaque().contains(type.qualifiedTypeName());
+		String qName = type.qualifiedTypeName();
+		boolean isPrimitive = AnnotationHelper.isPrimitive(type);
+		boolean isJavaxType = qName.startsWith("javax.");
+		boolean isBaseObject = qName.equals("java.lang.Object");
+		boolean isClass = qName.equals("java.lang.Class");
+		boolean isWildcard = qName.equals("?");
+		boolean isTypeToTreatAsOpaque = this.options.getTypesToTreatAsOpaque().contains(qName);
 		ClassDoc classDoc = type.asClassDoc();
-		if (isPrimitive || isJavaxType || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || alreadyStoredType(type)) {
+		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || alreadyStoredType(type)) {
 			return;
 		}
 
@@ -88,91 +94,157 @@ public class ApiModelParser {
 		}
 	}
 
-	private Map<String, TypeRef> findReferencedTypes(ClassDoc classDoc) {
+	// get list of super classes with highest level first so we process
+	// grandparents down, this allows us to override field names via the lower levels
+	List<ClassDoc> getClassLineage(ClassDoc classDoc) {
+		List<ClassDoc> classes = new ArrayList<ClassDoc>();
+		while (classDoc != null) {
+
+			// ignore parent object class
+			String qName = classDoc.qualifiedName();
+			boolean isBaseObject = qName.equals("java.lang.Object");
+			if (isBaseObject) {
+				break;
+			}
+
+			classes.add(classDoc);
+			classDoc = classDoc.superclass();
+		}
+		Collections.reverse(classes);
+		return classes;
+	}
+
+	private Map<String, TypeRef> findReferencedTypes(ClassDoc rootClassDoc) {
+
 		Map<String, TypeRef> elements = new HashMap<String, TypeRef>();
 
-		// add fields
-		FieldDoc[] fieldDocs = classDoc.fields();
+		List<ClassDoc> classes = getClassLineage(rootClassDoc);
 
-		Set<String> excludeFields = new HashSet<String>();
+		// map of raw field names to translated names, translated names may be different
+		// due to annotations like XMLElement
+		Map<String, String> rawToTranslatedFields = new HashMap<String, String>();
 
-		if (fieldDocs != null) {
-			for (FieldDoc field : fieldDocs) {
+		NameBasedTranslator nameTranslator = new NameBasedTranslator();
 
-				// ignore static or transient fields
-				if (field.isStatic() || field.isTransient()) {
-					continue;
-				}
+		for (ClassDoc classDoc : classes) {
 
-				String name = this.translator.fieldName(field).value();
+			boolean superClass = !classDoc.equals(rootClassDoc);
 
-				// ignore deprecated fields
-				if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
-					excludeFields.add(name);
-					continue;
-				}
+			// add fields
+			FieldDoc[] fieldDocs = classDoc.fields();
 
-				String description = getFieldDescription(field);
-				String min = getFieldMin(field);
-				String max = getFieldMax(field);
+			Set<String> excludeFields = new HashSet<String>();
 
-				if (name != null && !elements.containsKey(name)) {
-					elements.put(name, new TypeRef(field.type(), description, min, max));
-				}
-			}
-		}
+			if (fieldDocs != null) {
+				for (FieldDoc field : fieldDocs) {
 
-		// add method return types
-		MethodDoc[] methodDocs = classDoc.methods();
-		if (methodDocs != null) {
-			for (MethodDoc method : methodDocs) {
-				String name = this.translator.methodName(method).value();
-				if (name != null) {
-
-					// skip if the field has already been excluded
-					if (excludeFields.contains(name)) {
+					// ignore static or transient fields
+					if (field.isStatic() || field.isTransient()) {
 						continue;
 					}
 
-					boolean excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
-
-					// skip if this method is to be excluded
-					if (excludeMethod) {
-
-						// remove the field if it was found already
-						if (elements.containsKey(name)) {
-							elements.remove(name);
-						}
-
+					// if super class ignore private fields
+					if (superClass && field.isPrivate()) {
 						continue;
 					}
 
-					if (elements.containsKey(name)) {
+					String name = this.translator.fieldName(field).value();
+					rawToTranslatedFields.put(field.name(), name);
 
-						TypeRef typeRef = elements.get(name);
-						// the field was already found e.g. class had a field and this is the getter
-						// check if there are tags on the getter we can use to fill in description, min and max
-						if (typeRef.description == null) {
-							typeRef.description = getFieldDescription(method);
-						}
-						if (typeRef.min == null) {
-							typeRef.min = getFieldMin(method);
-						}
-						if (typeRef.max == null) {
-							typeRef.max = getFieldMax(method);
-						}
+					// ignore deprecated fields
+					if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
+						excludeFields.add(field.name());
+						continue;
+					}
 
-					} else {
-						// this is a getter where there wasn't a specific field
-						String description = getFieldDescription(method);
-						String min = getFieldMin(method);
-						String max = getFieldMax(method);
-						elements.put(name, new TypeRef(method.returnType(), description, min, max));
+					String description = getFieldDescription(field);
+					String min = getFieldMin(field);
+					String max = getFieldMax(field);
+
+					if (name != null && !elements.containsKey(name)) {
+						elements.put(field.name(), new TypeRef(field.type(), description, min, max));
 					}
 				}
 			}
+
+			// add methods
+			MethodDoc[] methodDocs = classDoc.methods();
+			if (methodDocs != null) {
+				for (MethodDoc method : methodDocs) {
+
+					// ignore static methods and private methods
+					if (method.isStatic() || method.isPrivate()) {
+						continue;
+					}
+
+					// read the corresponding raw field name, this ensures this is a getter method e.g. one
+					// that will be returned in the json
+					String rawFieldName = nameTranslator.methodName(method).value();
+
+					if (rawFieldName != null) {
+
+						// skip if the field has already been excluded
+						if (excludeFields.contains(rawFieldName)) {
+							continue;
+						}
+
+						boolean excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+
+						// skip if this method is to be excluded
+						if (excludeMethod) {
+
+							// remove the field if it was found already
+							if (elements.containsKey(rawFieldName)) {
+								elements.remove(rawFieldName);
+							}
+
+							continue;
+						}
+
+						String translatedNameViaMethod = this.translator.methodName(method).value();
+
+						if (elements.containsKey(rawFieldName)) {
+
+							// see if the field name should be overwritten via annotations on the getter
+							String nameViaField = rawToTranslatedFields.get(rawFieldName);
+							if (!translatedNameViaMethod.equals(nameViaField)) {
+								rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
+							}
+
+							TypeRef typeRef = elements.get(rawFieldName);
+							// the field was already found e.g. class had a field and this is the getter
+							// check if there are tags on the getter we can use to fill in description, min and max
+							if (typeRef.description == null) {
+								typeRef.description = getFieldDescription(method);
+							}
+							if (typeRef.min == null) {
+								typeRef.min = getFieldMin(method);
+							}
+							if (typeRef.max == null) {
+								typeRef.max = getFieldMax(method);
+							}
+
+						} else {
+							// this is a getter where there wasn't a specific field
+							String description = getFieldDescription(method);
+							String min = getFieldMin(method);
+							String max = getFieldMax(method);
+							elements.put(translatedNameViaMethod, new TypeRef(method.returnType(), description, min, max));
+						}
+					}
+				}
+			}
+
 		}
-		return elements;
+
+		// finally switch the element keys to use the translated field names
+		Map<String, TypeRef> res = new HashMap<String, TypeRef>();
+		for (Map.Entry<String, TypeRef> entry : elements.entrySet()) {
+			String translatedName = rawToTranslatedFields.get(entry.getKey());
+			res.put(translatedName == null ? entry.getKey() : translatedName, entry.getValue());
+		}
+
+		return res;
 	}
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem) {
