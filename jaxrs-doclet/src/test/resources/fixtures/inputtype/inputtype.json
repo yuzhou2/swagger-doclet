@@ -1,0 +1,117 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/inputtype",
+    "apis": [
+    	{
+            "path": "/inputtype/postData2b",
+            "description": "",
+            "operations": [
+            	{
+                    "httpMethod": "POST",
+                    "nickname": "postData2b",
+                    "type": "Response",
+                    "parameters": [
+                    	{
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format": "int32",
+                            "allowMultiple" : false
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/inputtype/postData2c/{p2}",
+            "description": "",
+            "operations": [
+            	{
+                    "httpMethod": "POST",
+                    "nickname": "postData2c",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format": "int32",
+                            "allowMultiple" : false
+                        },
+                        {
+                            "paramType": "path",
+                            "name": "p2",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/inputtype/putData1",
+            "description": "",
+            "operations": [
+            	{
+                    "httpMethod": "PUT",
+                    "nickname": "putData1",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/inputtype/putData2",
+            "description": "",
+            "operations": [
+            	{
+                    "httpMethod": "PUT",
+                    "nickname": "putData2",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data2"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data1": {
+            "id": "Data1",
+            "properties": {
+                "field1": {
+                    "type": "string"
+                }
+            }
+        },
+        "Data2": {
+            "id": "Data2",
+            "properties": {
+                "field2": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

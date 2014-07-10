@@ -101,6 +101,8 @@ public class DocletOptions {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
 				parsedOptions.responseTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-inputTypeTags")) {
+				parsedOptions.inputTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-defaultErrorTypeTags")) {
 				parsedOptions.defaultErrorTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-methodCommentTags")) {
@@ -141,6 +143,7 @@ public class DocletOptions {
 	private List<String> errorTags;
 	private List<String> successTags;
 	private List<String> responseTypeTags;
+	private List<String> inputTypeTags;
 	private List<String> defaultErrorTypeTags;
 
 	private List<String> excludeParamAnnotations;
@@ -226,6 +229,10 @@ public class DocletOptions {
 		this.responseTypeTags = new ArrayList<String>();
 		this.responseTypeTags.add("responseType");
 		this.responseTypeTags.add("outputType");
+
+		this.inputTypeTags = new ArrayList<String>();
+		this.inputTypeTags.add("inputType");
+		this.inputTypeTags.add("bodyType");
 
 		this.defaultErrorTypeTags = new ArrayList<String>();
 		this.defaultErrorTypeTags.add("defaultErrorType");
@@ -400,6 +407,14 @@ public class DocletOptions {
 	 */
 	public List<String> getResponseTypeTags() {
 		return this.responseTypeTags;
+	}
+
+	/**
+	 * This gets tags that can customize the type for input body params
+	 * @return The list of tags that can customize input body params
+	 */
+	public List<String> getInputTypeTags() {
+		return this.inputTypeTags;
 	}
 
 	/**

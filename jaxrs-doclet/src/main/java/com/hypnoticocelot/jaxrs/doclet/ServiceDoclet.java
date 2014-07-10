@@ -43,6 +43,8 @@ public class ServiceDoclet {
 		options.put("-genericWrapperTypes", 2);
 
 		options.put("-responseTypeTags", 2);
+		options.put("-inputTypeTags", 2);
+
 		options.put("-defaultErrorTypeTags", 2);
 		options.put("-successTags", 2);
 		options.put("-errorTags", 2);

@@ -145,17 +145,27 @@ public class ApiMethodParser {
 			if (!shouldIncludeParameter(this.httpMethod, parameter)) {
 				continue;
 			}
-			if (this.options.isParseModels()) {
-				this.models.addAll(new ApiModelParser(this.options, this.translator, parameter.type()).parse());
+
+			Type paramType = parameter.type();
+			String paramCategory = AnnotationHelper.paramTypeOf(parameter);
+
+			// look for a custom input type for body params
+			if ("body".equals(paramCategory)) {
+				String customParamType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
+				paramType = readCustomParamType(customParamType, paramType);
 			}
 
-			OptionalName paramTypeFormat = this.translator.typeName(parameter.type());
-			String type = paramTypeFormat.value();
+			if (this.options.isParseModels()) {
+				this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
+			}
+
+			OptionalName paramTypeFormat = this.translator.typeName(paramType);
+			String typeName = paramTypeFormat.value();
 
 			List<String> allowableValues = null;
 			ClassDoc typeClassDoc = parameter.type().asClassDoc();
 			if (typeClassDoc != null && typeClassDoc.isEnum()) {
-				type = "string";
+				typeName = "string";
 				allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
 
 					public String apply(FieldDoc input) {
@@ -163,15 +173,14 @@ public class ApiMethodParser {
 					}
 				});
 			}
-			String paramType = AnnotationHelper.paramTypeOf(parameter);
 			Boolean allowMultiple = null;
-			if ("query".equals(paramType)) {
+			if ("query".equals(paramCategory)) {
 				// TODO: support config
 				allowMultiple = Boolean.FALSE;
 			}
 
-			ApiParameter param = new ApiParameter(paramType, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter), type,
-					paramTypeFormat.getFormat(), allowableValues, allowMultiple);
+			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),
+					typeName, paramTypeFormat.getFormat(), allowableValues, allowMultiple);
 			parameters.add(param);
 		}
 
@@ -254,18 +263,7 @@ public class ApiMethodParser {
 		// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 		// but typically return a different object in its entity (such as for a 201 created response)
 		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
-		if (customReturnType != null) {
-			// lookup the type from see tags and use that for return type
-			Type customType = AnnotationHelper.findModel(this.classes, customReturnType);
-			if (customType != null) {
-				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
-				returnType = this.translator.typeName(customType).value();
-				// also add this custom return type to the models
-				if (this.options.isParseModels()) {
-					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
-				}
-			}
-		}
+		returnType = readCustomReturnType(customReturnType, returnType);
 
 		// ************************************
 		// Summary and notes
@@ -385,6 +383,40 @@ public class ApiMethodParser {
 	 */
 	public Set<Model> models() {
 		return this.models;
+	}
+
+	private Type readCustomParamType(String customTypeName, Type defaultType) {
+		if (customTypeName != null) {
+			// lookup the type from the doclet classes
+			Type customType = AnnotationHelper.findModel(this.classes, customTypeName);
+			if (customType != null) {
+				// also add this custom return type to the models
+				if (this.options.isParseModels()) {
+					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
+				}
+				return customType;
+			}
+		}
+		return defaultType;
+	}
+
+	private String readCustomReturnType(String customTypeName, String defaultTypeName) {
+		if (customTypeName != null) {
+			// lookup the type from the doclet classes
+			Type customType = AnnotationHelper.findModel(this.classes, customTypeName);
+			if (customType != null) {
+				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
+				// also add this custom return type to the models
+				if (this.options.isParseModels()) {
+					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
+				}
+				String translated = this.translator.typeName(customType).value();
+				if (translated != null) {
+					return translated;
+				}
+			}
+		}
+		return defaultTypeName;
 	}
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {
