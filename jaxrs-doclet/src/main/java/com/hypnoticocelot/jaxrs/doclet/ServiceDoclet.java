@@ -67,6 +67,7 @@ public class ServiceDoclet {
 		// supports removing certain methods from the docs, e.g. for hidden/private
 		// endpoints
 		options.put("-excludeMethodTags", 2);
+		options.put("-excludeFieldTags", 2);
 
 		// used to support api listings
 		// where operations in an api can be spread across multiple resource classes
