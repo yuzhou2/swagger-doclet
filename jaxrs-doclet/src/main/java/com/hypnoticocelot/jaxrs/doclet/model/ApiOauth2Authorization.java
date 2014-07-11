@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class ApiOauth2Authorization {
 
-	private String type = "oauth2";
+	private String type;
 	private List<Oauth2Scope> scopes;
 	private Oauth2GrantTypes grantTypes;
 
@@ -17,6 +17,7 @@ public class ApiOauth2Authorization {
 	 * This creates a ApiOauth2Authorization
 	 */
 	public ApiOauth2Authorization() {
+		this.type = "oauth2";
 	}
 
 	/**
@@ -26,13 +27,14 @@ public class ApiOauth2Authorization {
 	 */
 	public ApiOauth2Authorization(List<Oauth2Scope> scopes, Oauth2GrantTypes grantTypes) {
 		super();
+		this.type = "oauth2";
 		this.scopes = scopes;
 		this.grantTypes = grantTypes;
 	}
 
 	/**
-	 * This gets the type
-	 * @return the type
+	 * This gets the type of the authorization
+	 * @return oauth2
 	 */
 	public String getType() {
 		return this.type;

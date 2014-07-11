@@ -8,11 +8,11 @@ package com.hypnoticocelot.jaxrs.doclet.model;
 public class ApiAuthorizations {
 
 	private ApiOauth2Authorization oauth2;
-
-	// TODO support other types
+	private ApiBasicAuthorization basicAuth;
+	private ApiKeyAuthorization apiKey;
 
 	/**
-	 * This creates a Authorizations
+	 * This creates an empty Authorizations
 	 */
 	public ApiAuthorizations() {
 	}
@@ -27,11 +27,45 @@ public class ApiAuthorizations {
 	}
 
 	/**
+	 * This creates a ApiAuthorizations for basic auth
+	 * @param basicAuth The basic authorization
+	 */
+	public ApiAuthorizations(ApiBasicAuthorization basicAuth) {
+		super();
+		this.basicAuth = basicAuth;
+	}
+
+	/**
+	 * This creates a ApiAuthorizations for api key type auth
+	 * @param apiKey The API key authorization details
+	 */
+	public ApiAuthorizations(ApiKeyAuthorization apiKey) {
+		super();
+		this.apiKey = apiKey;
+	}
+
+	/**
 	 * This gets the oauth2
 	 * @return the oauth2
 	 */
 	public ApiOauth2Authorization getOauth2() {
 		return this.oauth2;
+	}
+
+	/**
+	 * This gets the basicAuth
+	 * @return the basicAuth
+	 */
+	public ApiBasicAuthorization getBasicAuth() {
+		return this.basicAuth;
+	}
+
+	/**
+	 * This gets the apiKey
+	 * @return the apiKey
+	 */
+	public ApiKeyAuthorization getApiKey() {
+		return this.apiKey;
 	}
 
 	/**
@@ -42,6 +76,8 @@ public class ApiAuthorizations {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((this.apiKey == null) ? 0 : this.apiKey.hashCode());
+		result = prime * result + ((this.basicAuth == null) ? 0 : this.basicAuth.hashCode());
 		result = prime * result + ((this.oauth2 == null) ? 0 : this.oauth2.hashCode());
 		return result;
 	}
@@ -62,6 +98,20 @@ public class ApiAuthorizations {
 			return false;
 		}
 		ApiAuthorizations other = (ApiAuthorizations) obj;
+		if (this.apiKey == null) {
+			if (other.apiKey != null) {
+				return false;
+			}
+		} else if (!this.apiKey.equals(other.apiKey)) {
+			return false;
+		}
+		if (this.basicAuth == null) {
+			if (other.basicAuth != null) {
+				return false;
+			}
+		} else if (!this.basicAuth.equals(other.basicAuth)) {
+			return false;
+		}
 		if (this.oauth2 == null) {
 			if (other.oauth2 != null) {
 				return false;
@@ -78,7 +128,7 @@ public class ApiAuthorizations {
 	 */
 	@Override
 	public String toString() {
-		return "ApiAuthorizations [oauth2=" + this.oauth2 + "]";
+		return "ApiAuthorizations [oauth2=" + this.oauth2 + ", basicAuth=" + this.basicAuth + ", apiKey=" + this.apiKey + "]";
 	}
 
 }

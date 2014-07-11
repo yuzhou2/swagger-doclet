@@ -156,8 +156,11 @@ Model field descriptions
 #### Other features:
 
 Support resource operations being spread across multiple resource classes
-Support custum/override put/post body model type
+
+Support custom/override put/post body model type
+
 support exclude resources/fields (via exclude tags and also via deprecation annotations/tags)
+
 
 
 
