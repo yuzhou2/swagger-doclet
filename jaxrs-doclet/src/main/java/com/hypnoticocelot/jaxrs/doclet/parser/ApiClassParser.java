@@ -61,43 +61,48 @@ public class ApiClassParser {
 		List<Api> apis = new ArrayList<Api>();
 		Map<String, Collection<Method>> apiMethods = new HashMap<String, Collection<Method>>();
 
-		// read default error type for class
-		String defaultErrorTypeClass = AnnotationHelper.getTagValue(this.classDoc, this.options.getDefaultErrorTypeTags());
-		Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
+		ClassDoc currentClassDoc = this.classDoc;
+		while (currentClassDoc != null) {
 
-		if (this.options.isParseModels() && defaultErrorType != null) {
-			this.models.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
-		}
+			// read default error type for class
+			String defaultErrorTypeClass = AnnotationHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
+			Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
 
-		for (MethodDoc method : this.classDoc.methods()) {
-			ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, this.classes,
-					defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes, defaultErrorTypeClass);
-			Method parsedMethod = methodParser.parse();
-			if (parsedMethod == null) {
-				continue;
+			if (this.options.isParseModels() && defaultErrorType != null) {
+				this.models.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
 			}
-			if (parsedMethod.isSubResource()) {
-				ClassDoc subResourceClassDoc = lookUpClassDoc(method.returnType());
-				if (subResourceClassDoc != null) {
-					// delete class from the dictionary to handle recursive sub-resources
-					Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);
-					shrunkClasses.remove(this.classDoc);
-					// recursively parse the sub-resource class
-					ApiClassParser subResourceParser = new ApiClassParser(this.options, subResourceClassDoc, shrunkClasses, parsedMethod);
-					apis.addAll(subResourceParser.parse());
-					this.models.addAll(subResourceParser.models());
+
+			for (MethodDoc method : currentClassDoc.methods()) {
+				ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, this.classes,
+						defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes, defaultErrorTypeClass);
+				Method parsedMethod = methodParser.parse();
+				if (parsedMethod == null) {
+					continue;
 				}
-				continue;
-			}
-			this.models.addAll(methodParser.models());
+				if (parsedMethod.isSubResource()) {
+					ClassDoc subResourceClassDoc = lookUpClassDoc(method.returnType());
+					if (subResourceClassDoc != null) {
+						// delete class from the dictionary to handle recursive sub-resources
+						Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);
+						shrunkClasses.remove(currentClassDoc);
+						// recursively parse the sub-resource class
+						ApiClassParser subResourceParser = new ApiClassParser(this.options, subResourceClassDoc, shrunkClasses, parsedMethod);
+						apis.addAll(subResourceParser.parse());
+						this.models.addAll(subResourceParser.models());
+					}
+					continue;
+				}
+				this.models.addAll(methodParser.models());
 
-			String realPath = parsedMethod.getPath();
-			Collection<Method> matchingMethods = apiMethods.get(realPath);
-			if (matchingMethods == null) {
-				matchingMethods = new ArrayList<Method>();
-				apiMethods.put(realPath, matchingMethods);
+				String realPath = parsedMethod.getPath();
+				Collection<Method> matchingMethods = apiMethods.get(realPath);
+				if (matchingMethods == null) {
+					matchingMethods = new ArrayList<Method>();
+					apiMethods.put(realPath, matchingMethods);
+				}
+				matchingMethods.add(parsedMethod);
 			}
-			matchingMethods.add(parsedMethod);
+			currentClassDoc = currentClassDoc.superclass();
 		}
 
 		for (Map.Entry<String, Collection<Method>> apiEntries : apiMethods.entrySet()) {

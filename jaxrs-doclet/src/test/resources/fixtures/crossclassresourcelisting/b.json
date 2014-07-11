@@ -25,6 +25,17 @@
                     "type": "void"
                 }
             ]
+        },
+        {
+            "path": "/z",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "getZ",
+                    "type": "void"
+                }
+            ]
         }
     ]
 }
