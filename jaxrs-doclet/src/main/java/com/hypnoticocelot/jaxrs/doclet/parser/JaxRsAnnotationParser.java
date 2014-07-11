@@ -179,6 +179,9 @@ public class JaxRsAnnotationParser {
 
 		// Copy swagger-ui into the output directory.
 		if (this.options.isIncludeSwaggerUi()) {
+
+			// TODO: support swagger ui dir instead of zip...
+
 			String swaggerUiZipPath = this.options.getSwaggerUiZipPath();
 			ZipInputStream swaggerZip;
 			if (DocletOptions.DEFAULT_SWAGGER_UI_ZIP_PATH.equals(swaggerUiZipPath)) {
@@ -211,6 +214,7 @@ public class JaxRsAnnotationParser {
 				entry = swaggerZip.getNextEntry();
 			}
 			swaggerZip.close();
+
 		}
 	}
 

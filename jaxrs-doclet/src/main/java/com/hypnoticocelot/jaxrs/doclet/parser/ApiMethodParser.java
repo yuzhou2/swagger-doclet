@@ -128,12 +128,12 @@ public class ApiMethodParser {
 		}
 
 		// exclude if its deprecated and options indicate we shouldnt include deprecated
-		if (this.options.isExcludeDeprecatedMethods() && AnnotationHelper.isDeprecated(this.methodDoc)) {
+		if (this.options.isExcludeDeprecatedOperations() && AnnotationHelper.isDeprecated(this.methodDoc)) {
 			return null;
 		}
 
 		// exclude if it has exclusion tags
-		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getExcludeMethodTags())) {
+		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getExcludeOperationTags())) {
 			return null;
 		}
 
@@ -281,11 +281,11 @@ public class ApiMethodParser {
 		notes = notes.replace(summary, "");
 
 		// look for custom notes/summary tags to use instead
-		String customNotes = AnnotationHelper.getTagValue(this.methodDoc, this.options.getMethodCommentTags());
+		String customNotes = AnnotationHelper.getTagValue(this.methodDoc, this.options.getOperationNotesTags());
 		if (customNotes != null) {
 			notes = customNotes;
 		}
-		String customSummary = AnnotationHelper.getTagValue(this.methodDoc, this.options.getMethodSummaryTags());
+		String customSummary = AnnotationHelper.getTagValue(this.methodDoc, this.options.getOperationSummaryTags());
 		if (customSummary != null) {
 			summary = customSummary;
 		}

@@ -49,11 +49,11 @@ public class ServiceDoclet {
 		options.put("-responseMessageTags", 2);
 
 		options.put("-resourceTags", 2);
-		options.put("-methodCommentTags", 2);
-		options.put("-methodSummaryTags", 2);
-		options.put("-propertyCommentTags", 2);
-		options.put("-propertyMinTags", 2);
-		options.put("-propertyMaxTags", 2);
+		options.put("-operationNotesTags", 2);
+		options.put("-operationSummaryTags", 2);
+		options.put("-fieldDescriptionTags", 2);
+		options.put("-fieldMinTags", 2);
+		options.put("-fieldMaxTags", 2);
 
 		options.put("-apiAuthorizationsFile", 2);
 		options.put("-apiInfoFile", 2);
@@ -69,7 +69,7 @@ public class ServiceDoclet {
 
 		// supports removing certain methods from the docs, e.g. for hidden/private
 		// endpoints
-		options.put("-excludeMethodTags", 2);
+		options.put("-excludeOperationTags", 2);
 		options.put("-excludeFieldTags", 2);
 
 		// used to support api listings
@@ -77,7 +77,7 @@ public class ServiceDoclet {
 		options.put("-crossClassResources", 1);
 
 		// control deprecation exclusion
-		options.put("-disableDeprecatedMethodExclusion", 1);
+		options.put("-disableDeprecatedOperationExclusion", 1);
 		options.put("-disableDeprecatedFieldExclusion", 1);
 		options.put("-disableDeprecatedParamExclusion", 1);
 

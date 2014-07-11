@@ -228,7 +228,7 @@ public class ApiModelParser {
 							excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
 
 							// ignore methods we are to explicitly exclude
-							if (AnnotationHelper.hasTag(method, this.options.getExcludeMethodTags())) {
+							if (AnnotationHelper.hasTag(method, this.options.getExcludeFieldTags())) {
 								excludeMethod = true;
 							}
 
@@ -301,7 +301,7 @@ public class ApiModelParser {
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem) {
 		// method
-		String description = AnnotationHelper.getTagValue(docItem, this.options.getPropertyCommentTags());
+		String description = AnnotationHelper.getTagValue(docItem, this.options.getFieldDescriptionTags());
 		if (description == null) {
 			description = docItem.commentText();
 		}
@@ -312,11 +312,11 @@ public class ApiModelParser {
 	}
 
 	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		return AnnotationHelper.getTagValue(docItem, this.options.getPropertyMinTags());
+		return AnnotationHelper.getTagValue(docItem, this.options.getFieldMinTags());
 	}
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		return AnnotationHelper.getTagValue(docItem, this.options.getPropertyMaxTags());
+		return AnnotationHelper.getTagValue(docItem, this.options.getFieldMaxTags());
 	}
 
 	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types, boolean nested) {

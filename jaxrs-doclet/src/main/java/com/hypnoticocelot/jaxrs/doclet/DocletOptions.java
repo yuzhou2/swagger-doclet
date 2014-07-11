@@ -73,14 +73,14 @@ public class DocletOptions {
 				parsedOptions.includeSwaggerUi = false;
 			} else if (option[0].equals("-crossClassResources")) {
 				parsedOptions.crossClassResources = true;
-			} else if (option[0].equals("-sortApisByPath")) {
-				parsedOptions.sortApisByPath = true;
+			} else if (option[0].equals("-disableSortApisByPath")) {
+				parsedOptions.sortApisByPath = false;
 			} else if (option[0].equals("-sortResourcesByPath")) {
 				parsedOptions.sortResourcesByPath = true;
 			} else if (option[0].equals("-sortResourcesByPriority")) {
 				parsedOptions.sortResourcesByPriority = true;
-			} else if (option[0].equals("-disableDeprecatedMethodExclusion")) {
-				parsedOptions.excludeDeprecatedMethods = false;
+			} else if (option[0].equals("-disableDeprecatedOperationExclusion")) {
+				parsedOptions.excludeDeprecatedOperations = false;
 			} else if (option[0].equals("-disableDeprecatedFieldExclusion")) {
 				parsedOptions.excludeDeprecatedFields = false;
 			} else if (option[0].equals("-disableDeprecatedParamExclusion")) {
@@ -91,8 +91,8 @@ public class DocletOptions {
 				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-genericWrapperTypes")) {
 				parsedOptions.genericWrapperTypes.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-excludeMethodTags")) {
-				parsedOptions.excludeMethodTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeOperationTags")) {
+				parsedOptions.excludeOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeFieldTags")) {
 				parsedOptions.excludeFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
@@ -103,16 +103,16 @@ public class DocletOptions {
 				parsedOptions.inputTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-defaultErrorTypeTags")) {
 				parsedOptions.defaultErrorTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-methodCommentTags")) {
-				parsedOptions.methodCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-methodSummaryTags")) {
-				parsedOptions.methodSummaryTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyCommentTags")) {
-				parsedOptions.propertyCommentTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyMinTags")) {
-				parsedOptions.propertyMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-propertyMaxTags")) {
-				parsedOptions.propertyMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-operationNotesTags")) {
+				parsedOptions.operationNotesTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-operationSummaryTags")) {
+				parsedOptions.operationSummaryTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldDescriptionTags")) {
+				parsedOptions.fieldDescriptionTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldMinTags")) {
+				parsedOptions.fieldMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldMaxTags")) {
+				parsedOptions.fieldMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-unauthOperationTags")) {
 				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-authOperationTags")) {
@@ -144,15 +144,15 @@ public class DocletOptions {
 	private List<String> defaultErrorTypeTags;
 
 	private List<String> excludeParamAnnotations;
-	private List<String> excludeMethodTags;
+	private List<String> excludeOperationTags;
 	private List<String> excludeFieldTags;
 	private List<String> resourceTags;
-	private List<String> methodCommentTags;
-	private List<String> methodSummaryTags;
-	private List<String> propertyCommentTags;
+	private List<String> operationNotesTags;
+	private List<String> operationSummaryTags;
+	private List<String> fieldDescriptionTags;
 
-	private List<String> propertyMinTags;
-	private List<String> propertyMaxTags;
+	private List<String> fieldMinTags;
+	private List<String> fieldMaxTags;
 
 	private List<String> unauthOperationTags; // tags that say a method does NOT require authorization
 	private List<String> authOperationTags; // tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
@@ -164,7 +164,7 @@ public class DocletOptions {
 	private List<String> resourcePriorityTags;
 	private List<String> resourceDescriptionTags;
 
-	private boolean excludeDeprecatedMethods = true;
+	private boolean excludeDeprecatedOperations = true;
 	private boolean excludeDeprecatedFields = true;
 	private boolean excludeDeprecatedParams = true;
 
@@ -206,10 +206,10 @@ public class DocletOptions {
 		this.genericWrapperTypes = new ArrayList<String>();
 		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
 
-		this.excludeMethodTags = new ArrayList<String>();
-		this.excludeMethodTags.add("hidden");
-		this.excludeMethodTags.add("hide");
-		this.excludeMethodTags.add("exclude");
+		this.excludeOperationTags = new ArrayList<String>();
+		this.excludeOperationTags.add("hidden");
+		this.excludeOperationTags.add("hide");
+		this.excludeOperationTags.add("exclude");
 
 		this.excludeFieldTags = new ArrayList<String>();
 		this.excludeFieldTags.add("hidden");
@@ -232,26 +232,27 @@ public class DocletOptions {
 		this.defaultErrorTypeTags = new ArrayList<String>();
 		this.defaultErrorTypeTags.add("defaultErrorType");
 
-		this.methodCommentTags = new ArrayList<String>();
-		this.methodCommentTags.add("description");
-		this.methodCommentTags.add("comment");
+		this.operationNotesTags = new ArrayList<String>();
+		this.operationNotesTags.add("description");
+		this.operationNotesTags.add("comment");
+		this.operationNotesTags.add("notes");
 
-		this.methodSummaryTags = new ArrayList<String>();
-		this.methodSummaryTags.add("summary");
-		this.methodSummaryTags.add("endpointName");
+		this.operationSummaryTags = new ArrayList<String>();
+		this.operationSummaryTags.add("summary");
+		this.operationSummaryTags.add("endpointName");
 
-		this.propertyCommentTags = new ArrayList<String>();
-		this.propertyCommentTags.add("description");
-		this.propertyCommentTags.add("comment");
-		this.propertyCommentTags.add("return");
+		this.fieldDescriptionTags = new ArrayList<String>();
+		this.fieldDescriptionTags.add("description");
+		this.fieldDescriptionTags.add("comment");
+		this.fieldDescriptionTags.add("return");
 
-		this.propertyMinTags = new ArrayList<String>();
-		this.propertyMinTags.add("min");
-		this.propertyMinTags.add("minimum");
+		this.fieldMinTags = new ArrayList<String>();
+		this.fieldMinTags.add("min");
+		this.fieldMinTags.add("minimum");
 
-		this.propertyMaxTags = new ArrayList<String>();
-		this.propertyMaxTags.add("max");
-		this.propertyMaxTags.add("maximum");
+		this.fieldMaxTags = new ArrayList<String>();
+		this.fieldMaxTags.add("max");
+		this.fieldMaxTags.add("maximum");
 
 		this.unauthOperationTags = new ArrayList<String>();
 		this.unauthOperationTags.add("noAuth");
@@ -326,11 +327,11 @@ public class DocletOptions {
 	}
 
 	/**
-	 * This gets the excludeMethodTags
-	 * @return the excludeMethodTags
+	 * This gets the excludeOperationTags
+	 * @return the excludeOperationTags
 	 */
-	public List<String> getExcludeMethodTags() {
-		return this.excludeMethodTags;
+	public List<String> getExcludeOperationTags() {
+		return this.excludeOperationTags;
 	}
 
 	/**
@@ -420,24 +421,24 @@ public class DocletOptions {
 	 * This gets a list of javadoc tag names that can be used for the operation notes
 	 * @return list of javadoc tag names that can be used for the operation notes
 	 */
-	public List<String> getMethodCommentTags() {
-		return this.methodCommentTags;
+	public List<String> getOperationNotesTags() {
+		return this.operationNotesTags;
 	}
 
 	/**
 	 * This gets a list of javadoc tag names that can be used for the operation summary
 	 * @return a list of javadoc tag names that can be used for the operation summary
 	 */
-	public List<String> getMethodSummaryTags() {
-		return this.methodSummaryTags;
+	public List<String> getOperationSummaryTags() {
+		return this.operationSummaryTags;
 	}
 
 	/**
-	 * This gets list of javadoc tag names that can be used for the model property descriptions
-	 * @return list of javadoc tag names that can be used for the model property descriptions
+	 * This gets list of javadoc tag names that can be used for the model field/method descriptions
+	 * @return list of javadoc tag names that can be used for the model field/method descriptions
 	 */
-	public List<String> getPropertyCommentTags() {
-		return this.propertyCommentTags;
+	public List<String> getFieldDescriptionTags() {
+		return this.fieldDescriptionTags;
 	}
 
 	/**
@@ -457,19 +458,19 @@ public class DocletOptions {
 	}
 
 	/**
-	 * This gets the propertyMinTags
-	 * @return the propertyMinTags
+	 * This gets the fieldMinTags
+	 * @return the fieldMinTags
 	 */
-	public List<String> getPropertyMinTags() {
-		return this.propertyMinTags;
+	public List<String> getFieldMinTags() {
+		return this.fieldMinTags;
 	}
 
 	/**
-	 * This gets the propertyMaxTags
-	 * @return the propertyMaxTags
+	 * This gets the fieldMaxTags
+	 * @return the fieldMaxTags
 	 */
-	public List<String> getPropertyMaxTags() {
-		return this.propertyMaxTags;
+	public List<String> getFieldMaxTags() {
+		return this.fieldMaxTags;
 	}
 
 	/**
@@ -603,20 +604,20 @@ public class DocletOptions {
 	}
 
 	/**
-	 * This gets the excludeDeprecatedMethods
-	 * @return the excludeDeprecatedMethods
+	 * This gets the excludeDeprecatedOperations
+	 * @return the excludeDeprecatedOperations
 	 */
-	public boolean isExcludeDeprecatedMethods() {
-		return this.excludeDeprecatedMethods;
+	public boolean isExcludeDeprecatedOperations() {
+		return this.excludeDeprecatedOperations;
 	}
 
 	/**
-	 * This sets the excludeDeprecatedMethods
-	 * @param excludeDeprecatedMethods the excludeDeprecatedMethods to set
+	 * This sets the excludeDeprecatedOperations
+	 * @param excludeDeprecatedOperations the excludeDeprecatedOperations to set
 	 * @return this
 	 */
-	public DocletOptions setExcludeDeprecatedMethods(boolean excludeDeprecatedMethods) {
-		this.excludeDeprecatedMethods = excludeDeprecatedMethods;
+	public DocletOptions setExcludeDeprecatedOperations(boolean excludeDeprecatedOperations) {
+		this.excludeDeprecatedOperations = excludeDeprecatedOperations;
 		return this;
 	}
 

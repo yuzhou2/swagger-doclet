@@ -31,7 +31,7 @@ public class DeprecationTest {
 
 	@Test
 	public void testDeprecationEnabled() throws IOException {
-		this.options.setExcludeDeprecatedMethods(true);
+		this.options.setExcludeDeprecatedOperations(true);
 		this.options.setExcludeDeprecatedParams(true);
 		this.options.setExcludeDeprecatedFields(true);
 
@@ -45,7 +45,7 @@ public class DeprecationTest {
 	@Test
 	public void testDeprecationDisabled() throws IOException {
 
-		this.options.setExcludeDeprecatedMethods(false);
+		this.options.setExcludeDeprecatedOperations(false);
 		this.options.setExcludeDeprecatedParams(false);
 		this.options.setExcludeDeprecatedFields(false);
 
