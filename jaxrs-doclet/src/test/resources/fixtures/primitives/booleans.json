@@ -21,7 +21,8 @@
                         {
                             "paramType": "body",
                             "name": "value",
-                            "type": "boolean"
+                            "type": "boolean",
+                            "required" : true
                         }
                     ]
                 }

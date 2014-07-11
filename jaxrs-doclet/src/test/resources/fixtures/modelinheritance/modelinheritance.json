@@ -16,7 +16,8 @@
                         {
                             "paramType": "body",
                             "name": "payload",
-                            "type": "ChildPayload"
+                            "type": "ChildPayload",
+                            "required": true
                         }
                     ]
                 }

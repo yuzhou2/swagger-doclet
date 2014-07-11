@@ -141,6 +141,11 @@ public class ApiMethodParser {
 
 		// parameters
 		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
+
+		// read required and optional params
+		List<String> optionalParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getOptionalParamsTags());
+		List<String> requiredParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getRequiredParamsTags());
+
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, parameter)) {
 				continue;
@@ -179,8 +184,27 @@ public class ApiMethodParser {
 				allowMultiple = Boolean.FALSE;
 			}
 
+			// set whether the parameter is required or not
+			boolean required = true;
+			// if its in the required list then its required
+			if (requiredParams != null && requiredParams.contains(parameter.name())) {
+				required = true;
+			}
+			// else if its in the optional list its optional
+			else if (optionalParams != null && optionalParams.contains(parameter.name())) {
+				required = false;
+			}
+			// else if its a body or path param its required
+			else if ("body".equals(paramCategory) || "path".equals(paramCategory)) {
+				required = true;
+			}
+			// otherwise its optional
+			else {
+				required = false;
+			}
+
 			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),
-					typeName, paramTypeFormat.getFormat(), allowableValues, allowMultiple);
+					typeName, paramTypeFormat.getFormat(), required, allowableValues, allowMultiple);
 			parameters.add(param);
 		}
 

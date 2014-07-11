@@ -16,7 +16,8 @@
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data"
+                            "type": "Data",
+                            "required" : true
                         },
                         {
                             "paramType": "query",

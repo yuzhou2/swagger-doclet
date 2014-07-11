@@ -21,7 +21,8 @@
                         {
                             "paramType": "body",
                             "name": "payload",
-                            "type": "payload"
+                            "type": "payload",
+                            "required": true
                         }
                     ]
                 }

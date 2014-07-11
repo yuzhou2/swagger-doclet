@@ -22,7 +22,8 @@
                             "paramType": "body",
                             "name": "value",
                             "type": "number",
-                            "format": "double"
+                            "format": "double",
+                            "required" : true
                         }
                     ]
                 }

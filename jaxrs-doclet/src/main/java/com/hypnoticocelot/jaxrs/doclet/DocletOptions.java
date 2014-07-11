@@ -113,6 +113,10 @@ public class DocletOptions {
 				parsedOptions.fieldMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-fieldMaxTags")) {
 				parsedOptions.fieldMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-requiredParamsTags")) {
+				parsedOptions.requiredParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-optionalParamsTags")) {
+				parsedOptions.optionalParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-unauthOperationTags")) {
 				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-authOperationTags")) {
@@ -153,6 +157,9 @@ public class DocletOptions {
 
 	private List<String> fieldMinTags;
 	private List<String> fieldMaxTags;
+
+	private List<String> requiredParamsTags;
+	private List<String> optionalParamsTags;
 
 	private List<String> unauthOperationTags; // tags that say a method does NOT require authorization
 	private List<String> authOperationTags; // tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
@@ -253,6 +260,12 @@ public class DocletOptions {
 		this.fieldMaxTags = new ArrayList<String>();
 		this.fieldMaxTags.add("max");
 		this.fieldMaxTags.add("maximum");
+
+		this.requiredParamsTags = new ArrayList<String>();
+		this.requiredParamsTags.add("requiredParams");
+
+		this.optionalParamsTags = new ArrayList<String>();
+		this.optionalParamsTags.add("optionalParams");
 
 		this.unauthOperationTags = new ArrayList<String>();
 		this.unauthOperationTags.add("noAuth");
@@ -471,6 +484,22 @@ public class DocletOptions {
 	 */
 	public List<String> getFieldMaxTags() {
 		return this.fieldMaxTags;
+	}
+
+	/**
+	 * This gets the requiredParamsTags
+	 * @return the requiredParamsTags
+	 */
+	public List<String> getRequiredParamsTags() {
+		return this.requiredParamsTags;
+	}
+
+	/**
+	 * This gets the optionalParamsTags
+	 * @return the optionalParamsTags
+	 */
+	public List<String> getOptionalParamsTags() {
+		return this.optionalParamsTags;
 	}
 
 	/**

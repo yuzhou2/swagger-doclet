@@ -41,7 +41,8 @@
                             "paramType": "body",
                             "name": "p3",
                             "type": "integer",
-                            "format": "int32"
+                            "format": "int32",
+                            "required": true
                         }
                     ]
                 }

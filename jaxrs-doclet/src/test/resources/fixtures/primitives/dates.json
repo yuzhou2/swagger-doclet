@@ -22,7 +22,8 @@
                             "paramType": "body",
                             "name": "value",
                             "type": "string",
-                            "format": "date-time"
+                            "format": "date-time",
+                            "required" : true
                         }
                     ]
                 }

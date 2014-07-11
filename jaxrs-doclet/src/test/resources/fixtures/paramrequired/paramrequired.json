@@ -1,0 +1,151 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/paramrequired",
+    "apis": [
+        {
+            "path": "/paramrequired",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "GET",
+                    "nickname": "getParams1",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : false
+                        }
+                    ]
+                },
+                {
+                    "httpMethod": "PUT",
+                    "nickname": "putParams2",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : true
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : true
+                        }
+                        
+                    ]
+                },
+                {
+                    "httpMethod": "POST",
+                    "nickname": "postParams3",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : false
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : false
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : false
+                        }
+                        
+                    ]
+                }
+                
+            ]
+        },
+        {
+            "path": "/paramrequired/{id}",
+            "description": "",
+            "operations": [
+                {
+                    "httpMethod": "POST",
+                    "nickname": "postParams4",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : false
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : false
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32",
+                            "allowMultiple" : false,
+                            "required" : false
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : false
+                        }
+                        
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "the value"
+                }
+            }
+        }
+    }
+}

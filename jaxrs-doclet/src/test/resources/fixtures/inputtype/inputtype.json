@@ -28,7 +28,8 @@
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data2"
+                            "type": "Data2",
+                            "required": true
                         }
                     ]
                 }
@@ -53,12 +54,14 @@
                         {
                             "paramType": "path",
                             "name": "p2",
-                            "type": "string"
+                            "type": "string",
+                            "required": true
                         },
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data2"
+                            "type": "Data2",
+                            "required": true
                         }
                     ]
                 }
@@ -76,7 +79,8 @@
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data1"
+                            "type": "Data1",
+                            "required": true
                         }
                     ]
                 }
@@ -94,7 +98,8 @@
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data2"
+                            "type": "Data2",
+                            "required": true
                         }
                     ]
                 }

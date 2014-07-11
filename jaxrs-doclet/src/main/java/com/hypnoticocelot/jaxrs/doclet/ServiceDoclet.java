@@ -55,6 +55,9 @@ public class ServiceDoclet {
 		options.put("-fieldMinTags", 2);
 		options.put("-fieldMaxTags", 2);
 
+		options.put("-requiredParamsTags", 2);
+		options.put("-optionalParamsTags", 2);
+
 		options.put("-apiAuthorizationsFile", 2);
 		options.put("-apiInfoFile", 2);
 		options.put("-unauthOperationTags", 2);

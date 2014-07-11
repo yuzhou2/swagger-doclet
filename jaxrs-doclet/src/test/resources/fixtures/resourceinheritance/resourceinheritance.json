@@ -27,7 +27,8 @@
                         {
                             "paramType": "path",
                             "name": "id",
-                            "type": "string"
+                            "type": "string",
+                            "required" : true
                         }
                     ]
                 }

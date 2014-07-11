@@ -97,6 +97,11 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 	<tr><td>@summary</td><td>This is used for the summary of the operation. If you do not use this then the summary will be taken from the first sentences of the javadoc.</td><td>operations</td><td>@endpointName</td></tr>
 	<tr><td>@min</td><td>Defines a minimum value for a model field.</td><td>model fields and methods</td><td>@minimum</td></tr>
 	<tr><td>@max</td><td>Defines a maximum value for a model field.</td><td>model fields and methods</td><td>@maximum</td></tr>
+	
+	<tr><td>@requiredParams</td><td>Defines a csv of operation parameter names that are required. If a param is not in the requiredParams list then it is required if it is a path or body param unless it is in the @optionalParams list.</td><td>operations</td><td></td></tr>
+	
+	<tr><td>@optionalParams</td><td>Defines a csv of operation parameter names that are optional. If a param is not in the optionalParams list then it is optional if it is NOT a path or body param unless it is in the @requiredParams list.</td><td>operations</td><td></td></tr>
+	
 	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
@@ -241,6 +246,10 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-authOperationTags</td><td>This adds additional tags to the list of javadoc tags used for the alternative way of indicating whether an operation requires or does not require auhtorization. The default list contains authentication, authorization. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-authOperationScopes</td><td>If an operation has "@authentication required" on it then it needs to know which scopes are required. This default set of scopes can be set via this option.</td></tr>
+	
+	<tr><td>-requiredParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are required. The default list contains requiredParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParamsTags. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 </table>
 

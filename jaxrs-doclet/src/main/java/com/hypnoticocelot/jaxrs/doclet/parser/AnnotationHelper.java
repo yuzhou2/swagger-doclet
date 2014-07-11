@@ -271,6 +271,30 @@ public class AnnotationHelper {
 	}
 
 	/**
+	 * This gets a csv javadoc tag value as a list of the values in the csv for the first matched tag.
+	 * e.g. @myTag 1,2,3 would return a list of 1,2,3 assuming matchTags contained myTag
+	 * @param item The javadoc item
+	 * @param matchTags The tags to match
+	 * @return The csv values of the first matching tags value or null if there were none.
+	 */
+	public static List<String> getTagCsvValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+		String value = getTagValue(item, matchTags);
+		if (value != null) {
+			String[] vals = value.split(",");
+			if (vals != null && vals.length > 0) {
+				List<String> res = new ArrayList<String>();
+				for (String val : vals) {
+					if (val != null && val.trim().length() > 0) {
+						res.add(val.trim());
+					}
+				}
+				return res.isEmpty() ? null : res;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This gets the value of the first tag found from the given collection of tag names
 	 * @param item The item to get the tag value of
 	 * @param matchTags The collection of tag names of the tag to get a value of

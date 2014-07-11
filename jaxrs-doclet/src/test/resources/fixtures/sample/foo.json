@@ -35,7 +35,8 @@
                         {
                             "paramType": "body",
                             "name": "speech",
-                            "type": "string"
+                            "type": "string",
+                            "required" : true
                         }
                     ]
                 }
@@ -53,7 +54,8 @@
                         {
                             "paramType": "body",
                             "name": "speech",
-                            "type": "string"
+                            "type": "string",
+                            "required" : true
                         }
                     ]
                 }
@@ -72,7 +74,8 @@
                         {
                             "paramType": "path",
                             "name": "fooId",
-                            "type": "string"
+                            "type": "string",
+                            "required" : true
                         }
                     ]
                 }
@@ -96,7 +99,8 @@
                         {
                             "paramType": "path",
                             "name": "fooId",
-                            "type": "string"
+                            "type": "string",
+                            "required" : true
                         }
                     ]
                 }

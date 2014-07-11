@@ -22,7 +22,8 @@
                             "paramType": "body",
                             "name": "value",
                             "type": "string",
-                            "format": "byte"
+                            "format": "byte",
+                            "required" : true
                         }
                     ]
                 }
