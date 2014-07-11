@@ -195,10 +195,9 @@ public class ApiMethodParser {
 
 		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
 
-		List<String> responseTags = new ArrayList<String>(this.options.getErrorTags());
-		responseTags.addAll(this.options.getSuccessTags());
+		List<String> responseMessageTags = new ArrayList<String>(this.options.getResponseMessageTags());
 
-		for (String tagName : responseTags) {
+		for (String tagName : responseMessageTags) {
 			for (Tag tagValue : this.methodDoc.tags(tagName)) {
 				boolean matched = false;
 

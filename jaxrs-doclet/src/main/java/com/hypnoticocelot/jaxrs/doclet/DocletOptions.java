@@ -85,10 +85,8 @@ public class DocletOptions {
 				parsedOptions.excludeDeprecatedFields = false;
 			} else if (option[0].equals("-disableDeprecatedParamExclusion")) {
 				parsedOptions.excludeDeprecatedParams = false;
-			} else if (option[0].equals("-errorTags")) {
-				parsedOptions.errorTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-successTags")) {
-				parsedOptions.successTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-responseMessageTags")) {
+				parsedOptions.responseMessageTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-typesToTreatAsOpaque")) {
 				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-genericWrapperTypes")) {
@@ -140,8 +138,7 @@ public class DocletOptions {
 
 	private List<String> typesToTreatAsOpaque;
 	private List<String> genericWrapperTypes;
-	private List<String> errorTags;
-	private List<String> successTags;
+	private List<String> responseMessageTags;
 	private List<String> responseTypeTags;
 	private List<String> inputTypeTags;
 	private List<String> defaultErrorTypeTags;
@@ -191,14 +188,13 @@ public class DocletOptions {
 		this.excludeParamAnnotations = new ArrayList<String>();
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 
-		this.errorTags = new ArrayList<String>();
-		this.errorTags.add("errorResponse");
-		this.errorTags.add("responseMessage");
-		this.errorTags.add("errorCode");
-
-		this.successTags = new ArrayList<String>();
-		this.successTags.add("successResponse");
-		this.successTags.add("successCode");
+		this.responseMessageTags = new ArrayList<String>();
+		this.responseMessageTags.add("responseMessage");
+		this.responseMessageTags.add("status");
+		this.responseMessageTags.add("errorResponse");
+		this.responseMessageTags.add("errorCode");
+		this.responseMessageTags.add("successResponse");
+		this.responseMessageTags.add("successCode");
 
 		this.typesToTreatAsOpaque = new ArrayList<String>();
 		this.typesToTreatAsOpaque.add("org.joda.time.DateTime");
@@ -321,16 +317,12 @@ public class DocletOptions {
 		return this.swaggerUiZipPath;
 	}
 
-	public List<String> getErrorTags() {
-		return this.errorTags;
-	}
-
 	/**
-	 * This gets the successTags
-	 * @return the successTags
+	 * This gets the responseMessageTags
+	 * @return the responseMessageTags
 	 */
-	public List<String> getSuccessTags() {
-		return this.successTags;
+	public List<String> getResponseMessageTags() {
+		return this.responseMessageTags;
 	}
 
 	/**

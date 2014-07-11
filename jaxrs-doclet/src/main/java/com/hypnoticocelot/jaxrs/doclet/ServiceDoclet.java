@@ -46,8 +46,7 @@ public class ServiceDoclet {
 		options.put("-inputTypeTags", 2);
 
 		options.put("-defaultErrorTypeTags", 2);
-		options.put("-successTags", 2);
-		options.put("-errorTags", 2);
+		options.put("-responseMessageTags", 2);
 
 		options.put("-resourceTags", 2);
 		options.put("-methodCommentTags", 2);
