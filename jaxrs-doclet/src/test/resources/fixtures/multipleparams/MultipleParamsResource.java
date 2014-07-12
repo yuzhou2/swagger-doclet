@@ -26,7 +26,7 @@ public class MultipleParamsResource {
 	}
 
 	/**
-	 * @multipleParams p1,p2
+	 * @csvParams p1,p2
 	 */
 	@PUT
 	public void putParams2(@QueryParam("p1") String p1, @QueryParam("p2") String p2, Data data) {
