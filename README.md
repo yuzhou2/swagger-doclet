@@ -59,7 +59,8 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 
 <table>
 	<tr><th>Tag</th><th>Purpose</th><th>Applies To</th><th>Aliases</th></tr>
-	<tr><td>@hidden</td><td>Use to exclude a resource operation, model field or method from the generated documentation</td><td>operations, model methods & fields</td><td>@exclude, @hide</td></tr>
+	<tr><td>@exclude</td><td>Use to exclude a resource operation, model field or method from the generated documentation</td><td>operations, model methods & fields</td><td>@hidden, @hide</td></tr>
+	<tr><td>@excludeParams</td><td>Use to exclude operation parameters from the generated documentation</td><td>operations</td><td>@hiddenParams, @hideParams</td></tr>
 	<tr><td>@responseMessage</td><td>Use to describe each success or response status returned from an operation. It is made up of a numeric status code, a description an an optional response model specifically for this error.<br><br>For example:<br><br>
 	@responseMessage 404 not found<br><br>
 	@responseMessage 404 not found `fixtures.responsemessages.Response1<br><br>
@@ -182,6 +183,9 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-disableCopySwaggerUi</td><td>If set then this does not copy the swagger ui to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the swagger ui or host or package it separately.</td></tr>
 	<tr><td>-swaggerUiZipPath</td><td>If copying of the swagger ui is enabled this is the path to the zip file that includes the ui. If not provided then the default swagger ui embedded in the doclet plugin will be used.</td></tr>
+	
+	<tr><td>-disableModels</td><td>This turns off generation of models in the documentation.</td></tr>
+	
 	<tr><td>-crossClassResources</td><td>This is whether to use the cross class resource parser. This parser allows you to have operations of the same resource in different jaxrs Resource classes. NOTE: This parser does not currently support sub resources.</td></tr>
 	
 	<tr><td>-disableSortApisByPath</td><td>This is whether to disable sorting of apis inside a resource by their path. If not set then they will be ordered by their path. If set then they will be in the order encountered by the parser.</td></tr>
@@ -208,10 +212,10 @@ These are options that you typically won't need to use unless for example, you w
 
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
-
+	
+	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context</td></tr>
+	
 	<tr><td>-responseMessageTags</td><td>This adds additional tags to the set of javadoc tags used for response messages. The default set contains responseMessage, status, errorResponse, errorCode, successResponse, successCode. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
-	
-	
 	
 	<tr><td>-excludeOperationTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operations. The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

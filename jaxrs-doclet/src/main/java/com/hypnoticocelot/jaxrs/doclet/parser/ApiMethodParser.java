@@ -139,138 +139,11 @@ public class ApiMethodParser {
 
 		String path = this.parentPath + methodPath;
 
-		// parameters
-		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
+		// build params
+		List<ApiParameter> parameters = this.generateParameters();
 
-		// read required and optional params
-		List<String> optionalParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getOptionalParamsTags());
-		List<String> requiredParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getRequiredParamsTags());
-
-		for (Parameter parameter : this.methodDoc.parameters()) {
-			if (!shouldIncludeParameter(this.httpMethod, parameter)) {
-				continue;
-			}
-
-			Type paramType = parameter.type();
-			String paramCategory = AnnotationHelper.paramTypeOf(parameter);
-
-			// look for a custom input type for body params
-			if ("body".equals(paramCategory)) {
-				String customParamType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
-				paramType = readCustomParamType(customParamType, paramType);
-			}
-
-			if (this.options.isParseModels()) {
-				this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
-			}
-
-			OptionalName paramTypeFormat = this.translator.typeName(paramType);
-			String typeName = paramTypeFormat.value();
-
-			List<String> allowableValues = null;
-			ClassDoc typeClassDoc = parameter.type().asClassDoc();
-			if (typeClassDoc != null && typeClassDoc.isEnum()) {
-				typeName = "string";
-				allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
-
-					public String apply(FieldDoc input) {
-						return input.name();
-					}
-				});
-			}
-			Boolean allowMultiple = null;
-			if ("query".equals(paramCategory)) {
-				// TODO: support config
-				allowMultiple = Boolean.FALSE;
-			}
-
-			// set whether the parameter is required or not
-			boolean required = true;
-			// if its in the required list then its required
-			if (requiredParams != null && requiredParams.contains(parameter.name())) {
-				required = true;
-			}
-			// else if its in the optional list its optional
-			else if (optionalParams != null && optionalParams.contains(parameter.name())) {
-				required = false;
-			}
-			// else if its a body or path param its required
-			else if ("body".equals(paramCategory) || "path".equals(paramCategory)) {
-				required = true;
-			}
-			// otherwise its optional
-			else {
-				required = false;
-			}
-
-			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),
-					typeName, paramTypeFormat.getFormat(), required, allowableValues, allowMultiple);
-			parameters.add(param);
-		}
-
-		// parent method parameters are inherited
-		if (this.parentMethod != null) {
-			parameters.addAll(this.parentMethod.getParameters());
-		}
-
-		// ************************************
-		// response messages
-		// ************************************
-
-		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
-
-		List<String> responseMessageTags = new ArrayList<String>(this.options.getResponseMessageTags());
-
-		for (String tagName : responseMessageTags) {
-			for (Tag tagValue : this.methodDoc.tags(tagName)) {
-				boolean matched = false;
-
-				if (!matched) {
-					for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
-						Matcher matcher = pattern.matcher(tagValue.text());
-						if (matcher.find()) {
-
-							int statusCode = Integer.valueOf(matcher.group(1).trim());
-							// trim special chars the desc may start with
-							String desc = trimLeadingChars(matcher.group(2), '|', '-');
-
-							// see if it has a custom response model
-							String responseModelClass = null;
-							if (matcher.groupCount() > 2) {
-								responseModelClass = trimLeadingChars(matcher.group(3), '`');
-							}
-							// for errors, if no custom one use the method level one if there is one
-							if (statusCode >= 400) {
-								if (responseModelClass == null) {
-									responseModelClass = this.methodDefaultErrorType;
-								}
-								// for errors, if no custom one use the class level one if there is one
-								if (responseModelClass == null) {
-									responseModelClass = this.classDefaultErrorType;
-								}
-							}
-
-							String responseModel = null;
-							if (responseModelClass != null) {
-								Type responseType = AnnotationHelper.findModel(this.classes, responseModelClass);
-								if (responseType != null) {
-									responseModel = this.translator.typeName(responseType).value();
-									if (this.options.isParseModels()) {
-										this.models.addAll(new ApiModelParser(this.options, this.translator, responseType).parse());
-									}
-								}
-							}
-
-							responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
-							matched = true;
-							break;
-						}
-					}
-
-				}
-
-			}
-		}
+		// build response messages
+		List<ApiResponseMessage> responseMessages = generateResponseMessages();
 
 		// ************************************
 		// Return type
@@ -314,9 +187,21 @@ public class ApiMethodParser {
 			summary = customSummary;
 		}
 
-		// ************************************
 		// Auth support
+		OperationAuthorizations authorizations = generateAuthorizations();
+
 		// ************************************
+		// Produces & consumes
+		// ************************************
+		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
+		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
+
+		// final result!
+		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnType, consumes, produces,
+				authorizations);
+	}
+
+	private OperationAuthorizations generateAuthorizations() {
 		OperationAuthorizations authorizations = null;
 
 		// build map of scopes from the api auth
@@ -388,16 +273,146 @@ public class ApiMethodParser {
 			}
 
 		}
+		return authorizations;
+	}
 
-		// ************************************
-		// Produces & consumes
-		// ************************************
-		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
-		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
+	private List<ApiResponseMessage> generateResponseMessages() {
+		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
 
-		// final result!
-		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnType, consumes, produces,
-				authorizations);
+		List<String> responseMessageTags = new ArrayList<String>(this.options.getResponseMessageTags());
+
+		for (String tagName : responseMessageTags) {
+			for (Tag tagValue : this.methodDoc.tags(tagName)) {
+				boolean matched = false;
+
+				if (!matched) {
+					for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
+						Matcher matcher = pattern.matcher(tagValue.text());
+						if (matcher.find()) {
+
+							int statusCode = Integer.valueOf(matcher.group(1).trim());
+							// trim special chars the desc may start with
+							String desc = trimLeadingChars(matcher.group(2), '|', '-');
+
+							// see if it has a custom response model
+							String responseModelClass = null;
+							if (matcher.groupCount() > 2) {
+								responseModelClass = trimLeadingChars(matcher.group(3), '`');
+							}
+							// for errors, if no custom one use the method level one if there is one
+							if (statusCode >= 400) {
+								if (responseModelClass == null) {
+									responseModelClass = this.methodDefaultErrorType;
+								}
+								// for errors, if no custom one use the class level one if there is one
+								if (responseModelClass == null) {
+									responseModelClass = this.classDefaultErrorType;
+								}
+							}
+
+							String responseModel = null;
+							if (responseModelClass != null) {
+								Type responseType = AnnotationHelper.findModel(this.classes, responseModelClass);
+								if (responseType != null) {
+									responseModel = this.translator.typeName(responseType).value();
+									if (this.options.isParseModels()) {
+										this.models.addAll(new ApiModelParser(this.options, this.translator, responseType).parse());
+									}
+								}
+							}
+
+							responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
+							matched = true;
+							break;
+						}
+					}
+
+				}
+
+			}
+		}
+		return responseMessages;
+	}
+
+	private List<ApiParameter> generateParameters() {
+		// parameters
+		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
+
+		// read required and optional params
+		List<String> optionalParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getOptionalParamsTags());
+		List<String> requiredParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getRequiredParamsTags());
+
+		// read exclude params
+		List<String> excludeParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getExcludeParamsTags());
+
+		for (Parameter parameter : this.methodDoc.parameters()) {
+			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
+				continue;
+			}
+
+			Type paramType = parameter.type();
+			String paramCategory = AnnotationHelper.paramTypeOf(parameter);
+
+			// look for a custom input type for body params
+			if ("body".equals(paramCategory)) {
+				String customParamType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
+				paramType = readCustomParamType(customParamType, paramType);
+			}
+
+			if (this.options.isParseModels()) {
+				this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
+			}
+
+			OptionalName paramTypeFormat = this.translator.typeName(paramType);
+			String typeName = paramTypeFormat.value();
+
+			List<String> allowableValues = null;
+			ClassDoc typeClassDoc = parameter.type().asClassDoc();
+			if (typeClassDoc != null && typeClassDoc.isEnum()) {
+				typeName = "string";
+				allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
+
+					public String apply(FieldDoc input) {
+						return input.name();
+					}
+				});
+			}
+			Boolean allowMultiple = null;
+			if ("query".equals(paramCategory)) {
+				// TODO: support config
+				allowMultiple = Boolean.FALSE;
+			}
+
+			// set whether the parameter is required or not
+			boolean required = true;
+			// if its in the required list then its required
+			if (requiredParams != null && requiredParams.contains(parameter.name())) {
+				required = true;
+			}
+			// else if its in the optional list its optional
+			else if (optionalParams != null && optionalParams.contains(parameter.name())) {
+				required = false;
+			}
+			// else if its a body or path param its required
+			else if ("body".equals(paramCategory) || "path".equals(paramCategory)) {
+				required = true;
+			}
+			// otherwise its optional
+			else {
+				required = false;
+			}
+
+			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),
+					typeName, paramTypeFormat.getFormat(), required, allowableValues, allowMultiple);
+			parameters.add(param);
+		}
+
+		// parent method parameters are inherited
+		if (this.parentMethod != null) {
+			parameters.addAll(this.parentMethod.getParameters());
+		}
+
+		return parameters;
 	}
 
 	/**
@@ -442,12 +457,17 @@ public class ApiMethodParser {
 		return defaultTypeName;
 	}
 
-	private boolean shouldIncludeParameter(HttpMethod httpMethod, Parameter parameter) {
+	private boolean shouldIncludeParameter(HttpMethod httpMethod, List<String> excludeParams, Parameter parameter) {
 		List<AnnotationDesc> allAnnotations = Arrays.asList(parameter.annotations());
 
 		// remove any params annotated with exclude param annotations e.g. jaxrs Context
 		Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(this.options.getExcludeParamAnnotations()));
 		if (!excluded.isEmpty()) {
+			return false;
+		}
+
+		// remove any params with exclude param tags
+		if (excludeParams != null && excludeParams.contains(parameter.name())) {
 			return false;
 		}
 

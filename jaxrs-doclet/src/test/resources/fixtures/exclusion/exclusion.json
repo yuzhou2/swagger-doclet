@@ -25,6 +25,20 @@
                             "required": true
                         }
                     ]
+                },
+                {
+                    "httpMethod": "POST",
+                    "nickname": "postData",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format": "int32",
+                            "allowMultiple": false
+                        }
+                    ]
                 }
             ]
         }

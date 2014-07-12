@@ -74,6 +74,7 @@ public class ServiceDoclet {
 		// endpoints
 		options.put("-excludeOperationTags", 2);
 		options.put("-excludeFieldTags", 2);
+		options.put("-excludeParamsTags", 2);
 
 		// used to support api listings
 		// where operations in an api can be spread across multiple resource classes
