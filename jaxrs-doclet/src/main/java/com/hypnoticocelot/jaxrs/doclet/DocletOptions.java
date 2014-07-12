@@ -97,6 +97,8 @@ public class DocletOptions {
 				parsedOptions.excludeFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeParamsTags")) {
 				parsedOptions.excludeParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-csvParamsTags")) {
+				parsedOptions.csvParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
@@ -153,6 +155,7 @@ public class DocletOptions {
 	private List<String> excludeOperationTags;
 	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
+	private List<String> csvParamsTags;
 	private List<String> resourceTags;
 	private List<String> operationNotesTags;
 	private List<String> operationSummaryTags;
@@ -230,6 +233,10 @@ public class DocletOptions {
 		this.excludeParamsTags.add("excludeParams");
 		this.excludeParamsTags.add("hiddenParams");
 		this.excludeParamsTags.add("hideParams");
+
+		this.csvParamsTags = new ArrayList<String>();
+		this.csvParamsTags.add("csvParams");
+		this.csvParamsTags.add("multipleParams");
 
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
@@ -377,6 +384,14 @@ public class DocletOptions {
 	 */
 	public List<String> getExcludeParamsTags() {
 		return this.excludeParamsTags;
+	}
+
+	/**
+	 * This gets the csvParamsTags
+	 * @return the csvParamsTags
+	 */
+	public List<String> getCsvParamsTags() {
+		return this.csvParamsTags;
 	}
 
 	/**

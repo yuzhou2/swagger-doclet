@@ -76,6 +76,9 @@ public class ServiceDoclet {
 		options.put("-excludeFieldTags", 2);
 		options.put("-excludeParamsTags", 2);
 
+		// flags params as multiple
+		options.put("-csvParamsTags", 2);
+
 		// used to support api listings
 		// where operations in an api can be spread across multiple resource classes
 		options.put("-crossClassResources", 1);

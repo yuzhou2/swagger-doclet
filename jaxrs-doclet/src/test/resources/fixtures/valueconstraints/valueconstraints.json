@@ -23,7 +23,6 @@
                             "paramType": "query",
                             "name": "enumValue",
                             "type": "string",
-                            "allowMultiple": false,
                             "enum": [
 						        "VALUE1",
 						        "VALUE2"

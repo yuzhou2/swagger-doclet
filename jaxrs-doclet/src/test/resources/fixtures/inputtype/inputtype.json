@@ -22,8 +22,7 @@
                             "paramType": "query",
                             "name": "p1",
                             "type": "integer",
-                            "format": "int32",
-                            "allowMultiple" : false
+                            "format": "int32"
                         },
                         {
                             "paramType": "body",
@@ -48,8 +47,7 @@
                             "paramType": "query",
                             "name": "p1",
                             "type": "integer",
-                            "format": "int32",
-                            "allowMultiple" : false
+                            "format": "int32"
                         },
                         {
                             "paramType": "path",

@@ -27,15 +27,13 @@
                             "paramType": "query",
                             "name": "p1",
                             "type": "integer",
-                            "format": "int32",
-                            "allowMultiple": false
+                            "format": "int32"
                         },
                         {
                             "paramType": "query",
                             "name": "p2",
                             "type": "integer",
-                            "format": "int32",
-                            "allowMultiple": false
+                            "format": "int32"
                         },
                         {
                             "paramType": "body",
@@ -53,19 +51,19 @@
         "Data": {
             "id": "Data",
             "properties": {
-                "value": {
+            	"getterAnnotation": {
                     "type": "string"
                 },
                 "fieldTag": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 },
                 "getterTag": {
                     "type": "string"
                 },
                 "fieldAnnotation": {
-                    "type": "string"
-                },
-                "getterAnnotation": {
                     "type": "string"
                 }
             }

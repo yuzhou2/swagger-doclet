@@ -345,6 +345,9 @@ public class ApiMethodParser {
 		// read exclude params
 		List<String> excludeParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getExcludeParamsTags());
 
+		// read csv params
+		List<String> csvParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getCsvParamsTags());
+
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
 				continue;
@@ -377,29 +380,38 @@ public class ApiMethodParser {
 					}
 				});
 			}
+
+			// set whether its a csv param
 			Boolean allowMultiple = null;
-			if ("query".equals(paramCategory)) {
-				// TODO: support config
-				allowMultiple = Boolean.FALSE;
+			if (csvParams != null) {
+				if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
+					if (csvParams.contains(parameter.name())) {
+						allowMultiple = Boolean.TRUE;
+					}
+				}
 			}
 
 			// set whether the parameter is required or not
-			boolean required = true;
+			Boolean required = null;
+			// if its a path param then its required as per swagger spec
+			if ("path".equals(paramCategory)) {
+				required = Boolean.TRUE;
+			}
 			// if its in the required list then its required
-			if (requiredParams != null && requiredParams.contains(parameter.name())) {
-				required = true;
+			else if (requiredParams != null && requiredParams.contains(parameter.name())) {
+				required = Boolean.TRUE;
 			}
 			// else if its in the optional list its optional
 			else if (optionalParams != null && optionalParams.contains(parameter.name())) {
-				required = false;
+				// leave as null as this is equivalent to false but doesnt add to the json
 			}
-			// else if its a body or path param its required
-			else if ("body".equals(paramCategory) || "path".equals(paramCategory)) {
-				required = true;
+			// else if its a body param its required
+			else if ("body".equals(paramCategory)) {
+				required = Boolean.TRUE;
 			}
 			// otherwise its optional
 			else {
-				required = false;
+				// leave as null as this is equivalent to false but doesnt add to the json
 			}
 
 			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),

@@ -17,8 +17,7 @@
                             "paramType": "query",
                             "name": "p1",
                             "type": "integer",
-                            "format": "int32",
-                            "allowMultiple": false
+                            "format": "int32"
                         }
                     ]
                 }

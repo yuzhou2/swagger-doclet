@@ -13,7 +13,7 @@ public class ApiParameter {
 	private String description;
 	private String type;
 	private String format;
-	private boolean required;
+	private Boolean required;
 	private List<String> allowableValues;
 	private Boolean allowMultiple;
 
@@ -37,7 +37,7 @@ public class ApiParameter {
 	 * @param allowableValues
 	 * @param allowMultiple
 	 */
-	public ApiParameter(String paramType, String name, String description, String type, String format, boolean required, List<String> allowableValues,
+	public ApiParameter(String paramType, String name, String description, String type, String format, Boolean required, List<String> allowableValues,
 			Boolean allowMultiple) {
 		this.paramType = paramType;
 		this.name = name;
@@ -93,7 +93,7 @@ public class ApiParameter {
 	 * This gets the required
 	 * @return the required
 	 */
-	public boolean isRequired() {
+	public Boolean getRequired() {
 		return this.required;
 	}
 
@@ -128,7 +128,7 @@ public class ApiParameter {
 		result = prime * result + ((this.format == null) ? 0 : this.format.hashCode());
 		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
 		result = prime * result + ((this.paramType == null) ? 0 : this.paramType.hashCode());
-		result = prime * result + (this.required ? 1231 : 1237);
+		result = prime * result + ((this.required == null) ? 0 : this.required.hashCode());
 		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
 		return result;
 	}
@@ -191,7 +191,11 @@ public class ApiParameter {
 		} else if (!this.paramType.equals(other.paramType)) {
 			return false;
 		}
-		if (this.required != other.required) {
+		if (this.required == null) {
+			if (other.required != null) {
+				return false;
+			}
+		} else if (!this.required.equals(other.required)) {
 			return false;
 		}
 		if (this.type == null) {

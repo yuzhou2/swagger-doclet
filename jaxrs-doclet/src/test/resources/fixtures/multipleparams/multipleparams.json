@@ -2,10 +2,10 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/paramrequired",
+    "resourcePath": "/multipleparams",
     "apis": [
         {
-            "path": "/paramrequired",
+            "path": "/multipleparams",
             "description": "",
             "operations": [
                 {
@@ -16,15 +16,13 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "query",
                             "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
+                            "type": "string"
                         }
                     ]
                 },
@@ -36,22 +34,20 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "query",
                             "name": "p2",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "body",
                             "name": "data",
                             "type": "Data",
-                            "required" : true
+                            "required": true
                         }
                         
                     ]
@@ -64,19 +60,19 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "integer",
-                            "format" : "int32"
+                            "type": "string"
                         },
                         {
-                            "paramType": "query",
+                            "paramType": "header",
                             "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data"
+                            "type": "Data",
+                            "required": true
                         }
                         
                     ]
@@ -85,7 +81,7 @@
             ]
         },
         {
-            "path": "/paramrequired/{id}",
+            "path": "/multipleparams/{id}",
             "description": "",
             "operations": [
                 {
@@ -97,24 +93,26 @@
                             "paramType": "path",
                             "name": "id",
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "integer",
-                            "format" : "int32"
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
-                            "paramType": "query",
+                            "paramType": "header",
                             "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
+                            "type": "string",
+                            "allowMultiple" : true
                         },
                         {
                             "paramType": "body",
                             "name": "data",
-                            "type": "Data"
+                            "type": "Data",
+                            "required": true
                         }
                         
                     ]
