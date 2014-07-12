@@ -236,7 +236,6 @@ public class DocletOptions {
 
 		this.csvParamsTags = new ArrayList<String>();
 		this.csvParamsTags.add("csvParams");
-		this.csvParamsTags.add("multipleParams");
 
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
