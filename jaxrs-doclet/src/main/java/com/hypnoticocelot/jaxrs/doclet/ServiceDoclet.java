@@ -17,6 +17,7 @@ public class ServiceDoclet {
 	 */
 	public static boolean start(RootDoc doc) {
 		DocletOptions options = DocletOptions.parse(doc.options());
+		System.out.println(options);
 		return new JaxRsAnnotationParser(options, doc).run();
 	}
 
@@ -64,11 +65,12 @@ public class ServiceDoclet {
 		options.put("-authOperationScopes", 2);
 		options.put("-operationScopeTags", 2);
 
-		options.put("-swaggerUiZipPath", 2);
-
+		options.put("-swaggerUiZipPath", 2); // kept for backward compatibility
+		options.put("-swaggerUiPath", 2);
 		// supports turning off copy of swagger ui, useful for tests and also for
 		// people that use their own swagger ui files
 		options.put("-disableCopySwaggerUi", 1);
+		options.put("-skipUiFiles", 1);
 
 		options.put("-disableModels", 1);
 

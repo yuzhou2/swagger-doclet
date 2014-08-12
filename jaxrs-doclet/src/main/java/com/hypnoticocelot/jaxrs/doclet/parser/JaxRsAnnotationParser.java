@@ -4,7 +4,10 @@ import static com.google.common.collect.Maps.uniqueIndex;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +21,7 @@ import java.util.zip.ZipInputStream;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
 import com.hypnoticocelot.jaxrs.doclet.DocletOptions;
 import com.hypnoticocelot.jaxrs.doclet.Recorder;
 import com.hypnoticocelot.jaxrs.doclet.ServiceDoclet;
@@ -180,8 +184,14 @@ public class JaxRsAnnotationParser {
 			}
 
 			writeApis(declarations);
+			// Copy swagger-ui into the output directory.
+			if (this.options.isIncludeSwaggerUi()) {
+				copyUi();
+			}
 			return true;
 		} catch (IOException e) {
+			System.err.println("Failed to write api docs, err msg: " + e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -206,27 +216,45 @@ public class JaxRsAnnotationParser {
 		File docFile = new File(outputDirectory, "service.json");
 		recorder.record(docFile, listing);
 
-		// Copy swagger-ui into the output directory.
-		if (this.options.isIncludeSwaggerUi()) {
+	}
 
-			// TODO: support swagger ui dir instead of zip...
+	private void copyUi() throws IOException {
+		File outputDirectory = this.options.getOutputDirectory();
+		if (outputDirectory == null) {
+			outputDirectory = new File(".");
+		}
+		Recorder recorder = this.options.getRecorder();
+		String uiPath = this.options.getSwaggerUiPath();
 
-			String swaggerUiZipPath = this.options.getSwaggerUiZipPath();
-			ZipInputStream swaggerZip;
-			if (DocletOptions.DEFAULT_SWAGGER_UI_ZIP_PATH.equals(swaggerUiZipPath)) {
+		if (uiPath == null) {
+			// default inbuilt zip
+			copyZip(recorder, null, outputDirectory);
+		} else {
+			// zip or dir
+			File uiPathFile = new File(uiPath);
+			if (uiPathFile.isDirectory()) {
+				System.out.println("Using swagger dir from: " + uiPathFile.getAbsolutePath());
+				copyDirectory(recorder, uiPathFile, uiPathFile, outputDirectory);
+			} else if (!uiPathFile.exists()) {
+				File f = new File(".");
+				System.out.println("SwaggerDoclet working directory: " + f.getAbsolutePath());
+				System.out.println("-swaggerUiPath not set correctly as it did not exist: " + uiPathFile.getAbsolutePath());
+				throw new RuntimeException("-swaggerUiPath not set correctly as it did not exist: " + uiPathFile.getAbsolutePath());
+			} else {
+				copyZip(recorder, uiPathFile, outputDirectory);
+			}
+		}
+	}
+
+	private void copyZip(Recorder recorder, File uiPathFile, File outputDirectory) throws IOException {
+		ZipInputStream swaggerZip = null;
+		try {
+			if (uiPathFile == null) {
 				swaggerZip = new ZipInputStream(ServiceDoclet.class.getResourceAsStream("/swagger-ui.zip"));
 				System.out.println("Using default swagger-ui.zip file from SwaggerDoclet jar file");
 			} else {
-				if (new File(swaggerUiZipPath).exists()) {
-					swaggerZip = new ZipInputStream(new FileInputStream(swaggerUiZipPath));
-					System.out.println("Using swagger-ui.zip file from: " + swaggerUiZipPath);
-				} else {
-					File f = new File(".");
-					System.out.println("SwaggerDoclet working directory: " + f.getAbsolutePath());
-					System.out.println("-swaggerUiZipPath not set correct: " + swaggerUiZipPath);
-
-					throw new RuntimeException("-swaggerUiZipPath not set correct, file not found: " + swaggerUiZipPath);
-				}
+				swaggerZip = new ZipInputStream(new FileInputStream(uiPathFile));
+				System.out.println("Using swagger-ui.zip file from: " + uiPathFile.getAbsolutePath());
 			}
 
 			ZipEntry entry = swaggerZip.getNextEntry();
@@ -237,13 +265,68 @@ public class JaxRsAnnotationParser {
 						throw new RuntimeException("Unable to create directory: " + swaggerFile);
 					}
 				} else {
-					recorder.record(swaggerFile, swaggerZip);
+
+					FileOutputStream outputStream = null;
+					try {
+						outputStream = new FileOutputStream(swaggerFile);
+						ByteStreams.copy(swaggerZip, outputStream);
+						outputStream.flush();
+					} finally {
+						if (outputStream != null) {
+							outputStream.close();
+						}
+					}
+
 				}
 
 				entry = swaggerZip.getNextEntry();
 			}
-			swaggerZip.close();
 
+		} finally {
+			if (swaggerZip != null) {
+				swaggerZip.close();
+			}
+		}
+	}
+
+	private void copyDirectory(Recorder recorder, File uiPathFile, File sourceLocation, File targetLocation) throws IOException {
+		if (sourceLocation.isDirectory()) {
+			if (!targetLocation.exists()) {
+				if (!targetLocation.mkdirs()) {
+					throw new IOException("Failed to create the dir: " + targetLocation.getAbsolutePath());
+				}
+			}
+
+			String[] children = sourceLocation.list();
+			for (String element : children) {
+				copyDirectory(recorder, uiPathFile, new File(sourceLocation, element), new File(targetLocation, element));
+			}
+		} else {
+
+			InputStream in = null;
+			OutputStream out = null;
+			try {
+				in = new FileInputStream(sourceLocation);
+				out = new FileOutputStream(targetLocation);
+				ByteStreams.copy(in, out);
+				out.flush();
+
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException ex) {
+						// ignore
+					}
+				}
+				if (out != null) {
+					try {
+						out.close();
+					} catch (IOException ex) {
+						// ignore
+					}
+				}
+			}
 		}
 	}
 

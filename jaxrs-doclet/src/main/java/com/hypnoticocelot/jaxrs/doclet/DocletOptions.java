@@ -21,11 +21,6 @@ import com.hypnoticocelot.jaxrs.doclet.translator.Translator;
 
 public class DocletOptions {
 
-	/**
-	 * This is the default swagger ui zip path
-	 */
-	public static final String DEFAULT_SWAGGER_UI_ZIP_PATH = "n/a";
-
 	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {
 		File file = new File(path);
 		checkArgument(file.isFile(), "Path after " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
@@ -68,13 +63,13 @@ public class DocletOptions {
 				parsedOptions.apiBasePath = option[1];
 			} else if (option[0].equals("-apiVersion")) {
 				parsedOptions.apiVersion = option[1];
-			} else if (option[0].equals("-swaggerUiZipPath")) {
-				parsedOptions.swaggerUiZipPath = option[1];
+			} else if (option[0].equals("-swaggerUiZipPath") || option[0].equals("-swaggerUiPath")) {
+				parsedOptions.swaggerUiPath = option[1];
 			} else if (option[0].equals("-excludeParamAnnotations")) {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
-			} else if (option[0].equals("-disableCopySwaggerUi")) {
+			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
 				parsedOptions.includeSwaggerUi = false;
 			} else if (option[0].equals("-crossClassResources")) {
 				parsedOptions.crossClassResources = true;
@@ -152,7 +147,7 @@ public class DocletOptions {
 	private File outputDirectory;
 	private String docBasePath = "http://localhost:8080";
 	private String apiBasePath = "http://localhost:8080";
-	private String swaggerUiZipPath = DEFAULT_SWAGGER_UI_ZIP_PATH;
+	private String swaggerUiPath = null;
 	private String apiVersion = "0";
 
 	private boolean includeSwaggerUi = true;
@@ -365,8 +360,12 @@ public class DocletOptions {
 		return this.apiVersion;
 	}
 
-	public String getSwaggerUiZipPath() {
-		return this.swaggerUiZipPath;
+	/**
+	 * This gets the swaggerUiPath
+	 * @return the swaggerUiPath
+	 */
+	public String getSwaggerUiPath() {
+		return this.swaggerUiPath;
 	}
 
 	/**
@@ -834,6 +833,32 @@ public class DocletOptions {
 	public DocletOptions setApiInfo(ApiInfo apiInfo) {
 		this.apiInfo = apiInfo;
 		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "DocletOptions [outputDirectory=" + this.outputDirectory + ", docBasePath=" + this.docBasePath + ", apiBasePath=" + this.apiBasePath
+				+ ", swaggerUiPath=" + this.swaggerUiPath + ", apiVersion=" + this.apiVersion + ", includeSwaggerUi=" + this.includeSwaggerUi
+				+ ", excludeResourcePrefixes=" + this.excludeResourcePrefixes + ", excludeModelPrefixes=" + this.excludeModelPrefixes
+				+ ", genericWrapperTypes=" + this.genericWrapperTypes + ", responseMessageTags=" + this.responseMessageTags + ", responseTypeTags="
+				+ this.responseTypeTags + ", inputTypeTags=" + this.inputTypeTags + ", defaultErrorTypeTags=" + this.defaultErrorTypeTags
+				+ ", excludeParamAnnotations=" + this.excludeParamAnnotations + ", excludeClassTags=" + this.excludeClassTags + ", excludeOperationTags="
+				+ this.excludeOperationTags + ", excludeFieldTags=" + this.excludeFieldTags + ", excludeParamsTags=" + this.excludeParamsTags
+				+ ", csvParamsTags=" + this.csvParamsTags + ", resourceTags=" + this.resourceTags + ", operationNotesTags=" + this.operationNotesTags
+				+ ", operationSummaryTags=" + this.operationSummaryTags + ", fieldDescriptionTags=" + this.fieldDescriptionTags + ", fieldMinTags="
+				+ this.fieldMinTags + ", fieldMaxTags=" + this.fieldMaxTags + ", requiredParamsTags=" + this.requiredParamsTags + ", optionalParamsTags="
+				+ this.optionalParamsTags + ", unauthOperationTags=" + this.unauthOperationTags + ", authOperationTags=" + this.authOperationTags
+				+ ", unauthOperationTagValues=" + this.unauthOperationTagValues + ", authOperationScopes=" + this.authOperationScopes + ", operationScopeTags="
+				+ this.operationScopeTags + ", resourcePriorityTags=" + this.resourcePriorityTags + ", resourceDescriptionTags=" + this.resourceDescriptionTags
+				+ ", excludeDeprecatedResourceClasses=" + this.excludeDeprecatedResourceClasses + ", excludeDeprecatedModelClasses="
+				+ this.excludeDeprecatedModelClasses + ", excludeDeprecatedOperations=" + this.excludeDeprecatedOperations + ", excludeDeprecatedFields="
+				+ this.excludeDeprecatedFields + ", excludeDeprecatedParams=" + this.excludeDeprecatedParams + ", parseModels=" + this.parseModels
+				+ ", crossClassResources=" + this.crossClassResources + ", sortResourcesByPath=" + this.sortResourcesByPath + ", sortResourcesByPriority="
+				+ this.sortResourcesByPriority + ", sortApisByPath=" + this.sortApisByPath + "]";
 	}
 
 }

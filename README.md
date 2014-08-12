@@ -183,8 +183,9 @@ These are the options that you may want to use to add additional functionality o
 	</pre></code>
 	</td></tr>
 	
-	<tr><td>-disableCopySwaggerUi</td><td>If set then this does not copy the swagger ui to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the swagger ui or host or package it separately.</td></tr>
-	<tr><td>-swaggerUiZipPath</td><td>If copying of the swagger ui is enabled this is the path to the zip file that includes the ui. If not provided then the default swagger ui embedded in the doclet plugin will be used.</td></tr>
+	<tr><td>-disableCopySwaggerUi or -skipUiFiles</td><td>If set then this does not copy the swagger ui to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the swagger ui or host or package it separately.</td></tr>
+	
+	<tr><td>-swaggerUiPath</td><td>If copying of the swagger ui is enabled this is the path to the zip file or dir that includes the ui. If not provided then the default swagger ui embedded in the doclet plugin will be used. If the legacy swaggerUiZipPath option is provided then this will be set to that value.</td></tr>
 	
 	<tr><td>-disableModels</td><td>This turns off generation of models in the documentation.</td></tr>
 	
