@@ -59,7 +59,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 
 <table>
 	<tr><th>Tag</th><th>Purpose</th><th>Applies To</th><th>Aliases</th></tr>
-	<tr><td>@exclude</td><td>Use to exclude a resource operation, model field or method from the generated documentation</td><td>operations, model methods & fields</td><td>@hidden, @hide</td></tr>
+	<tr><td>@exclude</td><td>Use to exclude a resource class, operation, model field or method from the generated documentation</td><td>classes, operations, model methods & fields</td><td>@hidden, @hide</td></tr>
 	<tr><td>@excludeParams</td><td>Use to exclude operation parameters from the generated documentation</td><td>operations</td><td>@hiddenParams, @hideParams</td></tr>
 	<tr><td>@responseMessage</td><td>Use to describe each success or response status returned from an operation. It is made up of a numeric status code, a description an an optional response model specifically for this error.<br><br>For example:<br><br>
 	@responseMessage 404 not found<br><br>
@@ -196,13 +196,19 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-sortResourcesByPath</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their path. If neither this nor the -sortResourcesByPriority options are set then they will be listed in the order encountered by the parser.</td></tr>
 	
+	<tr><td>-disableDeprecatedResourceClassExclusion</td><td>By default resource classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-disableDeprecatedModelClassExclusion</td><td>By default model classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
 	<tr><td>-disableDeprecatedOperationExclusion</td><td>By default operation methods which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
 	<tr><td>-disableDeprecatedFieldExclusion</td><td>By default model fields which have either the @deprecated tag or @Deprecated annotation (either on the model field or method) are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
 	<tr><td>-disableDeprecatedParamExclusion</td><td>By default operation parameters which have the @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
-	<tr><td>-typesToTreatAsOpaque</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. Note resteasy multipart is not currently supported by the swagger ui which is why its been left out.</td></tr>
+	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. Note resteasy multipart is not currently supported by the swagger ui which is why its been left out. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
+	
+	<tr><td>-excludeResourcePrefixes</td><td>This allows you to exclude resource classes from the generated documentation. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package.</td></tr>
 	
 	<tr><td>-genericWrapperTypes</td><td>This adds additional classes to the set of model classes that act as genericized wrappers to the actual entity that should be documented. The default set contains com.sun.jersey.api.JResponse.</td></tr>
 	

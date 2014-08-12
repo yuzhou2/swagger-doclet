@@ -12,6 +12,7 @@ public class ServiceDoclet {
 	/**
 	 * Generate documentation here.
 	 * This method is required for all doclets.
+	 * @param doc The root doc
 	 * @return true on success.
 	 */
 	public static boolean start(RootDoc doc) {
@@ -25,6 +26,7 @@ public class ServiceDoclet {
 	 * given option. For example, "-d docs" would return 2.
 	 * <p/>
 	 * This method is required if the doclet contains any options. If this method is missing, Javadoc will print an invalid flag error for every option.
+	 * @param option The option to check
 	 * @return number of arguments on the command line for an option
 	 *         including the option name itself. Zero return means
 	 *         option not known. Negative value means error occurred.
@@ -35,10 +37,6 @@ public class ServiceDoclet {
 		options.put("-docBasePath", 2);
 		options.put("-apiBasePath", 2);
 		options.put("-apiVersion", 2);
-		options.put("-swaggerUiZipPath", 2);
-		options.put("-excludeParamAnnotations", 2);
-		options.put("-disableModels", 1);
-		options.put("-typesToTreatAsOpaque", 2);
 
 		options.put("-genericWrapperTypes", 2);
 
@@ -66,12 +64,22 @@ public class ServiceDoclet {
 		options.put("-authOperationScopes", 2);
 		options.put("-operationScopeTags", 2);
 
+		options.put("-swaggerUiZipPath", 2);
+
 		// supports turning off copy of swagger ui, useful for tests and also for
 		// people that use their own swagger ui files
 		options.put("-disableCopySwaggerUi", 1);
 
+		options.put("-disableModels", 1);
+
 		// supports removing certain methods from the docs, e.g. for hidden/private
 		// endpoints
+		options.put("-typesToTreatAsOpaque", 2); // this is kept for backward compatibility
+		options.put("-excludeModelPrefixes", 2);
+		options.put("-excludeResourcePrefixes", 2);
+
+		options.put("-excludeParamAnnotations", 2);
+		options.put("-excludeClassTags", 2);
 		options.put("-excludeOperationTags", 2);
 		options.put("-excludeFieldTags", 2);
 		options.put("-excludeParamsTags", 2);
@@ -84,6 +92,8 @@ public class ServiceDoclet {
 		options.put("-crossClassResources", 1);
 
 		// control deprecation exclusion
+		options.put("-disableDeprecatedResourceClassExclusion", 1);
+		options.put("-disableDeprecatedModelClassExclusion", 1);
 		options.put("-disableDeprecatedOperationExclusion", 1);
 		options.put("-disableDeprecatedFieldExclusion", 1);
 		options.put("-disableDeprecatedParamExclusion", 1);

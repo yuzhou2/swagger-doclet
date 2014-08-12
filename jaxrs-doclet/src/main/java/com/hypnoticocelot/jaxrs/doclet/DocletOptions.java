@@ -47,6 +47,11 @@ public class DocletOptions {
 		}
 	}
 
+	/**
+	 * This parses doclet options
+	 * @param options The cmdline options
+	 * @return The parse options
+	 */
 	public static DocletOptions parse(String[][] options) {
 		DocletOptions parsedOptions = new DocletOptions();
 		for (String[] option : options) {
@@ -85,12 +90,20 @@ public class DocletOptions {
 				parsedOptions.excludeDeprecatedFields = false;
 			} else if (option[0].equals("-disableDeprecatedParamExclusion")) {
 				parsedOptions.excludeDeprecatedParams = false;
+			} else if (option[0].equals("-disableDeprecatedResourceClassExclusion")) {
+				parsedOptions.excludeDeprecatedResourceClasses = false;
+			} else if (option[0].equals("-disableDeprecatedModelClassExclusion")) {
+				parsedOptions.excludeDeprecatedModelClasses = false;
 			} else if (option[0].equals("-responseMessageTags")) {
 				parsedOptions.responseMessageTags.addAll(asList(copyOfRange(option, 1, option.length)));
-			} else if (option[0].equals("-typesToTreatAsOpaque")) {
-				parsedOptions.typesToTreatAsOpaque.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeModelPrefixes") || option[0].equals("-typesToTreatAsOpaque")) {
+				parsedOptions.excludeModelPrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeResourcePrefixes")) {
+				parsedOptions.excludeResourcePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-genericWrapperTypes")) {
 				parsedOptions.genericWrapperTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-excludeClassTags")) {
+				parsedOptions.excludeClassTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeOperationTags")) {
 				parsedOptions.excludeOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeFieldTags")) {
@@ -144,7 +157,8 @@ public class DocletOptions {
 
 	private boolean includeSwaggerUi = true;
 
-	private List<String> typesToTreatAsOpaque;
+	private List<String> excludeResourcePrefixes;
+	private List<String> excludeModelPrefixes;
 	private List<String> genericWrapperTypes;
 	private List<String> responseMessageTags;
 	private List<String> responseTypeTags;
@@ -152,6 +166,7 @@ public class DocletOptions {
 	private List<String> defaultErrorTypeTags;
 
 	private List<String> excludeParamAnnotations;
+	private List<String> excludeClassTags;
 	private List<String> excludeOperationTags;
 	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
@@ -177,6 +192,8 @@ public class DocletOptions {
 	private List<String> resourcePriorityTags;
 	private List<String> resourceDescriptionTags;
 
+	private boolean excludeDeprecatedResourceClasses = true;
+	private boolean excludeDeprecatedModelClasses = true;
 	private boolean excludeDeprecatedOperations = true;
 	private boolean excludeDeprecatedFields = true;
 	private boolean excludeDeprecatedParams = true;
@@ -209,15 +226,22 @@ public class DocletOptions {
 		this.responseMessageTags.add("successResponse");
 		this.responseMessageTags.add("successCode");
 
-		this.typesToTreatAsOpaque = new ArrayList<String>();
-		this.typesToTreatAsOpaque.add("org.joda.time.DateTime");
-		this.typesToTreatAsOpaque.add("java.util.UUID");
+		this.excludeModelPrefixes = new ArrayList<String>();
+		this.excludeModelPrefixes.add("org.joda.time.DateTime");
+		this.excludeModelPrefixes.add("java.util.UUID");
 		// dont document MultipartFormDataInput as doclet can't handle it
-		this.typesToTreatAsOpaque.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
+		this.excludeModelPrefixes.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
 
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();
 		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
+
+		this.excludeResourcePrefixes = new ArrayList<String>();
+
+		this.excludeClassTags = new ArrayList<String>();
+		this.excludeClassTags.add("hidden");
+		this.excludeClassTags.add("hide");
+		this.excludeClassTags.add("exclude");
 
 		this.excludeOperationTags = new ArrayList<String>();
 		this.excludeOperationTags.add("hidden");
@@ -362,6 +386,14 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This gets the excludeClassTags
+	 * @return the excludeClassTags
+	 */
+	public List<String> getExcludeClassTags() {
+		return this.excludeClassTags;
+	}
+
+	/**
 	 * This gets the excludeFieldTags
 	 * @return the excludeFieldTags
 	 */
@@ -401,8 +433,40 @@ public class DocletOptions {
 		return this.resourceTags;
 	}
 
-	public List<String> getTypesToTreatAsOpaque() {
-		return this.typesToTreatAsOpaque;
+	/**
+	 * This gets prefixes of the FQN of resource classes to exclude
+	 * @return the prefixes of the FQN of resource classes to exclude
+	 */
+	public List<String> getExcludeResourcePrefixes() {
+		return this.excludeResourcePrefixes;
+	}
+
+	/**
+	 * This sets the prefixes of the FQN of resource classes to exclude
+	 * @param excludeResourcePrefixes the prefixes of the FQN of resource classes to exclude
+	 * @return this
+	 */
+	public DocletOptions setExcludeResourcePrefixes(List<String> excludeResourcePrefixes) {
+		this.excludeResourcePrefixes = excludeResourcePrefixes;
+		return this;
+	}
+
+	/**
+	 * This gets prefixes of the FQN of model classes to exclude
+	 * @return prefixes of the FQN of model classes to exclude
+	 */
+	public List<String> getExcludeModelPrefixes() {
+		return this.excludeModelPrefixes;
+	}
+
+	/**
+	 * This sets the prefixes of the FQN of model classes to exclude
+	 * @param excludeModelPrefixes prefixes of the FQN of model classes to exclude
+	 * @return this
+	 */
+	public DocletOptions setExcludeModelPrefixes(List<String> excludeModelPrefixes) {
+		this.excludeModelPrefixes = excludeModelPrefixes;
+		return this;
 	}
 
 	/**
@@ -414,6 +478,10 @@ public class DocletOptions {
 		return this.genericWrapperTypes;
 	}
 
+	/**
+	 * This is whether model parsing is enabled
+	 * @return Whether model parsing is enabled
+	 */
 	public boolean isParseModels() {
 		return this.parseModels;
 	}
@@ -660,6 +728,22 @@ public class DocletOptions {
 	public DocletOptions setIncludeSwaggerUi(boolean includeSwaggerUi) {
 		this.includeSwaggerUi = includeSwaggerUi;
 		return this;
+	}
+
+	/**
+	 * This gets the excludeDeprecatedResourceClasses
+	 * @return the excludeDeprecatedResourceClasses
+	 */
+	public boolean isExcludeDeprecatedResourceClasses() {
+		return this.excludeDeprecatedResourceClasses;
+	}
+
+	/**
+	 * This gets the excludeDeprecatedModelClasses
+	 * @return the excludeDeprecatedModelClasses
+	 */
+	public boolean isExcludeDeprecatedModelClasses() {
+		return this.excludeDeprecatedModelClasses;
 	}
 
 	/**

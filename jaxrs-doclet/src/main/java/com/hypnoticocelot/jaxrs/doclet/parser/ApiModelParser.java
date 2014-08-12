@@ -57,13 +57,32 @@ public class ApiModelParser {
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		boolean isClass = qName.equals("java.lang.Class");
 		boolean isWildcard = qName.equals("?");
-		boolean isTypeToTreatAsOpaque = this.options.getTypesToTreatAsOpaque().contains(qName);
 
 		ClassDoc classDoc = type.asClassDoc();
 
-		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isTypeToTreatAsOpaque || classDoc == null || classDoc.isEnum()
-				|| alreadyStoredType(type)) {
+		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || classDoc == null || classDoc.isEnum() || alreadyStoredType(type)) {
 			return;
+		}
+
+		// check if its got an exclude tag
+		// see if deprecated
+		if (this.options.isExcludeDeprecatedModelClasses() && AnnotationHelper.isDeprecated(classDoc)) {
+			return;
+		}
+
+		// see if excluded via a tag
+		if (AnnotationHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+			return;
+		}
+
+		// see if excluded via its FQN
+		if (this.options.getExcludeModelPrefixes() != null && !this.options.getExcludeModelPrefixes().isEmpty()) {
+			for (String prefix : this.options.getExcludeModelPrefixes()) {
+				String className = classDoc.qualifiedName();
+				if (className.startsWith(prefix)) {
+					return;
+				}
+			}
 		}
 
 		// if parameterized then build map of the param vars

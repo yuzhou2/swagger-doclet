@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,14 +44,44 @@ public class JaxRsAnnotationParser {
 	public boolean run() {
 		try {
 
-			Collection<ClassDoc> docletClasses = Arrays.asList(this.rootDoc.classes());
+			// filter the classes to process
+			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
+			for (ClassDoc classDoc : this.rootDoc.classes()) {
+
+				// see if deprecated
+				if (this.options.isExcludeDeprecatedResourceClasses() && AnnotationHelper.isDeprecated(classDoc)) {
+					continue;
+				}
+
+				// see if excluded via a tag
+				if (AnnotationHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+					continue;
+				}
+
+				// see if excluded via its FQN
+				boolean excludeResource = false;
+				if (this.options.getExcludeResourcePrefixes() != null && !this.options.getExcludeResourcePrefixes().isEmpty()) {
+					for (String prefix : this.options.getExcludeResourcePrefixes()) {
+						String className = classDoc.qualifiedName();
+						if (className.startsWith(prefix)) {
+							excludeResource = true;
+							break;
+						}
+					}
+				}
+				if (excludeResource) {
+					continue;
+				}
+
+				docletClasses.add(classDoc);
+			}
 
 			List<ApiDeclaration> declarations = null;
 
 			if (this.options.isCrossClassResources()) {
 				// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
 				Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
-				for (ClassDoc classDoc : this.rootDoc.classes()) {
+				for (ClassDoc classDoc : docletClasses) {
 					CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, SWAGGER_VERSION,
 							this.options.getApiVersion(), this.options.getApiBasePath());
 					classParser.parse(resourceToDeclaration);
@@ -71,7 +100,7 @@ public class JaxRsAnnotationParser {
 			} else {
 				// use the original parse mode which treats each resource as a separate api
 				declarations = new ArrayList<ApiDeclaration>();
-				for (ClassDoc classDoc : this.rootDoc.classes()) {
+				for (ClassDoc classDoc : docletClasses) {
 
 					// look for a class level priority tag for the resource listing
 					int priorityVal = Integer.MAX_VALUE;

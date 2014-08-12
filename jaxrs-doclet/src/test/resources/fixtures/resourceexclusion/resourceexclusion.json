@@ -1,0 +1,13 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "apis": [
+     	{
+            "path": "/r2b.{format}"
+        },
+        {
+            "path": "/r4.{format}"
+        }
+    ]
+}
