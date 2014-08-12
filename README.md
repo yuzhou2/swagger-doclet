@@ -314,15 +314,29 @@ $
 
 ## Override Swagger UI
 
-To override the swagger ui included with the doclet, create your own swagger-ui.zip file and add a swaggerUiZipPath to the additionalparam attribute in the pom file.
+To override the swagger ui included with the doclet, you can either use your own zip or your own directory and add the swaggerUiPath option to the additionalparam attribute in the pom file.
+
+Here is an example pointing to a zip file:
 
 ```
-<additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiZipPath ../../../src/main/resources/swagger-ui.zip</additionalparam>
+<additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui.zip</additionalparam>
+```
+
+Here is an example pointing to a directory:
+
+```
+<additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui/</additionalparam>
 ```
 
 ## New Features/Fixes in this fork:
 
 ### Fixes Added or Merged from https://github.com/ryankennedy/swagger-jaxrs-doclet
+
+Issue 76 Support Exclude packages/classes 
+
+Issue 75 Support excluding swagger ui
+
+Issue 74 supported via cross class resource parser
 
 Issue 73 Support old jackson annotations
 
@@ -342,9 +356,14 @@ Issue 59 resource inheritance
 
 Issue 58 Swagger ui zip path
 
+Issue 55 swagger-ui from a folder instead of zip
+
 Issue 52 Model inheritance
 
+Issue 46 support custom api info
+
 Issue 44 Produces/Consumes
+
 
 
 
