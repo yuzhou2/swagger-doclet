@@ -5,20 +5,47 @@
     "resourcePath": "/collections",
     "apis": [
         {
-            "path": "/collections",
+        	"path": "/collections",
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getCollectionHolder",
-                    "type": "collectionHolder",
-                    "summary": "This gets the collection holder"
+                    "type": "collectionHolder"
+                }
+            ]
+        },
+        {
+        	"path": "/collections/items",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getItems",
+                    "type": "array",
+                    "items": {
+                    	"$ref": "collectionItem"
+                    }
+                }
+            ]
+        },
+        {
+        	"path": "/collections/strings",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getStrings",
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
                 }
             ]
         }
-    ],
+    ], 
     "models": {
-        "collectionHolder": {
+    	"collectionHolder": {
             "id": "collectionHolder",
             "properties": {
                 "listStrings": {
@@ -61,7 +88,7 @@
                 }
             }
         },
-         "collectionItem": {
+        "collectionItem": {
             "id": "collectionItem",
             "properties": {
             	"name" : {

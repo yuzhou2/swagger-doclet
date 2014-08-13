@@ -6,6 +6,7 @@ package fixtures.propertydesc;
  * @version $Id$
  * @author conor.roche
  */
+@SuppressWarnings("javadoc")
 public class Data {
 
 	/**

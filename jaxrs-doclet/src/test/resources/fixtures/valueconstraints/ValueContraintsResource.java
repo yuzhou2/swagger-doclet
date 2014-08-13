@@ -10,6 +10,7 @@ import javax.ws.rs.QueryParam;
  * @author conor.roche
  */
 @Path("/valueconstraints")
+@SuppressWarnings("javadoc")
 public class ValueContraintsResource {
 
 	@POST

@@ -34,13 +34,19 @@ public class ApiModelParser {
 	final Translator translator;
 	private final Type rootType;
 	private final Set<Model> models;
+	private final String jsonViewClass;
 
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
 	public ApiModelParser(DocletOptions options, Translator translator, Type rootType) {
+		this(options, translator, rootType, null);
+	}
+
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, String jsonViewClass) {
 		this.options = options;
 		this.translator = translator;
 		this.rootType = rootType;
+		this.jsonViewClass = jsonViewClass;
 		this.models = new LinkedHashSet<Model>();
 	}
 
@@ -206,6 +212,9 @@ public class ApiModelParser {
 							continue;
 						}
 
+						// ignore fields that are for a different json view
+						// TODO: ...
+
 						String description = getFieldDescription(field);
 						String min = getFieldMin(field);
 						String max = getFieldMax(field);
@@ -359,7 +368,7 @@ public class ApiModelParser {
 				});
 			}
 
-			Type containerOf = getContainerType(type);
+			Type containerOf = AnnotationHelper.getContainerType(type, this.varsToTypes);
 			String itemsRef = null;
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
@@ -401,25 +410,6 @@ public class ApiModelParser {
 		}
 	}
 
-	private Type getContainerType(Type type) {
-		Type result = null;
-		ParameterizedType pt = type.asParameterizedType();
-		if (pt != null && AnnotationHelper.isCollection(type.qualifiedTypeName())) {
-			Type[] typeArgs = pt.typeArguments();
-			if (typeArgs != null && typeArgs.length > 0) {
-				result = typeArgs[0];
-			}
-		}
-		// if its a ref to a param type replace with the type impl
-		if (result != null) {
-			Type paramType = getVarType(result.asTypeVariable());
-			if (paramType != null) {
-				return paramType;
-			}
-		}
-		return result;
-	}
-
 	private Type getModelType(Type type, boolean nested) {
 		if (type != null) {
 
@@ -435,7 +425,7 @@ public class ApiModelParser {
 				}
 			}
 			// if its a ref to a param type replace with the type impl
-			Type paramType = getVarType(type.asTypeVariable());
+			Type paramType = AnnotationHelper.getVarType(type.asTypeVariable(), this.varsToTypes);
 			if (paramType != null) {
 				return paramType;
 			}
@@ -463,18 +453,6 @@ public class ApiModelParser {
 			}
 		}
 		return type;
-	}
-
-	private Type getVarType(TypeVariable var) {
-		Type res = null;
-		if (var != null) {
-			Type type = this.varsToTypes.get(var.qualifiedTypeName());
-			while (type != null) {
-				res = type;
-				type = this.varsToTypes.get(type.qualifiedTypeName());
-			}
-		}
-		return res;
 	}
 
 	private boolean alreadyStoredType(final Type type) {

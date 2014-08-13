@@ -55,6 +55,16 @@
                             "responseModel" : "Response3"
                         }
                     ]
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "interfaceResponse",
+                    "type": "Response4"
+                },
+                {
+                    "httpMethod": "GET",
+                    "nickname": "interfaceResponseViaTag",
+                    "type": "Response4"
                 }
             ]
         }
@@ -78,6 +88,14 @@
         },
         "Response3": {
             "id": "Response3",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response4": {
+            "id": "Response4",
             "properties": {
                 "value": {
                     "type": "string"

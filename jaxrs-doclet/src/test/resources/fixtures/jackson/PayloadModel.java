@@ -5,20 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName("payload")
+@SuppressWarnings("javadoc")
 public class PayloadModel {
 
-    public String getVisibleField() {
-        return "";
-    }
+	public String getVisibleField() {
+		return "";
+	}
 
-    @JsonProperty("odd-name")
-    public String oddlyNamedField() {
-        return "";
-    }
+	@JsonProperty("odd-name")
+	public String oddlyNamedField() {
+		return "";
+	}
 
-    @JsonIgnore
-    public String getInvisibleField() {
-        return "";
-    }
+	@JsonIgnore
+	public String getInvisibleField() {
+		return "";
+	}
 
 }

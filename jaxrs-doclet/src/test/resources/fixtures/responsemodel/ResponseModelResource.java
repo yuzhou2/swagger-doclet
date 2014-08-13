@@ -54,4 +54,31 @@ public class ResponseModelResource {
 		return Response.ok().entity(new Response3()).build();
 	}
 
+	@GET
+	@SuppressWarnings("javadoc")
+	public Response4 interfaceResponse() {
+		return new Response4() {
+
+			public String getValue() {
+				return "test";
+			}
+
+		};
+	}
+
+	/**
+	 * @responseType fixtures.responsemodel.Response4
+	 */
+	@SuppressWarnings("javadoc")
+	@GET
+	public Response interfaceResponseViaTag() {
+		return Response.ok().entity(new Response4() {
+
+			public String getValue() {
+				return "test";
+			}
+
+		}).build();
+	}
+
 }

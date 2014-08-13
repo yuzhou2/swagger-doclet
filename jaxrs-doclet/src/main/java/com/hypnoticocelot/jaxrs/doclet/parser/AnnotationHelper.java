@@ -16,9 +16,11 @@ import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
 
 public class AnnotationHelper {
 
@@ -123,6 +125,50 @@ public class AnnotationHelper {
 	}
 
 	/**
+	 * This gets the type that a container holds
+	 * @param type The raw type like Collection<String>
+	 * @param varsToTypes A map of variables to types for parameterized types, optional if null parameterized types
+	 *            will not be handled
+	 * @return The container type or null if not a collection
+	 */
+	public static Type getContainerType(Type type, Map<String, Type> varsToTypes) {
+		Type result = null;
+		ParameterizedType pt = type.asParameterizedType();
+		if (pt != null && AnnotationHelper.isCollection(type.qualifiedTypeName())) {
+			Type[] typeArgs = pt.typeArguments();
+			if (typeArgs != null && typeArgs.length > 0) {
+				result = typeArgs[0];
+			}
+		}
+		// if its a ref to a param type replace with the type impl
+		if (result != null) {
+			Type paramType = getVarType(result.asTypeVariable(), varsToTypes);
+			if (paramType != null) {
+				return paramType;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * This finds a variable type and returns its impl from the given map
+	 * @param var The variable type to find
+	 * @param varsToTypes The map of variables to types
+	 * @return The result.
+	 */
+	public static Type getVarType(TypeVariable var, Map<String, Type> varsToTypes) {
+		Type res = null;
+		if (var != null && varsToTypes != null) {
+			Type type = varsToTypes.get(var.qualifiedTypeName());
+			while (type != null) {
+				res = type;
+				type = varsToTypes.get(type.qualifiedTypeName());
+			}
+		}
+		return res;
+	}
+
+	/**
 	 * This gets whether the given type is a Set
 	 * @param javaType The java type
 	 * @return True if this is a Set
@@ -194,6 +240,20 @@ public class AnnotationHelper {
 		}
 		if (name == null) {
 			name = parameter.name();
+		}
+		return name;
+	}
+
+	/**
+	 * This gets the qualified class name of the json view for the given method
+	 * @param methodDoc The method to get the json view of
+	 * @return The json view qualified class name or null
+	 */
+	public static String getJsonView(MethodDoc methodDoc) {
+		AnnotationParser p = new AnnotationParser(methodDoc);
+		String name = p.getAnnotationValue("com.fasterxml.jackson.annotation.JsonView", "value");
+		if (name == null) {
+			name = p.getAnnotationValue("org.codehaus.jackson.map.annotate.JsonView", "value");
 		}
 		return name;
 	}

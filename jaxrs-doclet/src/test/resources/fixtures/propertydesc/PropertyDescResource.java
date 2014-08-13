@@ -10,6 +10,7 @@ import javax.ws.rs.Path;
  * @author conor.roche
  */
 @Path("/propertydesc")
+@SuppressWarnings("javadoc")
 public class PropertyDescResource {
 
 	@GET

@@ -5,6 +5,7 @@ package fixtures.valueconstraints;
  * @version $Id$
  * @author conor.roche
  */
+@SuppressWarnings("javadoc")
 public enum EnumValue {
 
 	VALUE1,

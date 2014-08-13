@@ -6,14 +6,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 @Path("/jackson")
+@SuppressWarnings("javadoc")
 public class JacksonResource {
-    @GET
-    public ResponseModel get() {
-        return new ResponseModel();
-    }
 
-    @POST
-    public Response create(PayloadModel payload) {
-        return Response.ok().build();
-    }
+	@GET
+	public ResponseModel get() {
+		return new ResponseModel();
+	}
+
+	@POST
+	public Response create(PayloadModel payload) {
+		return Response.ok().build();
+	}
 }

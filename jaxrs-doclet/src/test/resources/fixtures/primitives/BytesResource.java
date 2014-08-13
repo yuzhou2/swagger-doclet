@@ -6,14 +6,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 @Path("/primitives/bytes")
+@SuppressWarnings("javadoc")
 public class BytesResource {
-    @GET
-    public byte get() {
-        return 0;
-    }
 
-    @POST
-    public Response create(byte value) {
-        return Response.ok().build();
-    }
+	@GET
+	public byte get() {
+		return 0;
+	}
+
+	@POST
+	public Response create(byte value) {
+		return Response.ok().build();
+	}
 }

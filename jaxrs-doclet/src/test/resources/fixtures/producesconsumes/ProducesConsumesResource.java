@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
  * @author conor.roche
  */
 @Path("/producesconsumes")
+@SuppressWarnings("javadoc")
 public class ProducesConsumesResource {
 
 	@GET

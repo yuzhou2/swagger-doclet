@@ -6,14 +6,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 @Path("/primitives/ints")
+@SuppressWarnings("javadoc")
 public class IntsResource {
-    @GET
-    public int get() {
-        return 0;
-    }
 
-    @POST
-    public Response create(int value) {
-        return Response.ok().build();
-    }
+	@GET
+	public int get() {
+		return 0;
+	}
+
+	@POST
+	public Response create(int value) {
+		return Response.ok().build();
+	}
 }

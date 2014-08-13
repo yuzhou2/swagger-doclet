@@ -148,18 +148,61 @@ public class ApiMethodParser {
 		// ************************************
 		// Return type
 		// ************************************
-		Type type = this.methodDoc.returnType();
-		type = firstNonNull(ApiModelParser.getReturnType(this.options, type), type);
+		Type returnType = this.methodDoc.returnType();
+		// first check if its a wrapper type and if so replace with the wrapped type
+		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
+		String returnTypeName = this.translator.typeName(returnType).value();
 
-		String returnType = this.translator.typeName(type).value();
-		if (this.options.isParseModels()) {
-			this.models.addAll(new ApiModelParser(this.options, this.translator, type).parse());
+		Type modelType = returnType;
+
+		String jsonView = AnnotationHelper.getJsonView(this.methodDoc);
+
+		// now see if it is a collection if so the return type will be array and the
+		// containerOf will be added to the model
+
+		String returnTypeItemsRef = null;
+		String returnTypeItemsType = null;
+		Type containerOf = AnnotationHelper.getContainerType(returnType, null);
+		if (containerOf != null) {
+			modelType = containerOf;
+
 		}
 
-		// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
-		// but typically return a different object in its entity (such as for a 201 created response)
-		String customReturnType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
-		returnType = readCustomReturnType(customReturnType, returnType);
+		String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
+		if (containerOf != null) {
+			if (AnnotationHelper.isPrimitive(containerOf)) {
+				returnTypeItemsType = containerTypeOf;
+			} else {
+				returnTypeItemsRef = containerTypeOf;
+				// handle json view for containers, here it applies to the container item
+				if (jsonView != null) {
+					String[] typeFormat = AnnotationHelper.typeOf(jsonView);
+					returnTypeItemsRef = returnTypeItemsRef + "-" + typeFormat[0];
+				}
+
+			}
+
+		} else {
+			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
+			// but typically return a different object in its entity (such as for a 201 created response)
+			String customReturnTypeName = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
+			NameToType nameToType = readCustomReturnType(customReturnTypeName);
+			if (nameToType != null) {
+				returnTypeName = nameToType.translatedName;
+				returnType = nameToType.type;
+			}
+
+			// if a json view then use that for the return type name
+			if (jsonView != null) {
+				String[] typeFormat = AnnotationHelper.typeOf(jsonView);
+				returnTypeName = returnType + "-" + typeFormat[0];
+			}
+
+		}
+
+		if (this.options.isParseModels()) {
+			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, jsonView).parse());
+		}
 
 		// ************************************
 		// Summary and notes
@@ -197,8 +240,8 @@ public class ApiMethodParser {
 		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
 
 		// final result!
-		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnType, consumes, produces,
-				authorizations);
+		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
+				returnTypeItemsType, consumes, produces, authorizations);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {
@@ -450,23 +493,28 @@ public class ApiMethodParser {
 		return defaultType;
 	}
 
-	private String readCustomReturnType(String customTypeName, String defaultTypeName) {
+	static class NameToType {
+
+		String translatedName;
+		Type type;
+	}
+
+	NameToType readCustomReturnType(String customTypeName) {
 		if (customTypeName != null) {
 			// lookup the type from the doclet classes
 			Type customType = AnnotationHelper.findModel(this.classes, customTypeName);
 			if (customType != null) {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
-				// also add this custom return type to the models
-				if (this.options.isParseModels()) {
-					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
-				}
 				String translated = this.translator.typeName(customType).value();
 				if (translated != null) {
-					return translated;
+					NameToType res = new NameToType();
+					res.translatedName = translated;
+					res.type = customType;
+					return res;
 				}
 			}
 		}
-		return defaultTypeName;
+		return null;
 	}
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, List<String> excludeParams, Parameter parameter) {

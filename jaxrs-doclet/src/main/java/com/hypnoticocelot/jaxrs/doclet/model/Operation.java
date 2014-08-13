@@ -4,13 +4,13 @@ import static com.google.common.base.Strings.emptyToNull;
 
 import java.util.List;
 
-import com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper;
-
 public class Operation {
 
-	private HttpMethod httpMethod;
+	private HttpMethod method;
 	private String nickname;
 	private String type; // void, primitive, complex or a container
+	private PropertyItems items;
+
 	private List<ApiParameter> parameters;
 	private String summary; // cap at 60 characters for readability in the UI
 	private String notes;
@@ -27,9 +27,12 @@ public class Operation {
 	}
 
 	public Operation(Method method) {
-		this.httpMethod = method.getMethod();
+		this.method = method.getMethod();
 		this.nickname = emptyToNull(method.getMethodName());
-		this.type = emptyToNull(AnnotationHelper.typeOf(method.getReturnType())[0]);
+		this.type = emptyToNull(method.getReturnType());
+		if (method.getReturnTypeItemsRef() != null || method.getReturnTypeItemsType() != null) {
+			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType());
+		}
 		this.parameters = method.getParameters().isEmpty() ? null : method.getParameters();
 		this.responseMessages = method.getResponseMessages().isEmpty() ? null : method.getResponseMessages();
 		this.summary = emptyToNull(method.getSummary());
@@ -39,8 +42,8 @@ public class Operation {
 		this.authorizations = method.getAuthorizations();
 	}
 
-	public HttpMethod getHttpMethod() {
-		return this.httpMethod;
+	public HttpMethod getMethod() {
+		return this.method;
 	}
 
 	public String getNickname() {
@@ -49,6 +52,14 @@ public class Operation {
 
 	public String getType() {
 		return this.type;
+	}
+
+	/**
+	 * This gets the items
+	 * @return the items
+	 */
+	public PropertyItems getItems() {
+		return this.items;
 	}
 
 	public List<ApiParameter> getParameters() {
@@ -101,7 +112,8 @@ public class Operation {
 		int result = 1;
 		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
 		result = prime * result + ((this.consumes == null) ? 0 : this.consumes.hashCode());
-		result = prime * result + ((this.httpMethod == null) ? 0 : this.httpMethod.hashCode());
+		result = prime * result + ((this.items == null) ? 0 : this.items.hashCode());
+		result = prime * result + ((this.method == null) ? 0 : this.method.hashCode());
 		result = prime * result + ((this.nickname == null) ? 0 : this.nickname.hashCode());
 		result = prime * result + ((this.notes == null) ? 0 : this.notes.hashCode());
 		result = prime * result + ((this.parameters == null) ? 0 : this.parameters.hashCode());
@@ -142,7 +154,14 @@ public class Operation {
 		} else if (!this.consumes.equals(other.consumes)) {
 			return false;
 		}
-		if (this.httpMethod != other.httpMethod) {
+		if (this.items == null) {
+			if (other.items != null) {
+				return false;
+			}
+		} else if (!this.items.equals(other.items)) {
+			return false;
+		}
+		if (this.method != other.method) {
 			return false;
 		}
 		if (this.nickname == null) {
@@ -203,9 +222,9 @@ public class Operation {
 	 */
 	@Override
 	public String toString() {
-		return "Operation [httpMethod=" + this.httpMethod + ", nickname=" + this.nickname + ", type=" + this.type + ", parameters=" + this.parameters
-				+ ", summary=" + this.summary + ", notes=" + this.notes + ", responseMessages=" + this.responseMessages + ", consumes=" + this.consumes
-				+ ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
+		return "Operation [method=" + this.method + ", nickname=" + this.nickname + ", type=" + this.type + ", items=" + this.items + ", parameters="
+				+ this.parameters + ", summary=" + this.summary + ", notes=" + this.notes + ", responseMessages=" + this.responseMessages + ", consumes="
+				+ this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
 	}
 
 }

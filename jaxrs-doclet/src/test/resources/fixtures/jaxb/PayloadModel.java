@@ -5,20 +5,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "payload")
+@SuppressWarnings("javadoc")
 public class PayloadModel {
 
-    public String getVisibleField() {
-        return "";
-    }
+	public String getVisibleField() {
+		return "";
+	}
 
-    @XmlElement(name = "odd-name")
-    public String oddlyNamedField() {
-        return "";
-    }
+	@XmlElement(name = "odd-name")
+	public String oddlyNamedField() {
+		return "";
+	}
 
-    @XmlTransient
-    public String getInvisibleField() {
-        return "";
-    }
+	@XmlTransient
+	public String getInvisibleField() {
+		return "";
+	}
 
 }

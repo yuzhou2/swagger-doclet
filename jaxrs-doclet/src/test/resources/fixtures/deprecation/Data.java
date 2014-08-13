@@ -5,6 +5,7 @@ package fixtures.deprecation;
  * @version $Id$
  * @author conor.roche
  */
+
 public class Data {
 
 	/**
@@ -19,6 +20,7 @@ public class Data {
 	/**
 	 * @deprecated
 	 */
+	@SuppressWarnings("dep-ann")
 	private String fieldTag;
 
 	private String getterTag;

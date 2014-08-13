@@ -11,6 +11,8 @@ public class Method {
 	private String summary;
 	private String notes;
 	private String returnType;
+	private String returnTypeItemsRef;
+	private String returnTypeItemsType;
 	private String path;
 
 	private List<String> consumes;
@@ -23,7 +25,8 @@ public class Method {
 	}
 
 	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
-			String summary, String notes, String returnType, List<String> consumes, List<String> produces, OperationAuthorizations authorizations) {
+			String summary, String notes, String returnType, String returnTypeItemsRef, String returnTypeItemsType, List<String> consumes,
+			List<String> produces, OperationAuthorizations authorizations) {
 		this.method = method;
 		this.methodName = methodName;
 		this.path = path;
@@ -32,6 +35,8 @@ public class Method {
 		this.summary = summary;
 		this.notes = notes;
 		this.returnType = returnType;
+		this.returnTypeItemsRef = returnTypeItemsRef;
+		this.returnTypeItemsType = returnTypeItemsType;
 		this.consumes = consumes;
 		this.produces = produces;
 		this.authorizations = authorizations;
@@ -73,12 +78,28 @@ public class Method {
 		return this.notes;
 	}
 
+	/**
+	 * This gets the returnType
+	 * @return the returnType
+	 */
 	public String getReturnType() {
 		return this.returnType;
 	}
 
-	public void setReturnType(String returnType) {
-		this.returnType = returnType;
+	/**
+	 * This gets the returnTypeItemsRef
+	 * @return the returnTypeItemsRef
+	 */
+	public String getReturnTypeItemsRef() {
+		return this.returnTypeItemsRef;
+	}
+
+	/**
+	 * This gets the returnTypeItemsType
+	 * @return the returnTypeItemsType
+	 */
+	public String getReturnTypeItemsType() {
+		return this.returnTypeItemsType;
 	}
 
 	public boolean isSubResource() {
