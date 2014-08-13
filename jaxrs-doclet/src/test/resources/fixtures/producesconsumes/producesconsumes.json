@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getData",
                     "type": "Data",
                     "produces": [
@@ -17,7 +17,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postData",
                     "type": "Data",
                     "parameters": [

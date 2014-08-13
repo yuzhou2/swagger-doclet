@@ -9,12 +9,12 @@
             "description": "",
             "operations": [
             	{
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getData",
                     "type": "Data"
                 },
                 {
-                    "httpMethod": "PUT",
+                    "method": "PUT",
                     "nickname": "putData",
                     "type": "Response",
                     "parameters": [
@@ -27,7 +27,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postData",
                     "type": "Response",
                     "parameters": [

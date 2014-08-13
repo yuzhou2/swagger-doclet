@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "bar",
                     "type": "string"
                 }
@@ -20,7 +20,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getById",
                     "type": "string",
                     "parameters": [

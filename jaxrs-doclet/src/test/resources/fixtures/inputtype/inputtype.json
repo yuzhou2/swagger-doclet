@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
             	{
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postData2b",
                     "type": "Response",
                     "parameters": [
@@ -39,7 +39,7 @@
             "description": "",
             "operations": [
             	{
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postData2c",
                     "type": "Response",
                     "parameters": [
@@ -70,7 +70,7 @@
             "description": "",
             "operations": [
             	{
-                    "httpMethod": "PUT",
+                    "method": "PUT",
                     "nickname": "putData1",
                     "type": "Response",
                     "parameters": [
@@ -89,7 +89,7 @@
             "description": "",
             "operations": [
             	{
-                    "httpMethod": "PUT",
+                    "method": "PUT",
                     "nickname": "putData2",
                     "type": "Response",
                     "parameters": [

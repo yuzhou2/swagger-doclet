@@ -9,22 +9,22 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getParameterized",
                     "type": "Parameterized"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getJResponse",
                     "type": "string"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getIntMap",
                     "type": "Map"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getParameterized2",
                     "type": "Response"
                 }

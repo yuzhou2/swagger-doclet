@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getData",
                     "type": "Data"
                 }

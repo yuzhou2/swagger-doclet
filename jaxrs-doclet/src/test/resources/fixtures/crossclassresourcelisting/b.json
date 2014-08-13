@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getB",
                     "type": "void"
                 }
@@ -20,7 +20,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getY",
                     "type": "void"
                 }
@@ -31,7 +31,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getZ",
                     "type": "void"
                 }

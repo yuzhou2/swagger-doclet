@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "customScope",
                     "type": "void",
                     "authorizations": {
@@ -22,7 +22,7 @@
 					}
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "customScopes",
                     "type": "void",
                     "authorizations": {
@@ -39,12 +39,12 @@
 					}
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "defaultNoAuth",
                     "type": "void"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "defaultAuth",
                     "type": "void",
                     "authorizations": {
@@ -57,13 +57,13 @@
 					}
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "noAuth1",
                     "type": "void",
                     "authorizations": {}
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "noAuth2",
                     "type": "void",
                     "authorizations": {}

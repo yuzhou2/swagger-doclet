@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "getParams1",
                     "type": "void",
                     "parameters": [
@@ -27,7 +27,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "PUT",
+                    "method": "PUT",
                     "nickname": "putParams2",
                     "type": "void",
                     "parameters": [
@@ -53,7 +53,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postParams3",
                     "type": "void",
                     "parameters": [
@@ -85,7 +85,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "postParams4",
                     "type": "void",
                     "parameters": [

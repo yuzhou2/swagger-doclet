@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "swagger11",
                     "type": "void",
                     "responseMessages": [
@@ -21,7 +21,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "swagger12",
                     "type": "void",
                     "responseMessages": [
@@ -37,7 +37,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "carma",
                     "type": "void",
                     "responseMessages": [

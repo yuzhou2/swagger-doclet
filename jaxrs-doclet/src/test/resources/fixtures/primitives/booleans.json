@@ -9,12 +9,12 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "get",
                     "type": "boolean"
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "create",
                     "type": "Response",
                     "parameters": [

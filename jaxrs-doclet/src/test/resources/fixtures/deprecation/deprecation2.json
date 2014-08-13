@@ -9,17 +9,17 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "deprecatedViaAnnotation",
                     "type": "void"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "deprecatedViaTag",
                     "type": "void"
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "getData",
                     "type": "Data",
                     "parameters": [

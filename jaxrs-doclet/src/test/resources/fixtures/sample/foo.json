@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "sayHello",
                     "type": "string",
                     "parameters": [
@@ -27,7 +27,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "createSpeech",
                     "type": "integer",
                     "parameters": [
@@ -46,7 +46,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "createSpeechWithAnnotatedPayload",
                     "type": "integer",
                     "parameters": [
@@ -65,7 +65,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "createSub",
                     "type": "integer",
                     "parameters": [
@@ -85,7 +85,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "sayHello",
                     "type": "string",
                     "parameters": [

@@ -9,22 +9,22 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "unspecifiedResponse",
                     "type": "Response"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "responseDefinedViaReturn",
                     "type": "Response1"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "responseDefinedViaTag",
                     "type": "Response2"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "responseDefinedViaResponseCode",
                     "type": "Response",
                     "responseMessages": [
@@ -45,7 +45,7 @@
                     ]
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "responseMix",
                     "type": "Response2",
                     "responseMessages": [
@@ -57,12 +57,12 @@
                     ]
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "interfaceResponse",
                     "type": "Response4"
                 },
                 {
-                    "httpMethod": "GET",
+                    "method": "GET",
                     "nickname": "interfaceResponseViaTag",
                     "type": "Response4"
                 }

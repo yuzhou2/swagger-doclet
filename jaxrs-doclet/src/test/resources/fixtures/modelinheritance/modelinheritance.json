@@ -9,7 +9,7 @@
             "description": "",
             "operations": [
                 {
-                    "httpMethod": "POST",
+                    "method": "POST",
                     "nickname": "modelInheritance",
                     "type": "ChildResponse",
                     "parameters": [
