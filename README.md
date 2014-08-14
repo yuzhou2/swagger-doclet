@@ -33,12 +33,12 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                         <id>generate-service-docs</id>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <doclet>com.hypnoticocelot.jaxrs.doclet.ServiceDoclet</doclet>
+                            <doclet>com.carma.swagger.doclet.ServiceDoclet</doclet>
                             <docletArtifact>
-                                <groupId>com.hypnoticocelot</groupId>
-                                <artifactId>jaxrs-doclet</artifactId>
-                                <version>0.0.4_carma-SNAPSHOT</version>
-                            </docletArtifact>
+                                <groupId>com.carma.oss</groupId>
+								<artifactId>swagger-doclet</artifactId>
+        						<version>1.0-SNAPSHOT</version>
+        					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath /</additionalparam>
@@ -57,7 +57,9 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 
 You would then add various javadoc tags to your source code to fine tune the generated documentation.
 The generated documentation will be written as a series of JSON files in a format that the swagger UI can read. You would typically deploy the swagger ui and your API JSON files on a webserver.
-This doclet can copy a version of the swagger ui to the output using the swaggerUiPath option. 
+To see a working example of the generated documentation refer to the example below.
+
+This doclet can copy a version of the swagger ui to the output dir using the swaggerUiPath option. 
 
 NOTE: You will more than likely need to tweak the index.html of the swagger ui. In particular if you are not hosting the documentation at the root then you would need to change the url variable in the swagger-ui index.html:
 
@@ -284,12 +286,12 @@ These are options that you typically won't need to use unless for example, you w
 
 ## Example
 
-An example project using Dropwizard is included in `jaxrs-doclet-sample-dropwizard`. To get it running, run the following commands.
+An example project using Dropwizard is included in `swagger-doclet-sample-dropwizard`. To get it running, run the following commands.
 
 ```
-$ cd jaxrs-doclet-sample-dropwizard
+$ cd swagger-doclet-sample-dropwizard
 $ mvn package
-$ java -jar target/jaxrs-doclet-sample-dropwizard-0.0.4_carma-SNAPSHOT.jar server sample.yml
+$ java -jar target/swagger-doclet-sample-dropwizard-1.0-SNAPSHOT.jar server sample.yml
 ```
 
 The example server should be running on port 8080:
