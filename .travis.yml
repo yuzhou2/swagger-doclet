@@ -2,6 +2,7 @@ language: java
 script: mvn deploy --settings maven_deploy_settings.xml
 jdk:
 - oraclejdk7
+- openjdk6
 env:
   global:
   - secure: F0DzBlxI0sDo3osFcfgGCjrX3HQeMWqJBF42/Pg0UE1UIgAUoMq8hrl7OegZPCo8ymg55CNxGaAcqNSQTeAyuXOh1G+Eokkh9UPyT+PpZFLLBT+0LZdbl4w7jhqBHGrHn9F6a4uiVbuLtWj9pyOVjcdwhsRAmOik76ZDvF0Mo2o=
