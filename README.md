@@ -1,5 +1,7 @@
 # Swagger Doclet 
 
+[![Build Status](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet.svg?branch=master)](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet)
+
 A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to
 swagger-ui. Forked from https://github.com/ryankennedy/swagger-jaxrs-doclet to add support for swagger 1.2 and includes various fixes described below. This is used as a basis for the Carma API https://api-dev.car.ma/apidoc/ref/index.html Note you can win $1,000,000 using this API see http://carmacarpool.com/prize
 
