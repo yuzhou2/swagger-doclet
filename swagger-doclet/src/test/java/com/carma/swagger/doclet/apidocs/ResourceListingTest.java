@@ -36,22 +36,6 @@ public class ResourceListingTest {
 	}
 
 	@Test
-	public void testDefaultOrder() throws IOException {
-
-		this.options.getResourceDescriptionTags().clear();
-		this.options.getResourcePriorityTags().clear();
-		this.options.setSortResourcesByPath(false);
-		this.options.setSortResourcesByPriority(false);
-
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.resourcelisting");
-		new JaxRsAnnotationParser(this.options, rootDoc).run();
-
-		final ResourceListing expectedListing = loadFixture("/fixtures/resourcelisting/service.json", ResourceListing.class);
-		verify(this.recorderMock).record(any(File.class), eq(expectedListing));
-
-	}
-
-	@Test
 	public void testPriorityOrder() throws IOException {
 
 		this.options.getResourceDescriptionTags().add("resourceDescription");
