@@ -1,11 +1,9 @@
 language: java
-script: "mvn deploy --settings maven_deploy_settings.xml"
-
+script: mvn deploy --settings maven_deploy_settings.xml
 jdk:
 - oraclejdk7
 - openjdk7
-
 env:
-  global:
-  - secure: V7lBX52BsJ1ubo03czRa7VHs93Kv2jq8IjA4qs3+S/9kyb7P4Js0TtDyMklH7u6kSnzFa2WxSHIQDfwAwPMCHEVM/8pKNkrjDgW9z4gPW51b0vm5FHouCjHu4sf1EFh5WIZtF7dunFFEzj1hilYWT2HrVawbqzH0mMKAflWwL3I=
-  - secure: QZEoJL5gdtZ58rUtvH8BsLE6EMCcgZZwGunC4aF0DhpMpPYGmSNxb7RWpV7YbPXAUghMgPDadueNcH7pYZzQHR65fyWwtWCZ94wfsrVUFfkogO8FOeBQS7z9ueMHIJI3wwHUsqpeM425oCgrvGMo1hdxme75GUQwx1ZdYCKvIM4=
+  matrix:
+  - secure: L/4avLCygJ93nntm8YDXeMrtYNJ9+9OHDVkSdh6nrR679dei7oi8KqeQgqchzEUA0HN0KlowzJ1ld7C1BpwqiazOpeBMkDFvH8WV40O6JatLYL1lLBle7lBOyNWdw+1lEcMuP67dU3Ek+A8cDL/0TQUEOghxmwUtdehxfprcJYU=
+  - secure: YgKSzo2h5EPeD638LLzKrg/jGa3xPWm2JLsHht/0rOF7gI1nIHe0UM2PcENiIYO1jlj4LI21OCiuAKXz2fuehpgI0GAUTUQokli6RpBdBjG59A4wl0A1VGgl2M/UiN0Fd7O3XzED1OVUqa3R0o29csEVXaP6m+QbKX0kLVhiz5I=
