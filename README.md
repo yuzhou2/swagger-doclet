@@ -378,6 +378,7 @@ Issue 46 support custom api info
 
 Issue 44 Produces/Consumes
 
+Issue 43 Support Jackson @JsonView filtering on return types
 
 
 

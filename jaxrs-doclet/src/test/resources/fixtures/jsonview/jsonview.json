@@ -1,0 +1,178 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/person",
+    "apis": [
+        {
+            "path": "/person",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getAll",
+                    "type": "array",
+                    "items" : {
+                    	"$ref": "Person-Person.SimplePersonView"
+                    }
+                }
+            ]
+        },
+        {
+            "path": "/person/{name}",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getPerson",
+                    "type": "Person-Person.DetailedPersonView",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                        }
+                     ]
+                }
+            ]
+        },
+        {
+            "path": "/person/{name}/2",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getPerson2",
+                    "type": "Person-Person.SimplePersonView2",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                        }
+                     ]
+                }
+            ]
+        },
+        {
+            "path": "/person/{name}/3",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getPerson3",
+                    "type": "Person-Person.DetailedPersonView2",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                        }
+                     ]
+                }
+            ]
+        },
+        {
+            "path": "/person/{name}/4",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getPerson4",
+                    "type": "Person-Person.DetailedPersonView3",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                        }
+                     ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Person-Person.SimplePersonView": {
+            "id": "Person-Person.SimplePersonView",
+            "properties": {
+                "height": {
+                	"type": "integer",
+                     "format": "int32"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person-Person.DetailedPersonView": {
+            "id": "Person-Person.DetailedPersonView",
+            "properties": {
+                "height": {
+                	"type": "integer",
+                     "format": "int32"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "age": {
+                    "type": "integer",
+                     "format": "int32"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person-Person.SimplePersonView2": {
+            "id": "Person-Person.SimplePersonView2",
+            "properties": {
+                "height": {
+                	"type": "integer",
+                     "format": "int32"
+                },
+                "name2": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person-Person.DetailedPersonView2": {
+            "id": "Person-Person.DetailedPersonView2",
+            "properties": {
+                "height": {
+                	"type": "integer",
+                     "format": "int32"
+                },
+                "age2": {
+                    "type": "integer",
+                     "format": "int32"
+                },
+                "name2": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person-Person.DetailedPersonView3": {
+            "id": "Person-Person.DetailedPersonView3",
+            "properties": {
+                "name3": {
+                    "type": "string"
+                },
+                "height": {
+                	"type": "integer",
+                     "format": "int32"
+                },
+                "age2": {
+                    "type": "integer",
+                     "format": "int32"
+                },
+                "name2": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
