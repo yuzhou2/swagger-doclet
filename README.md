@@ -37,7 +37,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                         <configuration>
                             <doclet>com.carma.swagger.doclet.ServiceDoclet</doclet>
                             <docletArtifact>
-                                <groupId>com.carma.oss</groupId>
+                                <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
         						<version>1.0-SNAPSHOT</version>
         					</docletArtifact>

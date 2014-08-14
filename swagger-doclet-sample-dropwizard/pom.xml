@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.carma.oss</groupId>
+        <groupId>com.carma</groupId>
 		<artifactId>swagger-doclet-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -57,7 +57,7 @@
                         <configuration>
                             <doclet>com.carma.swagger.doclet.ServiceDoclet</doclet>
                             <docletArtifact>
-                                <groupId>com.carma.oss</groupId>
+                                <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
         						<version>${project.version}</version>
         					</docletArtifact>
