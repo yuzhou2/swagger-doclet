@@ -32,7 +32,7 @@ public class ResourceExclusionTest {
 	@Before
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
-		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false)
+		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setSortResourcesByPath(true)
 				.setExcludeResourcePrefixes(Arrays.asList(new String[] { "fixtures.resourceexclusion.pkg1", "fixtures.resourceexclusion.pkg2.Res2a" }));
 	}
 
