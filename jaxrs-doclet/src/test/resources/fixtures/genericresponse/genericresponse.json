@@ -43,7 +43,8 @@
                     }
                 },
                 "rtype": {
-                	"type": "integer"
+                	"type": "integer",
+                	"format" : "int32"
                 },
                 "object": {
                     "type": "Object"
@@ -60,7 +61,8 @@
             "id": "Parameterized2",
             "properties": {
                 "typed": {
-                    "type": "integer"
+                    "type": "integer",
+                    "format" : "int32"
                 }
             }
         }

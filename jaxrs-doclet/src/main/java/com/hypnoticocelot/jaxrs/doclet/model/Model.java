@@ -1,49 +1,51 @@
 package com.hypnoticocelot.jaxrs.doclet.model;
 
-import com.google.common.base.Objects;
-
 import java.util.Map;
+
+import com.google.common.base.Objects;
 
 public class Model {
 
-    private String id;
-    private Map<String, Property> properties;
+	private String id;
+	private Map<String, Property> properties;
 
-    public Model() {
-    }
+	// FIXME support required fields..
 
-    public Model(String id, Map<String, Property> properties) {
-        this.id = id;
-        this.properties = properties;
-    }
+	public Model() {
+	}
 
-    public String getId() {
-        return id;
-    }
+	public Model(String id, Map<String, Property> properties) {
+		this.id = id;
+		this.properties = properties;
+	}
 
-    public Map<String, Property> getProperties() {
-        return properties;
-    }
+	public String getId() {
+		return this.id;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Model other = (Model) o;
-        return Objects.equal(id, other.id)
-                && Objects.equal(properties, other.properties);
-    }
+	public Map<String, Property> getProperties() {
+		return this.properties;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, properties);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Model other = (Model) o;
+		return Objects.equal(this.id, other.id) && Objects.equal(this.properties, other.properties);
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("id", id)
-                .add("properties", properties)
-                .toString();
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.id, this.properties);
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this).add("id", this.id).add("properties", this.properties).toString();
+	}
 }

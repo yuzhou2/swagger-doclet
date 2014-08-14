@@ -110,7 +110,7 @@
 
 	<properties>
 		<dropwizard.version>0.6.2</dropwizard.version>
-		<orig.jackson.version>1.9.2</orig.jackson.version>
+		<orig.jackson.version>1.9.13</orig.jackson.version>
 		<jackson.version>2.1.4</jackson.version>
 		<guava.version>14.0.1</guava.version>
 		<jersey.version>1.17.1</jersey.version>
@@ -135,7 +135,7 @@
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
 			<version>${jersey.version}</version>
-			<scope>provided</scope>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -167,6 +167,13 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>2.2</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>jsr311-api</artifactId>
+			<version>1.1.1</version>
 			<scope>provided</scope>
 		</dependency>
 

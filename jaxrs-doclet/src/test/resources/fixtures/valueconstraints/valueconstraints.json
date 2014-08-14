@@ -39,10 +39,12 @@
             "properties": {
                 "minGetterTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"minimum": 1
                 },
                 "maxGetterTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"maximum": 10
                 },
                 "value": {
@@ -54,20 +56,24 @@
                 },
                 "minMaxFieldTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"minimum": 2,
                 	"maximum": 8
                 },
                 "minMaxGetterTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"minimum": 2,
                 	"maximum": 8
                 },
                 "minFieldTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"minimum": 1
                 },
                 "maxFieldTag": {
                 	"type": "integer",
+                	"format" : "int32",
                 	"maximum": 10
                 }
             }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper;
 import com.hypnoticocelot.jaxrs.doclet.parser.AnnotationParser;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ProgramElementDoc;
@@ -44,6 +45,23 @@ public class AnnotationAwareTranslator implements Translator {
 		this.rootElement = qualifiedAnnotationType;
 		this.rootElementProperty = property;
 		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see com.hypnoticocelot.jaxrs.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
+	 */
+	public OptionalName typeName(Type type, ClassDoc[] views) {
+		OptionalName name = typeName(type);
+
+		if (views != null && views.length > 0 && name != null && name.isPresent()) {
+			StringBuilder nameWithViews = new StringBuilder(name.value()).append("-");
+			for (ClassDoc view : views) {
+				nameWithViews.append(view.name());
+			}
+			name = presentOrMissing(nameWithViews.toString(), name.getFormat());
+		}
+		return name;
 	}
 
 	public OptionalName typeName(Type type) {

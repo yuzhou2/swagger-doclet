@@ -6,6 +6,7 @@ import com.hypnoticocelot.jaxrs.doclet.sample.resources.GreetingsResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.HttpServletRequestResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.ModelResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.ParentResource;
+import com.hypnoticocelot.jaxrs.doclet.sample.resources.PersonResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.RecursiveResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.ResponseResource;
 import com.hypnoticocelot.jaxrs.doclet.sample.resources.SubResource;
@@ -47,5 +48,6 @@ public class SampleService extends Service<Configuration> {
 		environment.addResource(new ModelResource());
 		environment.addResource(new ParentResource());
 		environment.addResource(new SubResource());
+		environment.addResource(new PersonResource());
 	}
 }

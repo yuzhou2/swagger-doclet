@@ -2,6 +2,7 @@ package com.hypnoticocelot.jaxrs.doclet.parser;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationValue;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ProgramElementDoc;
 
@@ -31,7 +32,36 @@ public class AnnotationParser {
 	}
 
 	/**
-	 * This gets the values of an annotation
+	 * This gets the values of an annotation as class docs
+	 * @param qualifiedAnnotationType The FQN of the annotation
+	 * @param key The field name of the annotation to get
+	 * @return The values or null if none were found
+	 */
+	public ClassDoc[] getAnnotationClassDocValues(String qualifiedAnnotationType, String key) {
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		if (annotation == null) {
+			return null;
+		}
+		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
+			if (evp.element().name().equals(key)) {
+				Object val = evp.value().value();
+				AnnotationValue[] vals = (AnnotationValue[]) val;
+				if (vals != null && vals.length > 0) {
+					ClassDoc[] res = new ClassDoc[vals.length];
+					int i = 0;
+					for (AnnotationValue annotationVal : vals) {
+						ClassDoc classDoc = (ClassDoc) annotationVal.value();
+						res[i++] = classDoc;
+					}
+					return res;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * This gets the values of an annotation as strings
 	 * @param qualifiedAnnotationType The FQN of the annotation
 	 * @param key The field name of the annotation to get
 	 * @return The values or null if none were found

@@ -21,6 +21,7 @@ import com.hypnoticocelot.jaxrs.doclet.model.Model;
 import com.hypnoticocelot.jaxrs.doclet.model.Property;
 import com.hypnoticocelot.jaxrs.doclet.translator.NameBasedTranslator;
 import com.hypnoticocelot.jaxrs.doclet.translator.Translator;
+import com.hypnoticocelot.jaxrs.doclet.translator.Translator.OptionalName;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
@@ -34,7 +35,7 @@ public class ApiModelParser {
 	final Translator translator;
 	private final Type rootType;
 	private final Set<Model> models;
-	private final String jsonViewClass;
+	private final ClassDoc[] viewClasses;
 
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
@@ -42,11 +43,19 @@ public class ApiModelParser {
 		this(options, translator, rootType, null);
 	}
 
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, String jsonViewClass) {
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses) {
 		this.options = options;
 		this.translator = translator;
 		this.rootType = rootType;
-		this.jsonViewClass = jsonViewClass;
+		if (viewClasses == null) {
+			this.viewClasses = null;
+		} else {
+			this.viewClasses = new ClassDoc[viewClasses.length];
+			int i = 0;
+			for (ClassDoc view : viewClasses) {
+				this.viewClasses[i++] = view;
+			}
+		}
 		this.models = new LinkedHashSet<Model>();
 	}
 
@@ -108,7 +117,10 @@ public class ApiModelParser {
 		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
 		Map<String, Property> elements = findReferencedElements(types, nested);
 		if (!elements.isEmpty()) {
-			this.models.add(new Model(this.translator.typeName(type).value(), elements));
+
+			String modelId = nested ? this.translator.typeName(type).value() : this.translator.typeName(type, this.viewClasses).value();
+
+			this.models.add(new Model(modelId, elements));
 			parseNestedModels(types.values());
 		}
 	}
@@ -213,7 +225,11 @@ public class ApiModelParser {
 						}
 
 						// ignore fields that are for a different json view
-						// TODO: ...
+						ClassDoc[] jsonViews = AnnotationHelper.getJsonViews(field);
+						if (!AnnotationHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
+							excludeFields.add(field.name());
+							continue;
+						}
 
 						String description = getFieldDescription(field);
 						String min = getFieldMin(field);
@@ -257,6 +273,12 @@ public class ApiModelParser {
 
 							// ignore methods we are to explicitly exclude
 							if (AnnotationHelper.hasTag(method, this.options.getExcludeFieldTags())) {
+								excludeMethod = true;
+							}
+
+							// ignore methods that are for a different json view
+							ClassDoc[] jsonViews = AnnotationHelper.getJsonViews(method);
+							if (!AnnotationHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
 								excludeMethod = true;
 							}
 
@@ -355,7 +377,8 @@ public class ApiModelParser {
 			Type type = entry.getValue().type;
 			ClassDoc typeClassDoc = type.asClassDoc();
 
-			String propertyType = this.translator.typeName(type).value();
+			OptionalName propertyTypeFormat = this.translator.typeName(type);
+			String propertyType = propertyTypeFormat.value();
 
 			List<String> allowableValues = null;
 			if (typeClassDoc != null && typeClassDoc.isEnum()) {
@@ -386,8 +409,8 @@ public class ApiModelParser {
 				}
 			}
 
-			Property property = new Property(propertyType, entry.getValue().description, itemsRef, itemsType, uniqueItems, allowableValues,
-					entry.getValue().min, entry.getValue().max);
+			Property property = new Property(propertyType, propertyTypeFormat.getFormat(), entry.getValue().description, itemsRef, itemsType, uniqueItems,
+					allowableValues, entry.getValue().min, entry.getValue().max);
 			elements.put(typeName, property);
 		}
 		return elements;

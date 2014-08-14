@@ -55,22 +55,18 @@ public class Data {
 		this.minMaxGetterTag = minMaxGetterTag;
 	}
 
-	@SuppressWarnings("javadoc")
 	public EnumValue getValue() {
 		return this.value;
 	}
 
-	@SuppressWarnings("javadoc")
 	public int getMinFieldTag() {
 		return this.minFieldTag;
 	}
 
-	@SuppressWarnings("javadoc")
 	public int getMaxFieldTag() {
 		return this.maxFieldTag;
 	}
 
-	@SuppressWarnings("javadoc")
 	public int getMinMaxFieldTag() {
 		return this.minMaxFieldTag;
 	}

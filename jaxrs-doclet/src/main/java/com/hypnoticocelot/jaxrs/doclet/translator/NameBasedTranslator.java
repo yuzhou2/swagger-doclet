@@ -3,11 +3,30 @@ package com.hypnoticocelot.jaxrs.doclet.translator;
 import static com.hypnoticocelot.jaxrs.doclet.translator.Translator.OptionalName.presentOrMissing;
 
 import com.hypnoticocelot.jaxrs.doclet.parser.AnnotationHelper;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Type;
 
 public class NameBasedTranslator implements Translator {
+
+	/**
+	 * {@inheritDoc}
+	 * @see com.hypnoticocelot.jaxrs.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
+	 */
+	public OptionalName typeName(Type type, ClassDoc[] views) {
+		String[] typeFormat = AnnotationHelper.typeOf(type.qualifiedTypeName());
+
+		if (views != null && views.length > 0) {
+			StringBuilder nameWithView = new StringBuilder(typeFormat[0]).append("-");
+			for (ClassDoc view : views) {
+				nameWithView.append(view.name());
+			}
+			return presentOrMissing(nameWithView.toString(), typeFormat[1]);
+		}
+
+		return presentOrMissing(typeFormat[0], typeFormat[1]);
+	}
 
 	public OptionalName typeName(Type type) {
 		String[] typeFormat = AnnotationHelper.typeOf(type.qualifiedTypeName());

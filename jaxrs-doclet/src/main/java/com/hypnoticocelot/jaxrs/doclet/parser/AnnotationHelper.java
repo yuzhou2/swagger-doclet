@@ -245,17 +245,74 @@ public class AnnotationHelper {
 	}
 
 	/**
-	 * This gets the qualified class name of the json view for the given method
-	 * @param methodDoc The method to get the json view of
-	 * @return The json view qualified class name or null
+	 * This gets the json views for the given method/field
+	 * @param doc The method/field to get the json views of
+	 * @return The json views for the given method/field or null if there were none
 	 */
-	public static String getJsonView(MethodDoc methodDoc) {
-		AnnotationParser p = new AnnotationParser(methodDoc);
-		String name = p.getAnnotationValue("com.fasterxml.jackson.annotation.JsonView", "value");
-		if (name == null) {
-			name = p.getAnnotationValue("org.codehaus.jackson.map.annotate.JsonView", "value");
+	public static ClassDoc[] getJsonViews(com.sun.javadoc.ProgramElementDoc doc) {
+		AnnotationParser p = new AnnotationParser(doc);
+		ClassDoc[] viewClasses = p.getAnnotationClassDocValues("com.fasterxml.jackson.annotation.JsonView", "value");
+		if (viewClasses == null) {
+			viewClasses = p.getAnnotationClassDocValues("org.codehaus.jackson.map.annotate.JsonView", "value");
 		}
-		return name;
+		return viewClasses;
+	}
+
+	/**
+	 * This checks if an item view e.g optional json view that can be on a getter/field match any of the
+	 * given operation views, that is it can be the same or extend/implement one of the operation views.
+	 * @param operationViews The operation views that indicate which views apply to the operation.
+	 * @param itemsViews The views that are on the getter/field
+	 * @return True if the field/getter is part of the view
+	 */
+	public static boolean isItemPartOfView(ClassDoc[] operationViews, ClassDoc[] itemsViews) {
+		if (operationViews != null && itemsViews != null) {
+			// check that one of the operation views is a subclass of an item view
+			for (ClassDoc operationView : operationViews) {
+				if (isAssignableFrom(itemsViews, operationView)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * This checks if the given clazz is the same as or implments or is a subclass/sub interface of
+	 * any of the given classes
+	 * @param superClasses the classes to check if they are super classes/super interfaces of the given class
+	 * @param clazz The class to check if it extends/implements any of the given classes
+	 * @return True if the given class extends/implements any of the given classes/interfaces
+	 */
+	public static boolean isAssignableFrom(ClassDoc[] superClasses, ClassDoc clazz) {
+		if (superClasses != null) {
+			for (ClassDoc superClazz : superClasses) {
+				if (isAssignableFrom(superClazz, clazz)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isAssignableFrom(ClassDoc superClass, ClassDoc clazz) {
+		if (clazz.subclassOf(superClass)) {
+			return true;
+		}
+		if (superClass.isInterface()) {
+			// if one of the classes interfaces is the super class interface
+			// or a subclass interface of the super class then its assignable
+			ClassDoc[] subInterfaces = clazz.interfaces();
+			if (subInterfaces != null) {
+				for (ClassDoc subInterface : subInterfaces) {
+					if (subInterface.subclassOf(superClass)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -278,13 +335,13 @@ public class AnnotationHelper {
 
 	/**
 	 * This gets a list of values from an annotation that uses a string array value
-	 * @param methodDoc The method doc
+	 * @param doc The method/field doc
 	 * @param qualifiedAnnotationType The FQN of the annotation
 	 * @param annotationValueName The name of the value field of the annotation to use
 	 * @return A list of values or null if none were found
 	 */
-	public static List<String> listValues(MethodDoc methodDoc, String qualifiedAnnotationType, String annotationValueName) {
-		AnnotationParser p = new AnnotationParser(methodDoc);
+	public static List<String> listValues(com.sun.javadoc.ProgramElementDoc doc, String qualifiedAnnotationType, String annotationValueName) {
+		AnnotationParser p = new AnnotationParser(doc);
 		String[] vals = p.getAnnotationValues(qualifiedAnnotationType, annotationValueName);
 		if (vals != null && vals.length > 0) {
 			List<String> res = new ArrayList<String>(vals.length);

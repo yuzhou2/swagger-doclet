@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Property {
 
 	private String type;
+	private String format;
 	private String description;
 	private PropertyItems items;
 	private Boolean uniqueItems;
@@ -19,9 +20,10 @@ public class Property {
 	private Property() {
 	}
 
-	public Property(String type, String description, String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues, String minimum,
-			String maximum) {
+	public Property(String type, String format, String description, String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues,
+			String minimum, String maximum) {
 		this.type = type;
+		this.format = format;
 		this.description = emptyToNull(description);
 		if (itemsRef != null || itemsType != null) {
 			this.items = new PropertyItems(itemsRef, itemsType);
@@ -34,6 +36,14 @@ public class Property {
 
 	public String getType() {
 		return this.type;
+	}
+
+	/**
+	 * This gets the format
+	 * @return the format
+	 */
+	public String getFormat() {
+		return this.format;
 	}
 
 	public String getDescription() {
@@ -91,6 +101,7 @@ public class Property {
 		int result = 1;
 		result = prime * result + ((this.allowableValues == null) ? 0 : this.allowableValues.hashCode());
 		result = prime * result + ((this.description == null) ? 0 : this.description.hashCode());
+		result = prime * result + ((this.format == null) ? 0 : this.format.hashCode());
 		result = prime * result + ((this.items == null) ? 0 : this.items.hashCode());
 		result = prime * result + ((this.maximum == null) ? 0 : this.maximum.hashCode());
 		result = prime * result + ((this.minimum == null) ? 0 : this.minimum.hashCode());
@@ -127,6 +138,13 @@ public class Property {
 				return false;
 			}
 		} else if (!this.description.equals(other.description)) {
+			return false;
+		}
+		if (this.format == null) {
+			if (other.format != null) {
+				return false;
+			}
+		} else if (!this.format.equals(other.format)) {
 			return false;
 		}
 		if (this.items == null) {
@@ -173,8 +191,8 @@ public class Property {
 	 */
 	@Override
 	public String toString() {
-		return "Property [type=" + this.type + ", description=" + this.description + ", items=" + this.items + ", uniqueItems=" + this.uniqueItems
-				+ ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum + "]";
+		return "Property [type=" + this.type + ", format=" + this.format + ", description=" + this.description + ", items=" + this.items + ", uniqueItems="
+				+ this.uniqueItems + ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum + "]";
 	}
 
 }

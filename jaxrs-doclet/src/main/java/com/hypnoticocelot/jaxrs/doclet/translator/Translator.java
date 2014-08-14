@@ -2,11 +2,14 @@ package com.hypnoticocelot.jaxrs.doclet.translator;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Type;
 
 public interface Translator {
+
+	OptionalName typeName(Type type, ClassDoc[] views);
 
 	OptionalName typeName(Type type);
 

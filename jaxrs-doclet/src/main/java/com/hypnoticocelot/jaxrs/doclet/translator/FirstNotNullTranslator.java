@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.base.Function;
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Type;
@@ -20,6 +21,19 @@ public class FirstNotNullTranslator implements Translator {
 	public FirstNotNullTranslator addNext(Translator link) {
 		this.chain.add(link);
 		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see com.hypnoticocelot.jaxrs.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
+	 */
+	public OptionalName typeName(final Type type, final ClassDoc[] views) {
+		return firstNotNullOf(new Function<Translator, OptionalName>() {
+
+			public OptionalName apply(Translator translator) {
+				return translator.typeName(type, views);
+			}
+		});
 	}
 
 	public OptionalName typeName(final Type type) {

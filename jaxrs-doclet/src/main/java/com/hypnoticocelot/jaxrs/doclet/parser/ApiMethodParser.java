@@ -151,11 +151,11 @@ public class ApiMethodParser {
 		Type returnType = this.methodDoc.returnType();
 		// first check if its a wrapper type and if so replace with the wrapped type
 		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
-		String returnTypeName = this.translator.typeName(returnType).value();
 
+		String returnTypeName = this.translator.typeName(returnType).value();
 		Type modelType = returnType;
 
-		String jsonView = AnnotationHelper.getJsonView(this.methodDoc);
+		ClassDoc[] viewClasses = AnnotationHelper.getJsonViews(this.methodDoc);
 
 		// now see if it is a collection if so the return type will be array and the
 		// containerOf will be added to the model
@@ -163,26 +163,21 @@ public class ApiMethodParser {
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
 		Type containerOf = AnnotationHelper.getContainerType(returnType, null);
+
 		if (containerOf != null) {
+			// its a collection, add the containter of type to the model
 			modelType = containerOf;
-
-		}
-
-		String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
-		if (containerOf != null) {
+			// set the items type or ref
 			if (AnnotationHelper.isPrimitive(containerOf)) {
-				returnTypeItemsType = containerTypeOf;
+				returnTypeItemsType = this.translator.typeName(containerOf).value();
 			} else {
-				returnTypeItemsRef = containerTypeOf;
-				// handle json view for containers, here it applies to the container item
-				if (jsonView != null) {
-					String[] typeFormat = AnnotationHelper.typeOf(jsonView);
-					returnTypeItemsRef = returnTypeItemsRef + "-" + typeFormat[0];
-				}
-
+				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
 			}
 
 		} else {
+			// if its not a container then adjust the return type name for any views
+			returnTypeName = this.translator.typeName(returnType, viewClasses).value();
+
 			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 			// but typically return a different object in its entity (such as for a 201 created response)
 			String customReturnTypeName = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
@@ -192,16 +187,10 @@ public class ApiMethodParser {
 				returnType = nameToType.type;
 			}
 
-			// if a json view then use that for the return type name
-			if (jsonView != null) {
-				String[] typeFormat = AnnotationHelper.typeOf(jsonView);
-				returnTypeName = returnType + "-" + typeFormat[0];
-			}
-
 		}
 
 		if (this.options.isParseModels()) {
-			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, jsonView).parse());
+			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).parse());
 		}
 
 		// ************************************

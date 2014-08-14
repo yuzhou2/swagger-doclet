@@ -55,6 +55,17 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 
 ```
 
+You would then add various javadoc tags to your source code to fine tune the generated documentation.
+The generated documentation will be written as a series of JSON files in a format that the swagger UI can read. You would typically deploy the swagger ui and your API JSON files on a webserver.
+This doclet can copy a version of the swagger ui to the output using the swaggerUiPath option. 
+
+NOTE: You will more than likely need to tweak the index.html of the swagger ui. In particular if you are not hosting the documentation at the root then you would need to change the url variable in the swagger-ui index.html:
+
+```
+window.swaggerUi = new SwaggerUi({
+      url: "apidocs/service.json"
+```
+
 ## Supported Javadoc Tags and Annotations
 
 <table>
@@ -283,31 +294,34 @@ $ java -jar target/jaxrs-doclet-sample-dropwizard-0.0.4_carma-SNAPSHOT.jar serve
 
 The example server should be running on port 8080:
 
+You can view the swagger ui running here: http://127.0.0.1:8080/apidocs/
+NOTE you need to add the trailing forward slash for the CSS to load.
+
+You can also inspect the generated json:
+
 ```
 $ curl localhost:8080/apidocs/service.json
 {
+  "swaggerVersion" : "1.2",
   "apiVersion" : "1",
-  "basePath" : "/apidocs/",
+  "basePath" : "http://127.0.0.1:8080/apidocs",
   "apis" : [ {
-    "path" : "/Auth.{format}",
-    "description" : ""
+    "path" : "/Response.{format}"
   }, {
-    "path" : "/HttpServletRequest.{format}",
-    "description" : ""
+    "path" : "/Recursive.{format}"
   }, {
-    "path" : "/ModelResource_modelid.{format}",
-    "description" : ""
+    "path" : "/person.{format}"
   }, {
-    "path" : "/Recursive.{format}",
-    "description" : ""
+    "path" : "/parent.{format}"
   }, {
-    "path" : "/Response.{format}",
-    "description" : ""
+    "path" : "/ModelResource_modelid.{format}"
   }, {
-    "path" : "/greetings_name.{format}",
-    "description" : ""
-  } ],
-  "swaggerVersion" : "1.2"
+    "path" : "/HttpServletRequest.{format}"
+  }, {
+    "path" : "/greetings_name.{format}"
+  }, {
+    "path" : "/Auth.{format}"
+  } ]
 }
 $
 ```
