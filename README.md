@@ -57,6 +57,27 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 
 ```
 
+If you are using a snapshot version then these are deployed in the sonatype snapshots repository so you will need to include this either in your settings.xml or pom.xml.
+
+```
+<repositories>
+...
+		<repository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		...
+	</repositories>
+
+```
+
 You would then add various javadoc tags to your source code to fine tune the generated documentation.
 The generated documentation will be written as a series of JSON files in a format that the swagger UI can read. You would typically deploy the swagger ui and your API JSON files on a webserver.
 To see a working example of the generated documentation refer to the example below.
