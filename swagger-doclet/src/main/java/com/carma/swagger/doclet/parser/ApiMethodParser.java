@@ -450,8 +450,35 @@ public class ApiMethodParser {
 				// leave as null as this is equivalent to false but doesnt add to the json
 			}
 
-			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), commentForParameter(this.methodDoc, parameter),
-					typeName, paramTypeFormat.getFormat(), required, allowableValues, allowMultiple);
+			// FIXME support min and max param values
+			String minimum = null;
+			String maximum = null;
+
+			// set collection related fields
+			// TODO: consider supporting parameterized collections as api parameters...
+			Type containerOf = AnnotationHelper.getContainerType(paramType, null);
+			String itemsRef = null;
+			String itemsType = null;
+			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
+			if (containerOf != null) {
+				if (AnnotationHelper.isPrimitive(containerOf)) {
+					itemsType = containerTypeOf;
+				} else {
+					itemsRef = containerTypeOf;
+				}
+			}
+
+			Boolean uniqueItems = null;
+			if (typeName.equals("array")) {
+				if (AnnotationHelper.isSet(paramType.qualifiedTypeName())) {
+					uniqueItems = Boolean.TRUE;
+				}
+			}
+
+			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), required, allowMultiple, typeName,
+					paramTypeFormat.getFormat(), commentForParameter(this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum,
+					maximum);
+
 			parameters.add(param);
 		}
 

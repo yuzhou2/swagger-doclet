@@ -1,51 +1,45 @@
 package com.carma.swagger.doclet.model;
 
-import static com.google.common.base.Strings.emptyToNull;
-
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+/**
+ * The ApiParameter represents an API method parameter
+ * @version $Id$
+ */
+public class ApiParameter extends Property {
 
-public class ApiParameter {
-
+	// param specific fields
 	private String paramType;
 	private String name;
-	private String description;
-	private String type;
-	private String format;
 	private Boolean required;
-	private List<String> allowableValues;
 	private Boolean allowMultiple;
 
-	// TODO support min max for non enum/array types
-
-	/**
-	 * This creates a ApiParameter
-	 */
-	public ApiParameter() {
-		super();
+	ApiParameter() {
+		// noop
 	}
 
 	/**
 	 * This creates a ApiParameter
 	 * @param paramType
 	 * @param name
-	 * @param description
+	 * @param required
+	 * @param allowMultiple
 	 * @param type
 	 * @param format
-	 * @param required
+	 * @param description
+	 * @param itemsRef
+	 * @param itemsType
+	 * @param uniqueItems
 	 * @param allowableValues
-	 * @param allowMultiple
+	 * @param minimum
+	 * @param maximum
 	 */
-	public ApiParameter(String paramType, String name, String description, String type, String format, Boolean required, List<String> allowableValues,
-			Boolean allowMultiple) {
+	public ApiParameter(String paramType, String name, Boolean required, Boolean allowMultiple, String type, String format, String description,
+			String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum) {
+		super(type, format, description, itemsRef, itemsType, uniqueItems, allowableValues, minimum, maximum);
 		this.paramType = paramType;
 		this.name = name;
-		this.description = emptyToNull(description);
-		this.type = type;
-		this.format = format;
 		this.required = required;
-		this.allowableValues = allowableValues;
 		this.allowMultiple = allowMultiple;
 	}
 
@@ -58,6 +52,14 @@ public class ApiParameter {
 	}
 
 	/**
+	 * This sets the paramType
+	 * @param paramType the paramType to set
+	 */
+	public void setParamType(String paramType) {
+		this.paramType = paramType;
+	}
+
+	/**
 	 * This gets the name
 	 * @return the name
 	 */
@@ -66,27 +68,11 @@ public class ApiParameter {
 	}
 
 	/**
-	 * This gets the description
-	 * @return the description
+	 * This sets the name
+	 * @param name the name to set
 	 */
-	public String getDescription() {
-		return this.description;
-	}
-
-	/**
-	 * This gets the type
-	 * @return the type
-	 */
-	public String getType() {
-		return this.type;
-	}
-
-	/**
-	 * This gets the format
-	 * @return the format
-	 */
-	public String getFormat() {
-		return this.format;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -98,12 +84,11 @@ public class ApiParameter {
 	}
 
 	/**
-	 * This gets the allowableValues
-	 * @return the allowableValues
+	 * This sets the required
+	 * @param required the required to set
 	 */
-	@JsonProperty("enum")
-	public List<String> getAllowableValues() {
-		return this.allowableValues;
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 
 	/**
@@ -115,21 +100,25 @@ public class ApiParameter {
 	}
 
 	/**
+	 * This sets the allowMultiple
+	 * @param allowMultiple the allowMultiple to set
+	 */
+	public void setAllowMultiple(Boolean allowMultiple) {
+		this.allowMultiple = allowMultiple;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((this.allowMultiple == null) ? 0 : this.allowMultiple.hashCode());
-		result = prime * result + ((this.allowableValues == null) ? 0 : this.allowableValues.hashCode());
-		result = prime * result + ((this.description == null) ? 0 : this.description.hashCode());
-		result = prime * result + ((this.format == null) ? 0 : this.format.hashCode());
 		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
 		result = prime * result + ((this.paramType == null) ? 0 : this.paramType.hashCode());
 		result = prime * result + ((this.required == null) ? 0 : this.required.hashCode());
-		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
 		return result;
 	}
 
@@ -142,7 +131,7 @@ public class ApiParameter {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
@@ -154,27 +143,6 @@ public class ApiParameter {
 				return false;
 			}
 		} else if (!this.allowMultiple.equals(other.allowMultiple)) {
-			return false;
-		}
-		if (this.allowableValues == null) {
-			if (other.allowableValues != null) {
-				return false;
-			}
-		} else if (!this.allowableValues.equals(other.allowableValues)) {
-			return false;
-		}
-		if (this.description == null) {
-			if (other.description != null) {
-				return false;
-			}
-		} else if (!this.description.equals(other.description)) {
-			return false;
-		}
-		if (this.format == null) {
-			if (other.format != null) {
-				return false;
-			}
-		} else if (!this.format.equals(other.format)) {
 			return false;
 		}
 		if (this.name == null) {
@@ -198,13 +166,6 @@ public class ApiParameter {
 		} else if (!this.required.equals(other.required)) {
 			return false;
 		}
-		if (this.type == null) {
-			if (other.type != null) {
-				return false;
-			}
-		} else if (!this.type.equals(other.type)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -214,8 +175,10 @@ public class ApiParameter {
 	 */
 	@Override
 	public String toString() {
-		return "ApiParameter [paramType=" + this.paramType + ", name=" + this.name + ", description=" + this.description + ", type=" + this.type + ", format="
-				+ this.format + ", required=" + this.required + ", allowableValues=" + this.allowableValues + ", allowMultiple=" + this.allowMultiple + "]";
+		return "ApiParameter [paramType=" + this.paramType + ", name=" + this.name + ", required=" + this.required + ", allowMultiple=" + this.allowMultiple
+				+ ", getType()=" + this.getType() + ", getFormat()=" + this.getFormat() + ", getDescription()=" + this.getDescription()
+				+ ", getAllowableValues()=" + this.getAllowableValues() + ", getUniqueItems()=" + this.getUniqueItems() + ", getItems()=" + this.getItems()
+				+ ", getMinimum()=" + this.getMinimum() + ", getMaximum()=" + this.getMaximum() + "]";
 	}
 
 }

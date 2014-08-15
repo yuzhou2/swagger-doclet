@@ -6,6 +6,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * The Property represents a model property
+ * @version $Id$
+ */
 public class Property {
 
 	private String type;
@@ -17,9 +21,24 @@ public class Property {
 	private String minimum;
 	private String maximum;
 
-	private Property() {
+	// FIXME add default value
+
+	Property() {
+		super();
 	}
 
+	/**
+	 * This creates a Property
+	 * @param type
+	 * @param format
+	 * @param description
+	 * @param itemsRef
+	 * @param itemsType
+	 * @param uniqueItems
+	 * @param allowableValues
+	 * @param minimum
+	 * @param maximum
+	 */
 	public Property(String type, String format, String description, String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues,
 			String minimum, String maximum) {
 		this.type = type;
@@ -34,6 +53,10 @@ public class Property {
 		this.maximum = maximum;
 	}
 
+	/**
+	 * This gets the type of property
+	 * @return
+	 */
 	public String getType() {
 		return this.type;
 	}
@@ -46,6 +69,10 @@ public class Property {
 		return this.format;
 	}
 
+	/**
+	 * This gets the description of the property
+	 * @return
+	 */
 	public String getDescription() {
 		return this.description;
 	}

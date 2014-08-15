@@ -40,6 +40,22 @@
                     "items": {
                     	"type": "string"
                     }
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setStrings",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "items",
+                            "type": "array",
+                            "items": {
+                    			"type": "string"
+                    		},
+                    		"required" : true
+                        }
+                    ]
                 }
             ]
         }
@@ -67,15 +83,15 @@
                     	"$ref": "collectionItem"
                     }
                 },
-                "collectionStrings": {
+                "setStrings": {
                     "type": "array",
+                    "uniqueItems": true,
                     "items": {
                     	"type": "string"
                     }
                 },
-                "setStrings": {
+                "collectionStrings": {
                     "type": "array",
-                    "uniqueItems": true,
                     "items": {
                     	"type": "string"
                     }

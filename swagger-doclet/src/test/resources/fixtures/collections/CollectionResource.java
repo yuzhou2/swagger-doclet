@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 /**
@@ -57,6 +58,12 @@ public class CollectionResource {
 		List<String> listItems = new ArrayList<String>();
 		listItems.add("test");
 		return listItems;
+	}
+
+	@POST
+	@Path("/strings")
+	public void setStrings(List<String> items) {
+		// noop
 	}
 
 }
