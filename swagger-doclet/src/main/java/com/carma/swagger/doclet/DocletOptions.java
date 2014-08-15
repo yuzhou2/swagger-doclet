@@ -30,7 +30,7 @@ public class DocletOptions {
 			is = new BufferedInputStream(new FileInputStream(file));
 			return new ObjectMapper().readValue(is, resourceClass);
 		} catch (Exception ex) {
-			throw new IllegalArgumentException("Failed to read model file: " + ex.getMessage(), ex);
+			throw new IllegalArgumentException("Failed to read model file: " + path + ", error : " + ex.getMessage(), ex);
 		} finally {
 			if (is != null) {
 				try {
