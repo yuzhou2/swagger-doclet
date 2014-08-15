@@ -20,13 +20,15 @@ public class Method {
 
 	private OperationAuthorizations authorizations;
 
+	private boolean deprecated;
+
 	@SuppressWarnings("unused")
 	private Method() {
 	}
 
 	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
 			String summary, String notes, String returnType, String returnTypeItemsRef, String returnTypeItemsType, List<String> consumes,
-			List<String> produces, OperationAuthorizations authorizations) {
+			List<String> produces, OperationAuthorizations authorizations, boolean deprecated) {
 		this.method = method;
 		this.methodName = methodName;
 		this.path = path;
@@ -40,6 +42,7 @@ public class Method {
 		this.consumes = consumes;
 		this.produces = produces;
 		this.authorizations = authorizations;
+		this.deprecated = deprecated;
 	}
 
 	public HttpMethod getMethod() {
@@ -131,6 +134,14 @@ public class Method {
 	}
 
 	/**
+	 * This gets the deprecated
+	 * @return the deprecated
+	 */
+	public boolean isDeprecated() {
+		return this.deprecated;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -141,6 +152,7 @@ public class Method {
 		result = prime * result + ((this.apiParameters == null) ? 0 : this.apiParameters.hashCode());
 		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
 		result = prime * result + ((this.consumes == null) ? 0 : this.consumes.hashCode());
+		result = prime * result + (this.deprecated ? 1231 : 1237);
 		result = prime * result + ((this.method == null) ? 0 : this.method.hashCode());
 		result = prime * result + ((this.methodName == null) ? 0 : this.methodName.hashCode());
 		result = prime * result + ((this.notes == null) ? 0 : this.notes.hashCode());
@@ -148,6 +160,8 @@ public class Method {
 		result = prime * result + ((this.produces == null) ? 0 : this.produces.hashCode());
 		result = prime * result + ((this.responseMessages == null) ? 0 : this.responseMessages.hashCode());
 		result = prime * result + ((this.returnType == null) ? 0 : this.returnType.hashCode());
+		result = prime * result + ((this.returnTypeItemsRef == null) ? 0 : this.returnTypeItemsRef.hashCode());
+		result = prime * result + ((this.returnTypeItemsType == null) ? 0 : this.returnTypeItemsType.hashCode());
 		result = prime * result + ((this.summary == null) ? 0 : this.summary.hashCode());
 		return result;
 	}
@@ -187,6 +201,9 @@ public class Method {
 				return false;
 			}
 		} else if (!this.consumes.equals(other.consumes)) {
+			return false;
+		}
+		if (this.deprecated != other.deprecated) {
 			return false;
 		}
 		if (this.method != other.method) {
@@ -234,6 +251,20 @@ public class Method {
 		} else if (!this.returnType.equals(other.returnType)) {
 			return false;
 		}
+		if (this.returnTypeItemsRef == null) {
+			if (other.returnTypeItemsRef != null) {
+				return false;
+			}
+		} else if (!this.returnTypeItemsRef.equals(other.returnTypeItemsRef)) {
+			return false;
+		}
+		if (this.returnTypeItemsType == null) {
+			if (other.returnTypeItemsType != null) {
+				return false;
+			}
+		} else if (!this.returnTypeItemsType.equals(other.returnTypeItemsType)) {
+			return false;
+		}
 		if (this.summary == null) {
 			if (other.summary != null) {
 				return false;
@@ -251,8 +282,9 @@ public class Method {
 	@Override
 	public String toString() {
 		return "Method [method=" + this.method + ", methodName=" + this.methodName + ", apiParameters=" + this.apiParameters + ", responseMessages="
-				+ this.responseMessages + ", summary=" + this.summary + ", notes=" + this.notes + ", returnType=" + this.returnType + ", path=" + this.path
-				+ ", consumes=" + this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
+				+ this.responseMessages + ", summary=" + this.summary + ", notes=" + this.notes + ", returnType=" + this.returnType + ", returnTypeItemsRef="
+				+ this.returnTypeItemsRef + ", returnTypeItemsType=" + this.returnTypeItemsType + ", path=" + this.path + ", consumes=" + this.consumes
+				+ ", produces=" + this.produces + ", authorizations=" + this.authorizations + ", deprecated=" + this.deprecated + "]";
 	}
 
 }

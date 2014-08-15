@@ -127,9 +127,13 @@ public class ApiMethodParser {
 			return null;
 		}
 
-		// exclude if its deprecated and options indicate we shouldnt include deprecated
-		if (this.options.isExcludeDeprecatedOperations() && AnnotationHelper.isDeprecated(this.methodDoc)) {
-			return null;
+		// check if deprecated and exclude if set to do so
+		boolean deprecated = false;
+		if (AnnotationHelper.isDeprecated(this.methodDoc)) {
+			if (this.options.isExcludeDeprecatedOperations()) {
+				return null;
+			}
+			deprecated = true;
 		}
 
 		// exclude if it has exclusion tags
@@ -230,7 +234,7 @@ public class ApiMethodParser {
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
-				returnTypeItemsType, consumes, produces, authorizations);
+				returnTypeItemsType, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {

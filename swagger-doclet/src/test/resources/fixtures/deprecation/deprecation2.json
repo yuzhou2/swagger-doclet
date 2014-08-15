@@ -11,12 +11,14 @@
                 {
                     "method": "GET",
                     "nickname": "deprecatedViaAnnotation",
-                    "type": "void"
+                    "type": "void",
+                    "deprecated" : "true"
                 },
                 {
                     "method": "GET",
                     "nickname": "deprecatedViaTag",
-                    "type": "void"
+                    "type": "void",
+                    "deprecated" : "true"
                 },
                 {
                     "method": "POST",

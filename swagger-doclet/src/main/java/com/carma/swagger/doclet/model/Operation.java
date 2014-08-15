@@ -22,6 +22,8 @@ public class Operation {
 
 	private OperationAuthorizations authorizations;
 
+	private String deprecated;
+
 	@SuppressWarnings("unused")
 	private Operation() {
 	}
@@ -40,6 +42,11 @@ public class Operation {
 		this.consumes = method.getConsumes() == null || method.getConsumes().isEmpty() ? null : method.getConsumes();
 		this.produces = method.getProduces() == null || method.getProduces().isEmpty() ? null : method.getProduces();
 		this.authorizations = method.getAuthorizations();
+
+		if (method.isDeprecated()) {
+			this.deprecated = "true";
+		}
+
 	}
 
 	public HttpMethod getMethod() {
@@ -103,6 +110,14 @@ public class Operation {
 	}
 
 	/**
+	 * This gets the deprecated
+	 * @return the deprecated
+	 */
+	public String getDeprecated() {
+		return this.deprecated;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -112,6 +127,7 @@ public class Operation {
 		int result = 1;
 		result = prime * result + ((this.authorizations == null) ? 0 : this.authorizations.hashCode());
 		result = prime * result + ((this.consumes == null) ? 0 : this.consumes.hashCode());
+		result = prime * result + ((this.deprecated == null) ? 0 : this.deprecated.hashCode());
 		result = prime * result + ((this.items == null) ? 0 : this.items.hashCode());
 		result = prime * result + ((this.method == null) ? 0 : this.method.hashCode());
 		result = prime * result + ((this.nickname == null) ? 0 : this.nickname.hashCode());
@@ -152,6 +168,13 @@ public class Operation {
 				return false;
 			}
 		} else if (!this.consumes.equals(other.consumes)) {
+			return false;
+		}
+		if (this.deprecated == null) {
+			if (other.deprecated != null) {
+				return false;
+			}
+		} else if (!this.deprecated.equals(other.deprecated)) {
 			return false;
 		}
 		if (this.items == null) {
@@ -224,7 +247,7 @@ public class Operation {
 	public String toString() {
 		return "Operation [method=" + this.method + ", nickname=" + this.nickname + ", type=" + this.type + ", items=" + this.items + ", parameters="
 				+ this.parameters + ", summary=" + this.summary + ", notes=" + this.notes + ", responseMessages=" + this.responseMessages + ", consumes="
-				+ this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + "]";
+				+ this.consumes + ", produces=" + this.produces + ", authorizations=" + this.authorizations + ", deprecated=" + this.deprecated + "]";
 	}
 
 }
