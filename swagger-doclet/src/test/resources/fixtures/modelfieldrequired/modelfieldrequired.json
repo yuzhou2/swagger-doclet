@@ -1,0 +1,54 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/modelfieldrequired",
+    "apis": [
+        {
+            "path": "/modelfieldrequired",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getData",
+                    "type": "Data"
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "optionalField": {
+                    "type": "string"
+                },
+                "defaultMethodTag": {
+                    "type": "string"
+                },
+                "requiredMethodTag": {
+                    "type": "string"
+                },
+                "optionalMethodTag": {
+                    "type": "string"
+                },
+                "defaultField": {
+                    "type": "string"
+                },
+                "optionalGetterTag": {
+                    "type": "string"
+                },
+                "requiredGetterTag": {
+                    "type": "string"
+                },
+                "defaultGetterTag": {
+                    "type": "string"
+                },
+                "requiredField": {
+                    "type": "string"
+                }
+            },
+            "required" : ["requiredMethodTag","requiredGetterTag","requiredField"]
+        }
+    }
+}
