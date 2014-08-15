@@ -2,12 +2,21 @@
 
 [![Build Status](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet.svg?branch=master)](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet)
 
-A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to
-swagger-ui. Forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 and includes various fixes and new features described [below](#newfeatures). 
+This is a JavaDoc Doclet that can be used to generate a JSON Swagger resource listing suitable for feeding to the Swagger UI. It generates the resource listing from the source code of java JAXRS resources and entities.
+
+This was forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 and includes various fixes and new features described [below](#newfeatures). 
 
 This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/apidoc/ref/index.html) which is a good working example of the Swagger UI being used for a large API.
 
-####Note you can win [$1,000,000](http://carmacarpool.com/prize) using the Carma API! 
+#####Note you can win [$1,000,000](http://carmacarpool.com/prize) using the Carma API! 
+
+
+##Why Use This Doclet?
+
++ As the JSON resource listing  is generated offline from source code it means that you do not need to add any runtime dependencies to your project and avoid potential headaches with different jar versions and jaxrs implementations. This also avoids increasing the size of your artifacts. 
++ The offline approach also allows you to post process the JSON if you wish. 
++ You also do not need to add any Swagger specific annotations to your source code as you can fine tune the generated documentation using javadoc tags.
+  
 
 ## Usage
 
