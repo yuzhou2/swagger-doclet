@@ -3,7 +3,11 @@
 [![Build Status](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet.svg?branch=master)](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet)
 
 A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to
-swagger-ui. Forked from https://github.com/ryankennedy/swagger-jaxrs-doclet to add support for swagger 1.2 and includes various fixes described below. This is used as a basis for the Carma API https://api-dev.car.ma/apidoc/ref/index.html Note you can win $1,000,000 using this API see http://carmacarpool.com/prize
+swagger-ui. Forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 and includes various fixes and new features described [below](#newfeatures). 
+
+This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/apidoc/ref/index.html) which is a good working example of the Swagger UI being used for a large API.
+
+####Note you can win [$1,000,000](http://carmacarpool.com/prize) using the Carma API! 
 
 ## Usage
 
@@ -79,12 +83,13 @@ If you are using a snapshot version then these are deployed in the sonatype snap
 ```
 
 You would then add various javadoc tags to your source code to fine tune the generated documentation.
-The generated documentation will be written as a series of JSON files in a format that the swagger UI can read. You would typically deploy the swagger ui and your API JSON files on a webserver.
-To see a working example of the generated documentation refer to the example below.
+The generated documentation will be written as a series of JSON files in a format that the Swagger UI can read. You would typically deploy the Swagger UI and your API JSON files on a webserver.
 
-This doclet can copy a version of the swagger ui to the output dir using the swaggerUiPath option. 
+To see a working example of the generated documentation refer to the [example](#example) below.
 
-NOTE: You will more than likely need to tweak the index.html of the swagger ui. In particular if you are not hosting the documentation at the root then you would need to change the url variable in the swagger-ui index.html:
+This doclet can copy a version of the Swagger UI to the output dir using the swaggerUiPath option. 
+
+NOTE: You will more than likely need to tweak the index.html of the Swagger UI. In particular if you are not hosting the documentation at the root then you would need to change the url variable in the swagger-ui index.html:
 
 ```
 window.swaggerUi = new SwaggerUi({
@@ -143,7 +148,7 @@ window.swaggerUi = new SwaggerUi({
 	
 	<tr><td>@optionalParams</td><td>Defines a csv of operation parameter names that are optional. If a param is not in the optionalParams list then it is optional if it is NOT a path or body param unless it is in the @requiredParams list.</td><td>operations</td><td></td></tr>
 	
-	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the swagger ui does not support this at present.</td><td>operations</td><td></td></tr>
+	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the Swagger UI does not support this at present.</td><td>operations</td><td></td></tr>
 	
 	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>
@@ -164,7 +169,7 @@ These are the options that you will always want to set
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
 	<tr><td>-docBasePath</td><td>The base path to the docs in the service.json, defaults to http://localhost:8080. You should set to the url of the dir where the swagger json files are hosted e.g. for Carma we use -docBasePath https://api-dev.car.ma/apidoc/ref. NOTE: Do not end this with a forward slash.</td></tr>
-	<tr><td>-apiBasePath</td><td>The base path to make api calls via swagger ui, For each API operation the url to that operation is the apiBasePath + the operation Api path. This can be relative if the swagger json files are on the same host as you API. For Carma we use -apiBasePath /carmaapi</td></tr>
+	<tr><td>-apiBasePath</td><td>The base path to make api calls via Swagger UI, For each API operation the url to that operation is the apiBasePath + the operation Api path. This can be relative if the swagger json files are on the same host as you API. For Carma we use -apiBasePath /carmaapi</td></tr>
 	<tr><td>-apiVersion</td><td>The version of your API used in the service.json and your various API json files.</td></tr>
 </table>
 
@@ -223,9 +228,9 @@ These are the options that you may want to use to add additional functionality o
 	</pre></code>
 	</td></tr>
 	
-	<tr><td>-disableCopySwaggerUi or -skipUiFiles</td><td>If set then this does not copy the swagger ui to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the swagger ui or host or package it separately.</td></tr>
+	<tr><td>-disableCopySwaggerUi or -skipUiFiles</td><td>If set then this does not copy the Swagger UI to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the Swagger UI or host or package it separately.</td></tr>
 	
-	<tr><td>-swaggerUiPath</td><td>If copying of the swagger ui is enabled this is the path to the zip file or dir that includes the ui. If not provided then the default swagger ui embedded in the doclet plugin will be used. If the legacy swaggerUiZipPath option is provided then this will be set to that value.</td></tr>
+	<tr><td>-swaggerUiPath</td><td>If copying of the Swagger UI is enabled this is the path to the zip file or dir that includes the ui. If not provided then the default Swagger UI embedded in the doclet plugin will be used. If the legacy swaggerUiZipPath option is provided then this will be set to that value.</td></tr>
 	
 	<tr><td>-disableModels</td><td>This turns off generation of models in the documentation.</td></tr>
 	
@@ -247,7 +252,7 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-disableDeprecatedParamExclusion</td><td>By default operation parameters which have the @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
-	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. Note resteasy multipart is not currently supported by the swagger ui which is why its been left out. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
+	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. Note resteasy multipart is not currently supported by the Swagger UI which is why its been left out. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
 	
 	<tr><td>-excludeResourcePrefixes</td><td>This allows you to exclude resource classes from the generated documentation. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package.</td></tr>
 	
@@ -317,6 +322,7 @@ These are options that you typically won't need to use unless for example, you w
 </table>
 
 
+<a name="example"></a>
 ## Example
 
 An example project using Dropwizard is included in `swagger-doclet-sample-dropwizard`. To get it running, run the following commands.
@@ -329,7 +335,7 @@ $ java -jar target/swagger-doclet-sample-dropwizard-1.0-SNAPSHOT.jar server samp
 
 The example server should be running on port 8080:
 
-You can view the swagger ui running here: http://127.0.0.1:8080/apidocs/
+You can view the Swagger UI running here: [http://127.0.0.1:8080/apidocs/](http://127.0.0.1:8080/apidocs/)
 NOTE you need to add the trailing forward slash for the CSS to load.
 
 You can also inspect the generated json:
@@ -363,7 +369,7 @@ $
 
 ## Override Swagger UI
 
-To override the swagger ui included with the doclet, you can either use your own zip or your own directory and add the swaggerUiPath option to the additionalparam attribute in the pom file.
+To override the Swagger UI included with the doclet, you can either use your own zip or your own directory and add the swaggerUiPath option to the additionalparam attribute in the pom file.
 
 Here is an example pointing to a zip file:
 
@@ -377,13 +383,14 @@ Here is an example pointing to a directory:
 <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui/</additionalparam>
 ```
 
-## New Features/Fixes in this fork:
+<a name="newfeatures"></a>
+## New Features/Fixes
 
-### Fixes Added or Merged from https://github.com/ryankennedy/swagger-jaxrs-doclet
+### Fixes & Features Added or Merged from the [original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet)
 
 Issue 76 Support Exclude packages/classes 
 
-Issue 75 Support excluding swagger ui
+Issue 75 Support excluding Swagger UI
 
 Issue 74 supported via cross class resource parser
 
@@ -403,7 +410,7 @@ Issue 60 various issues such as XmlAccessor apart from the Map value extraction 
 
 Issue 59 resource inheritance
 
-Issue 58 Swagger ui zip path
+Issue 58 Swagger UI zip path
 
 Issue 55 swagger-ui from a folder instead of zip
 
@@ -418,7 +425,7 @@ Issue 43 Support Jackson @JsonView filtering on return types
 
 
 
-### Features
+### Additional Features
 
 #### Full 1.2 swagger spec support including: 
 
