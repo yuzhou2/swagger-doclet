@@ -120,7 +120,21 @@ public class ApiModelParser {
 
 			String modelId = nested ? this.translator.typeName(type).value() : this.translator.typeName(type, this.viewClasses).value();
 
-			this.models.add(new Model(modelId, elements));
+			List<String> requiredFields = null;
+			// build list of required fields
+			for (Map.Entry<String, TypeRef> fieldEntry : types.entrySet()) {
+				String fieldName = fieldEntry.getKey();
+				TypeRef fieldDesc = fieldEntry.getValue();
+				Boolean required = fieldDesc.required;
+				if ((required != null && required.booleanValue()) || (required == null && this.options.isModelFieldsRequiredByDefault())) {
+					if (requiredFields == null) {
+						requiredFields = new ArrayList<String>();
+					}
+					requiredFields.add(fieldName);
+				}
+			}
+
+			this.models.add(new Model(modelId, elements, requiredFields));
 			parseNestedModels(types.values());
 		}
 	}
@@ -131,15 +145,12 @@ public class ApiModelParser {
 		String description;
 		String min;
 		String max;
+		Boolean required;
 
-		TypeRef(Type type) {
+		TypeRef(Type type, String description, String min, String max, Boolean required) {
 			super();
 			this.type = type;
-		}
-
-		TypeRef(Type type, String description, String min, String max) {
-			super();
-			this.type = type;
+			this.required = required;
 			if (description != null && description.trim().length() > 0) {
 				this.description = description.trim();
 			}
@@ -234,11 +245,12 @@ public class ApiModelParser {
 						String description = getFieldDescription(field);
 						String min = getFieldMin(field);
 						String max = getFieldMax(field);
+						Boolean required = getFieldRequired(field);
 
 						if (name != null && !elements.containsKey(name)) {
 
 							Type fieldType = getModelType(field.type(), nested);
-							elements.put(field.name(), new TypeRef(fieldType, description, min, max));
+							elements.put(field.name(), new TypeRef(fieldType, description, min, max, required));
 						}
 					}
 				}
@@ -314,6 +326,9 @@ public class ApiModelParser {
 								if (typeRef.max == null) {
 									typeRef.max = getFieldMax(method);
 								}
+								if (typeRef.required == null) {
+									typeRef.required = getFieldRequired(method);
+								}
 
 							} else {
 
@@ -326,10 +341,11 @@ public class ApiModelParser {
 								String description = getFieldDescription(method);
 								String min = getFieldMin(method);
 								String max = getFieldMax(method);
+								Boolean required = getFieldRequired(method);
 
 								Type returnType = getModelType(method.returnType(), nested);
 
-								elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max));
+								elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max, required));
 							}
 
 						}
@@ -367,6 +383,17 @@ public class ApiModelParser {
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
 		return AnnotationHelper.getTagValue(docItem, this.options.getFieldMaxTags());
+	}
+
+	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {
+		if (AnnotationHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
+			return Boolean.TRUE;
+		}
+		if (AnnotationHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
+			return Boolean.FALSE;
+		}
+		Boolean notSpecified = null;
+		return notSpecified;
 	}
 
 	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types, boolean nested) {

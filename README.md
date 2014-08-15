@@ -135,6 +135,10 @@ window.swaggerUi = new SwaggerUi({
 	<tr><td>@min</td><td>Defines a minimum value for a model field.</td><td>model fields and methods</td><td>@minimum</td></tr>
 	<tr><td>@max</td><td>Defines a maximum value for a model field.</td><td>model fields and methods</td><td>@maximum</td></tr>
 	
+	<tr><td>@requiredField</td><td>This sets whether a model field is required.</td><td>model fields and methods</td><td>@required</td></tr>
+	
+	<tr><td>@optionalField</td><td>This sets whether a model field is optional. This is only needed if the doclet option -modelFieldsRequiredByDefault has been enabled.</td><td>model fields and methods</td><td>@optional</td></tr>
+	
 	<tr><td>@requiredParams</td><td>Defines a csv of operation parameter names that are required. If a param is not in the requiredParams list then it is required if it is a path or body param unless it is in the @optionalParams list.</td><td>operations</td><td></td></tr>
 	
 	<tr><td>@optionalParams</td><td>Defines a csv of operation parameter names that are optional. If a param is not in the optionalParams list then it is optional if it is NOT a path or body param unless it is in the @requiredParams list.</td><td>operations</td><td></td></tr>
@@ -249,6 +253,8 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-genericWrapperTypes</td><td>This adds additional classes to the set of model classes that act as genericized wrappers to the actual entity that should be documented. The default set contains com.sun.jersey.api.JResponse.</td></tr>
 	
+	<tr><td>-modelFieldsRequiredByDefault</td><td>This is whether model fields are required by default e.g. if a model field has neither @optional or @required on it. If you do not set this then model fields are NOT required by default. If you set this option then they ARE required by default.</td></tr>
+	
 </table>
 
 ### Additional Options
@@ -300,9 +306,13 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-requiredParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are required. The default list contains requiredParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParamsTags. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-csvParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are csv/multi valued. The default list contains csvParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-requiredFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are required. The default list contains required and requiredField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-optionalFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are optional. The default list contains optional and optionalField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 </table>
 

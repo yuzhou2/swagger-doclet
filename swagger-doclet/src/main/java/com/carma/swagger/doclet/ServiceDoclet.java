@@ -17,7 +17,6 @@ public class ServiceDoclet {
 	 */
 	public static boolean start(RootDoc doc) {
 		DocletOptions options = DocletOptions.parse(doc.options());
-		System.out.println(options);
 		return new JaxRsAnnotationParser(options, doc).run();
 	}
 
@@ -56,6 +55,8 @@ public class ServiceDoclet {
 
 		options.put("-requiredParamsTags", 2);
 		options.put("-optionalParamsTags", 2);
+		options.put("-requiredFieldTags", 2);
+		options.put("-optionalFieldTags", 2);
 
 		options.put("-apiAuthorizationsFile", 2);
 		options.put("-apiInfoFile", 2);
@@ -73,6 +74,7 @@ public class ServiceDoclet {
 		options.put("-skipUiFiles", 1);
 
 		options.put("-disableModels", 1);
+		options.put("-modelFieldsRequiredByDefault", 1);
 
 		// supports removing certain methods from the docs, e.g. for hidden/private
 		// endpoints

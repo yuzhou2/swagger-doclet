@@ -69,6 +69,8 @@ public class DocletOptions {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
+			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
+				parsedOptions.modelFieldsRequiredByDefault = true;
 			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
 				parsedOptions.includeSwaggerUi = false;
 			} else if (option[0].equals("-crossClassResources")) {
@@ -129,6 +131,10 @@ public class DocletOptions {
 				parsedOptions.requiredParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-optionalParamsTags")) {
 				parsedOptions.optionalParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-requiredFieldTags")) {
+				parsedOptions.requiredFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-optionalFieldTags")) {
+				parsedOptions.optionalFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-unauthOperationTags")) {
 				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-authOperationTags")) {
@@ -177,6 +183,9 @@ public class DocletOptions {
 	private List<String> requiredParamsTags;
 	private List<String> optionalParamsTags;
 
+	private List<String> requiredFieldTags;
+	private List<String> optionalFieldTags;
+
 	private List<String> unauthOperationTags; // tags that say a method does NOT require authorization
 	private List<String> authOperationTags; // tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
 	private List<String> unauthOperationTagValues; // for tags in authOperationTags this is the value to look for to indicate method does NOT require
@@ -194,6 +203,7 @@ public class DocletOptions {
 	private boolean excludeDeprecatedParams = true;
 
 	private boolean parseModels = true;
+	private boolean modelFieldsRequiredByDefault = false;
 	private boolean crossClassResources = false;
 	private boolean sortResourcesByPath = false;
 	private boolean sortResourcesByPriority = false;
@@ -299,6 +309,14 @@ public class DocletOptions {
 
 		this.optionalParamsTags = new ArrayList<String>();
 		this.optionalParamsTags.add("optionalParams");
+
+		this.requiredFieldTags = new ArrayList<String>();
+		this.requiredFieldTags.add("required");
+		this.requiredFieldTags.add("requiredField");
+
+		this.optionalFieldTags = new ArrayList<String>();
+		this.optionalFieldTags.add("optional");
+		this.optionalFieldTags.add("optionalField");
 
 		this.unauthOperationTags = new ArrayList<String>();
 		this.unauthOperationTags.add("noAuth");
@@ -486,6 +504,24 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This is whether model fields are required by default e.g. if it is not specified whether a field is optional or not
+	 * @return whether model fields are required by default e.g. if it is not specified whether a field is optional or not
+	 */
+	public boolean isModelFieldsRequiredByDefault() {
+		return this.modelFieldsRequiredByDefault;
+	}
+
+	/**
+	 * This sets the modelFieldsRequiredByDefault
+	 * @param modelFieldsRequiredByDefault the modelFieldsRequiredByDefault to set
+	 * @return this
+	 */
+	public DocletOptions setModelFieldsRequiredByDefault(boolean modelFieldsRequiredByDefault) {
+		this.modelFieldsRequiredByDefault = modelFieldsRequiredByDefault;
+		return this;
+	}
+
+	/**
 	 * This gets the crossClassResources
 	 * @return the crossClassResources
 	 */
@@ -597,6 +633,22 @@ public class DocletOptions {
 	 */
 	public List<String> getOptionalParamsTags() {
 		return this.optionalParamsTags;
+	}
+
+	/**
+	 * This gets the requiredFieldTags
+	 * @return the requiredFieldTags
+	 */
+	public List<String> getRequiredFieldTags() {
+		return this.requiredFieldTags;
+	}
+
+	/**
+	 * This gets the optionalFieldTags
+	 * @return the optionalFieldTags
+	 */
+	public List<String> getOptionalFieldTags() {
+		return this.optionalFieldTags;
 	}
 
 	/**
@@ -833,32 +885,6 @@ public class DocletOptions {
 	public DocletOptions setApiInfo(ApiInfo apiInfo) {
 		this.apiInfo = apiInfo;
 		return this;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "DocletOptions [outputDirectory=" + this.outputDirectory + ", docBasePath=" + this.docBasePath + ", apiBasePath=" + this.apiBasePath
-				+ ", swaggerUiPath=" + this.swaggerUiPath + ", apiVersion=" + this.apiVersion + ", includeSwaggerUi=" + this.includeSwaggerUi
-				+ ", excludeResourcePrefixes=" + this.excludeResourcePrefixes + ", excludeModelPrefixes=" + this.excludeModelPrefixes
-				+ ", genericWrapperTypes=" + this.genericWrapperTypes + ", responseMessageTags=" + this.responseMessageTags + ", responseTypeTags="
-				+ this.responseTypeTags + ", inputTypeTags=" + this.inputTypeTags + ", defaultErrorTypeTags=" + this.defaultErrorTypeTags
-				+ ", excludeParamAnnotations=" + this.excludeParamAnnotations + ", excludeClassTags=" + this.excludeClassTags + ", excludeOperationTags="
-				+ this.excludeOperationTags + ", excludeFieldTags=" + this.excludeFieldTags + ", excludeParamsTags=" + this.excludeParamsTags
-				+ ", csvParamsTags=" + this.csvParamsTags + ", resourceTags=" + this.resourceTags + ", operationNotesTags=" + this.operationNotesTags
-				+ ", operationSummaryTags=" + this.operationSummaryTags + ", fieldDescriptionTags=" + this.fieldDescriptionTags + ", fieldMinTags="
-				+ this.fieldMinTags + ", fieldMaxTags=" + this.fieldMaxTags + ", requiredParamsTags=" + this.requiredParamsTags + ", optionalParamsTags="
-				+ this.optionalParamsTags + ", unauthOperationTags=" + this.unauthOperationTags + ", authOperationTags=" + this.authOperationTags
-				+ ", unauthOperationTagValues=" + this.unauthOperationTagValues + ", authOperationScopes=" + this.authOperationScopes + ", operationScopeTags="
-				+ this.operationScopeTags + ", resourcePriorityTags=" + this.resourcePriorityTags + ", resourceDescriptionTags=" + this.resourceDescriptionTags
-				+ ", excludeDeprecatedResourceClasses=" + this.excludeDeprecatedResourceClasses + ", excludeDeprecatedModelClasses="
-				+ this.excludeDeprecatedModelClasses + ", excludeDeprecatedOperations=" + this.excludeDeprecatedOperations + ", excludeDeprecatedFields="
-				+ this.excludeDeprecatedFields + ", excludeDeprecatedParams=" + this.excludeDeprecatedParams + ", parseModels=" + this.parseModels
-				+ ", crossClassResources=" + this.crossClassResources + ", sortResourcesByPath=" + this.sortResourcesByPath + ", sortResourcesByPriority="
-				+ this.sortResourcesByPriority + ", sortApisByPath=" + this.sortApisByPath + "]";
 	}
 
 }
