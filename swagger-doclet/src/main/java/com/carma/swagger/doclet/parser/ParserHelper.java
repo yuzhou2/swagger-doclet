@@ -5,6 +5,7 @@ import static com.google.common.collect.Collections2.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +23,11 @@ import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 
-public class AnnotationHelper {
+/**
+ * The ParserHelper represents a helper class for the parsers
+ * @version $Id$
+ */
+public class ParserHelper {
 
 	private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
 	private static final String JAX_RS_PATH = "javax.ws.rs.Path";
@@ -52,6 +57,11 @@ public class AnnotationHelper {
 		}
 	};
 
+	/**
+	 * This parses the path from the annotations of a method or class
+	 * @param annotations The items annotations
+	 * @return The path or null if no path related annotations were present
+	 */
 	public static String parsePath(AnnotationDesc[] annotations) {
 		for (AnnotationDesc annotationDesc : annotations) {
 			if (annotationDesc.annotationType().qualifiedTypeName().equals(JAX_RS_PATH)) {
@@ -67,6 +77,45 @@ public class AnnotationHelper {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * This verifies that the given value is valid for the given data type and format.
+	 * If not valid it raises an exception. It ignores null/empty values.
+	 * @param context Additional description for contextualizing the error message
+	 * @param type The data type as per json schema
+	 * @param format The data format
+	 * @param value The value to check
+	 * @throws IllegalStateException if the value is invalid.
+	 */
+	public static void verifyValue(String context, String type, String format, String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return;
+		}
+		try {
+			if (type.equals("integer")) {
+				if (format.equals("int32")) {
+					Integer.parseInt(value);
+				} else {
+					Long.parseLong(value);
+				}
+			} else if (type.equals("number")) {
+				if (format.equals("double")) {
+					Double.parseDouble(value);
+				} else {
+					Float.parseFloat(value);
+				}
+			} else if (format != null && format.equals("byte")) {
+				Byte.parseByte(value);
+			} else if (type.equals("boolean")) {
+				if (!value.equalsIgnoreCase("true") && !value.equals("false")) {
+					throw new IllegalStateException("The value was not valid for the type: " + type + " and format: " + format + context);
+				}
+			}
+			// TODO support date and date time
+		} catch (NumberFormatException nfe) {
+			throw new IllegalStateException("The value was not valid for the type: " + type + " and format: " + format + context, nfe);
+		}
 	}
 
 	/**
@@ -134,7 +183,7 @@ public class AnnotationHelper {
 	public static Type getContainerType(Type type, Map<String, Type> varsToTypes) {
 		Type result = null;
 		ParameterizedType pt = type.asParameterizedType();
-		if (pt != null && AnnotationHelper.isCollection(type.qualifiedTypeName())) {
+		if (pt != null && ParserHelper.isCollection(type.qualifiedTypeName())) {
 			Type[] typeArgs = pt.typeArguments();
 			if (typeArgs != null && typeArgs.length > 0) {
 				result = typeArgs[0];
@@ -209,6 +258,8 @@ public class AnnotationHelper {
 
 	/**
 	 * Determines the string representation of the parameter type.
+	 * @param parameter The parameter to get the type of
+	 * @return The type of parameter, one of path, header, query, form or body.
 	 */
 	public static String paramTypeOf(Parameter parameter) {
 		AnnotationParser p = new AnnotationParser(parameter);
@@ -222,11 +273,15 @@ public class AnnotationHelper {
 			// TODO: support resteasy form params...
 			return "form";
 		}
+		// TODO support bean param
+		// TODO: support File type in swagger spec
 		return "body";
 	}
 
 	/**
 	 * Determines the string representation of the parameter name.
+	 * @param parameter The parameter to get the name of that is used for the api
+	 * @return the name of the parameter used by http requests
 	 */
 	public static String paramNameOf(Parameter parameter) {
 		// TODO (DL): make this part of Translator?
@@ -388,11 +443,92 @@ public class AnnotationHelper {
 	}
 
 	/**
+	 * This gets the parameter names for the given method
+	 * @param method The method
+	 * @return the names of the method parameters or an empty set if the method had none
+	 */
+	public static Set<String> getParamNames(com.sun.javadoc.MethodDoc method) {
+		Set<String> params = new HashSet<String>();
+		for (Parameter parameter : method.parameters()) {
+			params.add(parameter.name());
+		}
+		return params;
+	}
+
+	/**
+	 * This gets a map of parameter name to value from a javadoc tag on a method.
+	 * This validates that the names of the parameters in each NVP is an actual method parameter
+	 * @param method The method
+	 * @param params The pre-read params of the method, if null they will be read from the given method
+	 * @param matchTags The names of the javadoc tags to look for
+	 * @return a map of parameter name to value from a javadoc tag on a method or an empty map if none were found
+	 */
+	public static Map<String, String> getMethodParamNameValuePairs(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags) {
+		String value = getTagValue(method, matchTags);
+		if (value != null) {
+			String[] parts = value.split("\\s+");
+			if (parts != null && parts.length > 0) {
+				if (parts.length % 2 != 0) {
+					throw new IllegalStateException(
+							"Invalid javadoc parameter on method "
+									+ method.name()
+									+ " for tags: "
+									+ matchTags
+									+ ". The value had "
+									+ parts.length
+									+ " whitespace seperated parts when it was expected to have name value pairs for each parameter, e.g. the number of parts should have been even.");
+				}
+				if (params == null) {
+					params = getParamNames(method);
+				}
+				Map<String, String> res = new HashMap<String, String>(parts.length / 2);
+				for (int i = 0; i < parts.length; i += 2) {
+					String name = parts[i];
+					if (!params.contains(name)) {
+						throw new IllegalStateException("Invalid javadoc parameter on method " + method.name() + " for tags: " + matchTags + ". The parameter "
+								+ name + " is not the name of one of the method parameters.");
+					}
+					String val = parts[i + 1];
+					res.put(name, val);
+				}
+				return res;
+			}
+		}
+		return Collections.emptyMap();
+	}
+
+	/**
+	 * This gets a list of parameter names from a method javadoc tag where the value of the tag is in the form
+	 * paramName1,paramName2 ... paramNameN
+	 * @param method The method
+	 * @param params The pre-read params of the method, if null they will be read from the given method
+	 * @param matchTags The names of the javadoc tags to look for
+	 * @return The list of parameter names or an empty list if there were none
+	 */
+	public static List<String> getCsvParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags) {
+		if (params == null) {
+			params = getParamNames(method);
+		}
+		List<String> tagParams = getTagCsvValues(method, matchTags);
+		// check each param is an actual param of the method
+		if (tagParams != null) {
+			for (String param : tagParams) {
+				if (!params.contains(param)) {
+					throw new IllegalStateException("Invalid javadoc parameter on method " + method.name() + " for tags: " + matchTags + ". The parameter "
+							+ param + " is not the name of one of the method parameters.");
+				}
+			}
+			return tagParams;
+		}
+		return Collections.emptyList();
+	}
+
+	/**
 	 * This gets a csv javadoc tag value as a list of the values in the csv for the first matched tag.
 	 * e.g. @myTag 1,2,3 would return a list of 1,2,3 assuming matchTags contained myTag
 	 * @param item The javadoc item
 	 * @param matchTags The tags to match
-	 * @return The csv values of the first matching tags value or null if there were none.
+	 * @return The csv values of the first matching tags value or an empty list if there were none.
 	 */
 	public static List<String> getTagCsvValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
 		String value = getTagValue(item, matchTags);
@@ -408,7 +544,7 @@ public class AnnotationHelper {
 				return res.isEmpty() ? null : res;
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	/**
@@ -451,7 +587,7 @@ public class AnnotationHelper {
 	public static boolean hasDeprecated(AnnotationDesc[] annotations) {
 		if (annotations != null && annotations.length > 0) {
 			List<AnnotationDesc> allAnnotations = Arrays.asList(annotations);
-			Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(DEPRECATED_ANNOTATIONS));
+			Collection<AnnotationDesc> excluded = filter(allAnnotations, new ParserHelper.ExcludedAnnotations(DEPRECATED_ANNOTATIONS));
 			if (!excluded.isEmpty()) {
 				return true;
 			}

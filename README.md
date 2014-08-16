@@ -159,6 +159,10 @@ window.swaggerUi = new SwaggerUi({
 	
 	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the Swagger UI does not support this at present.</td><td>operations</td><td></td></tr>
 	
+	<tr><td>@paramsMinValue</td><td>Defines the minimum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MinValue param2Name param2MinValue</td><td>operations</td><td>@paramsMinimumValue, @minValues</td></tr>
+	
+	<tr><td>@paramsMaxValue</td><td>Defines the maximum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MaxValue param2Name param2MaxValue</td><td>operations</td><td>@paramsMaximumValue, @maxValues</td></tr>
+	
 	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
@@ -323,6 +327,10 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-csvParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are csv/multi valued. The default list contains csvParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-paramsMinValueTags</td><td>This adds additional tags to the list of javadoc tags used for setting minimum values for operation parameters. The default list contains paramsMinValue, paramsMinimumValue, minValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-paramsMaxValueTags</td><td>This adds additional tags to the list of javadoc tags used for setting maximum values for operation parameters. The default list contains paramsMaxValue, paramsMaximumValue, maxValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-requiredFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are required. The default list contains required and requiredField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

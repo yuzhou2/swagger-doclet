@@ -109,6 +109,10 @@ public class DocletOptions {
 				parsedOptions.excludeParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-csvParamsTags")) {
 				parsedOptions.csvParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramsMinValueTags")) {
+				parsedOptions.paramsMinValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramsMaxValueTags")) {
+				parsedOptions.paramsMaxValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
@@ -172,6 +176,8 @@ public class DocletOptions {
 	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
 	private List<String> csvParamsTags;
+	private List<String> paramsMinValueTags;
+	private List<String> paramsMaxValueTags;
 	private List<String> resourceTags;
 	private List<String> operationNotesTags;
 	private List<String> operationSummaryTags;
@@ -265,6 +271,16 @@ public class DocletOptions {
 
 		this.csvParamsTags = new ArrayList<String>();
 		this.csvParamsTags.add("csvParams");
+
+		this.paramsMinValueTags = new ArrayList<String>();
+		this.paramsMinValueTags.add("paramsMinValue");
+		this.paramsMinValueTags.add("paramsMinimumValue");
+		this.paramsMinValueTags.add("minValues");
+
+		this.paramsMaxValueTags = new ArrayList<String>();
+		this.paramsMaxValueTags.add("paramsMaxValue");
+		this.paramsMaxValueTags.add("paramsMaximumValue");
+		this.paramsMaxValueTags.add("maxValues");
 
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
@@ -440,6 +456,22 @@ public class DocletOptions {
 	 */
 	public List<String> getCsvParamsTags() {
 		return this.csvParamsTags;
+	}
+
+	/**
+	 * This gets the paramsMinValueTags
+	 * @return the paramsMinValueTags
+	 */
+	public List<String> getParamsMinValueTags() {
+		return this.paramsMinValueTags;
+	}
+
+	/**
+	 * This gets the paramsMaxValueTags
+	 * @return the paramsMaxValueTags
+	 */
+	public List<String> getParamsMaxValueTags() {
+		return this.paramsMaxValueTags;
 	}
 
 	/**

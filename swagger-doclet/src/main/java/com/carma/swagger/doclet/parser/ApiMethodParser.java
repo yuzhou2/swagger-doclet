@@ -1,6 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.carma.swagger.doclet.parser.AnnotationHelper.parsePath;
+import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Lists.transform;
@@ -105,7 +105,7 @@ public class ApiMethodParser {
 		this.parentMethod = null;
 		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
-		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
+		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
 	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
@@ -118,9 +118,13 @@ public class ApiMethodParser {
 		this.parentMethod = parentMethod;
 		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
-		this.methodDefaultErrorType = AnnotationHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
+		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
+	/**
+	 * This parses a javadoc method doc and builds a pojo representation of it.
+	 * @return The method with appropriate data set
+	 */
 	public Method parse() {
 		String methodPath = firstNonNull(parsePath(this.methodDoc.annotations()), "");
 		if (this.httpMethod == null && methodPath.isEmpty()) {
@@ -129,7 +133,7 @@ public class ApiMethodParser {
 
 		// check if deprecated and exclude if set to do so
 		boolean deprecated = false;
-		if (AnnotationHelper.isDeprecated(this.methodDoc)) {
+		if (ParserHelper.isDeprecated(this.methodDoc)) {
 			if (this.options.isExcludeDeprecatedOperations()) {
 				return null;
 			}
@@ -137,7 +141,7 @@ public class ApiMethodParser {
 		}
 
 		// exclude if it has exclusion tags
-		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getExcludeOperationTags())) {
+		if (ParserHelper.hasTag(this.methodDoc, this.options.getExcludeOperationTags())) {
 			return null;
 		}
 
@@ -159,20 +163,20 @@ public class ApiMethodParser {
 		String returnTypeName = this.translator.typeName(returnType).value();
 		Type modelType = returnType;
 
-		ClassDoc[] viewClasses = AnnotationHelper.getJsonViews(this.methodDoc);
+		ClassDoc[] viewClasses = ParserHelper.getJsonViews(this.methodDoc);
 
 		// now see if it is a collection if so the return type will be array and the
 		// containerOf will be added to the model
 
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
-		Type containerOf = AnnotationHelper.getContainerType(returnType, null);
+		Type containerOf = ParserHelper.getContainerType(returnType, null);
 
 		if (containerOf != null) {
 			// its a collection, add the containter of type to the model
 			modelType = containerOf;
 			// set the items type or ref
-			if (AnnotationHelper.isPrimitive(containerOf)) {
+			if (ParserHelper.isPrimitive(containerOf)) {
 				returnTypeItemsType = this.translator.typeName(containerOf).value();
 			} else {
 				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
@@ -184,7 +188,7 @@ public class ApiMethodParser {
 
 			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 			// but typically return a different object in its entity (such as for a 201 created response)
-			String customReturnTypeName = AnnotationHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
+			String customReturnTypeName = ParserHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
 			NameToType nameToType = readCustomReturnType(customReturnTypeName);
 			if (nameToType != null) {
 				returnTypeName = nameToType.translatedName;
@@ -214,11 +218,11 @@ public class ApiMethodParser {
 		notes = notes.replace(summary, "");
 
 		// look for custom notes/summary tags to use instead
-		String customNotes = AnnotationHelper.getTagValue(this.methodDoc, this.options.getOperationNotesTags());
+		String customNotes = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationNotesTags());
 		if (customNotes != null) {
 			notes = customNotes;
 		}
-		String customSummary = AnnotationHelper.getTagValue(this.methodDoc, this.options.getOperationSummaryTags());
+		String customSummary = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationSummaryTags());
 		if (customSummary != null) {
 			summary = customSummary;
 		}
@@ -229,8 +233,8 @@ public class ApiMethodParser {
 		// ************************************
 		// Produces & consumes
 		// ************************************
-		List<String> consumes = AnnotationHelper.getConsumes(this.methodDoc);
-		List<String> produces = AnnotationHelper.getProduces(this.methodDoc);
+		List<String> consumes = ParserHelper.getConsumes(this.methodDoc);
+		List<String> produces = ParserHelper.getProduces(this.methodDoc);
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
@@ -255,12 +259,12 @@ public class ApiMethodParser {
 		// in this case set the authentication object to {} to indicate we override
 		// at the operation level
 		// a) if method has an explicit unauth tag
-		if (AnnotationHelper.hasTag(this.methodDoc, this.options.getUnauthOperationTags())) {
+		if (ParserHelper.hasTag(this.methodDoc, this.options.getUnauthOperationTags())) {
 			authorizations = new OperationAuthorizations();
 		} else {
 
 			// otherwise if method has scope tags then add those to indicate method requires scope
-			List<String> scopeValues = AnnotationHelper.getTagValues(this.methodDoc, this.options.getOperationScopeTags());
+			List<String> scopeValues = ParserHelper.getTagValues(this.methodDoc, this.options.getOperationScopeTags());
 			if (scopeValues != null) {
 				List<Oauth2Scope> oauth2Scopes = new ArrayList<Oauth2Scope>();
 				for (String scopeVal : scopeValues) {
@@ -277,7 +281,7 @@ public class ApiMethodParser {
 			// if not scopes see if its auth and whether we need to add default scope to it
 			if (scopeValues == null || scopeValues.isEmpty()) {
 				// b) if method has an auth tag that starts with one of the known values that indicates whether auth required.
-				String authSpec = AnnotationHelper.getTagValue(this.methodDoc, this.options.getAuthOperationTags());
+				String authSpec = ParserHelper.getTagValue(this.methodDoc, this.options.getAuthOperationTags());
 				if (authSpec != null) {
 
 					boolean unauthFound = false;
@@ -348,7 +352,7 @@ public class ApiMethodParser {
 
 							String responseModel = null;
 							if (responseModelClass != null) {
-								Type responseType = AnnotationHelper.findModel(this.classes, responseModelClass);
+								Type responseType = ParserHelper.findModel(this.classes, responseModelClass);
 								if (responseType != null) {
 									responseModel = this.translator.typeName(responseType).value();
 									if (this.options.isParseModels()) {
@@ -374,15 +378,21 @@ public class ApiMethodParser {
 		// parameters
 		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
 
+		Set<String> paramNames = ParserHelper.getParamNames(this.methodDoc);
+
 		// read required and optional params
-		List<String> optionalParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getOptionalParamsTags());
-		List<String> requiredParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getRequiredParamsTags());
+		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getOptionalParamsTags());
+		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getRequiredParamsTags());
 
 		// read exclude params
-		List<String> excludeParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getExcludeParamsTags());
+		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getExcludeParamsTags());
 
 		// read csv params
-		List<String> csvParams = AnnotationHelper.getTagCsvValues(this.methodDoc, this.options.getCsvParamsTags());
+		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getCsvParamsTags());
+
+		// read min and max values of params
+		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMinValueTags());
+		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMaxValueTags());
 
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
@@ -390,11 +400,11 @@ public class ApiMethodParser {
 			}
 
 			Type paramType = parameter.type();
-			String paramCategory = AnnotationHelper.paramTypeOf(parameter);
+			String paramCategory = ParserHelper.paramTypeOf(parameter);
 
 			// look for a custom input type for body params
 			if ("body".equals(paramCategory)) {
-				String customParamType = AnnotationHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
+				String customParamType = ParserHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
 				paramType = readCustomParamType(customParamType, paramType);
 			}
 
@@ -419,11 +429,9 @@ public class ApiMethodParser {
 
 			// set whether its a csv param
 			Boolean allowMultiple = null;
-			if (csvParams != null) {
-				if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
-					if (csvParams.contains(parameter.name())) {
-						allowMultiple = Boolean.TRUE;
-					}
+			if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
+				if (csvParams.contains(parameter.name())) {
+					allowMultiple = Boolean.TRUE;
 				}
 			}
 
@@ -434,11 +442,11 @@ public class ApiMethodParser {
 				required = Boolean.TRUE;
 			}
 			// if its in the required list then its required
-			else if (requiredParams != null && requiredParams.contains(parameter.name())) {
+			else if (requiredParams.contains(parameter.name())) {
 				required = Boolean.TRUE;
 			}
 			// else if its in the optional list its optional
-			else if (optionalParams != null && optionalParams.contains(parameter.name())) {
+			else if (optionalParams.contains(parameter.name())) {
 				// leave as null as this is equivalent to false but doesnt add to the json
 			}
 			// else if its a body param its required
@@ -450,18 +458,27 @@ public class ApiMethodParser {
 				// leave as null as this is equivalent to false but doesnt add to the json
 			}
 
-			// FIXME support min and max param values
-			String minimum = null;
-			String maximum = null;
+			// get min and max param values
+			String minimum = paramMinVals.get(parameter.name());
+			String maximum = paramMaxVals.get(parameter.name());
+
+			// verify min max are numbers
+			ParserHelper.verifyValue(" for the method: " + this.methodDoc.name() + " parameter: " + parameter.name() + " min value.", paramTypeFormat.value(),
+					paramTypeFormat.getFormat(), minimum);
+			ParserHelper.verifyValue(" for the method: " + this.methodDoc.name() + " parameter: " + parameter.name() + " max value.", paramTypeFormat.value(),
+					paramTypeFormat.getFormat(), maximum);
+
+			// TODO support default value
+			// TODO if default and min/max check default is in range
 
 			// set collection related fields
 			// TODO: consider supporting parameterized collections as api parameters...
-			Type containerOf = AnnotationHelper.getContainerType(paramType, null);
+			Type containerOf = ParserHelper.getContainerType(paramType, null);
 			String itemsRef = null;
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 			if (containerOf != null) {
-				if (AnnotationHelper.isPrimitive(containerOf)) {
+				if (ParserHelper.isPrimitive(containerOf)) {
 					itemsType = containerTypeOf;
 				} else {
 					itemsRef = containerTypeOf;
@@ -470,12 +487,12 @@ public class ApiMethodParser {
 
 			Boolean uniqueItems = null;
 			if (typeName.equals("array")) {
-				if (AnnotationHelper.isSet(paramType.qualifiedTypeName())) {
+				if (ParserHelper.isSet(paramType.qualifiedTypeName())) {
 					uniqueItems = Boolean.TRUE;
 				}
 			}
 
-			ApiParameter param = new ApiParameter(paramCategory, AnnotationHelper.paramNameOf(parameter), required, allowMultiple, typeName,
+			ApiParameter param = new ApiParameter(paramCategory, ParserHelper.paramNameOf(parameter), required, allowMultiple, typeName,
 					paramTypeFormat.getFormat(), commentForParameter(this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum,
 					maximum);
 
@@ -501,7 +518,7 @@ public class ApiMethodParser {
 	private Type readCustomParamType(String customTypeName, Type defaultType) {
 		if (customTypeName != null) {
 			// lookup the type from the doclet classes
-			Type customType = AnnotationHelper.findModel(this.classes, customTypeName);
+			Type customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType != null) {
 				// also add this custom return type to the models
 				if (this.options.isParseModels()) {
@@ -522,7 +539,7 @@ public class ApiMethodParser {
 	NameToType readCustomReturnType(String customTypeName) {
 		if (customTypeName != null) {
 			// lookup the type from the doclet classes
-			Type customType = AnnotationHelper.findModel(this.classes, customTypeName);
+			Type customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType != null) {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
 				String translated = this.translator.typeName(customType).value();
@@ -541,7 +558,7 @@ public class ApiMethodParser {
 		List<AnnotationDesc> allAnnotations = Arrays.asList(parameter.annotations());
 
 		// remove any params annotated with exclude param annotations e.g. jaxrs Context
-		Collection<AnnotationDesc> excluded = filter(allAnnotations, new AnnotationHelper.ExcludedAnnotations(this.options.getExcludeParamAnnotations()));
+		Collection<AnnotationDesc> excluded = filter(allAnnotations, new ParserHelper.ExcludedAnnotations(this.options.getExcludeParamAnnotations()));
 		if (!excluded.isEmpty()) {
 			return false;
 		}
@@ -552,11 +569,11 @@ public class ApiMethodParser {
 		}
 
 		// remove any deprecated params
-		if (this.options.isExcludeDeprecatedParams() && AnnotationHelper.hasDeprecated(parameter.annotations())) {
+		if (this.options.isExcludeDeprecatedParams() && ParserHelper.hasDeprecated(parameter.annotations())) {
 			return false;
 		}
 
-		Collection<AnnotationDesc> jaxRsAnnotations = filter(allAnnotations, new AnnotationHelper.JaxRsAnnotations());
+		Collection<AnnotationDesc> jaxRsAnnotations = filter(allAnnotations, new ParserHelper.JaxRsAnnotations());
 		if (!jaxRsAnnotations.isEmpty()) {
 			return true;
 		}

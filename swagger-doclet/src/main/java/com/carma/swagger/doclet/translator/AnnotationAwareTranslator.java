@@ -6,7 +6,7 @@ import static com.carma.swagger.doclet.translator.Translator.OptionalName.presen
 import java.util.HashMap;
 import java.util.Map;
 
-import com.carma.swagger.doclet.parser.AnnotationHelper;
+import com.carma.swagger.doclet.parser.ParserHelper;
 import com.carma.swagger.doclet.parser.AnnotationParser;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
@@ -68,7 +68,7 @@ public class AnnotationAwareTranslator implements Translator {
 		if (this.namedTypes.containsKey(type)) {
 			return this.namedTypes.get(type);
 		}
-		if (AnnotationHelper.isPrimitive(type) || type.asClassDoc() == null) {
+		if (ParserHelper.isPrimitive(type) || type.asClassDoc() == null) {
 			return null;
 		}
 

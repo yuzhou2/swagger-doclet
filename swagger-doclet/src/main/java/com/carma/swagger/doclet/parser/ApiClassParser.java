@@ -1,6 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.carma.swagger.doclet.parser.AnnotationHelper.parsePath;
+import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Collections2.transform;
 
@@ -65,8 +65,8 @@ public class ApiClassParser {
 		while (currentClassDoc != null) {
 
 			// read default error type for class
-			String defaultErrorTypeClass = AnnotationHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
-			Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
+			String defaultErrorTypeClass = ParserHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
+			Type defaultErrorType = ParserHelper.findModel(this.classes, defaultErrorTypeClass);
 
 			if (this.options.isParseModels() && defaultErrorType != null) {
 				this.models.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());

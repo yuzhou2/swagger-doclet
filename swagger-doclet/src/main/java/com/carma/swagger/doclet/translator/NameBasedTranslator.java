@@ -2,7 +2,7 @@ package com.carma.swagger.doclet.translator;
 
 import static com.carma.swagger.doclet.translator.Translator.OptionalName.presentOrMissing;
 
-import com.carma.swagger.doclet.parser.AnnotationHelper;
+import com.carma.swagger.doclet.parser.ParserHelper;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
@@ -15,7 +15,7 @@ public class NameBasedTranslator implements Translator {
 	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
 	 */
 	public OptionalName typeName(Type type, ClassDoc[] views) {
-		String[] typeFormat = AnnotationHelper.typeOf(type.qualifiedTypeName());
+		String[] typeFormat = ParserHelper.typeOf(type.qualifiedTypeName());
 
 		if (views != null && views.length > 0) {
 			StringBuilder nameWithView = new StringBuilder(typeFormat[0]).append("-");
@@ -29,7 +29,7 @@ public class NameBasedTranslator implements Translator {
 	}
 
 	public OptionalName typeName(Type type) {
-		String[] typeFormat = AnnotationHelper.typeOf(type.qualifiedTypeName());
+		String[] typeFormat = ParserHelper.typeOf(type.qualifiedTypeName());
 		return presentOrMissing(typeFormat[0], typeFormat[1]);
 	}
 

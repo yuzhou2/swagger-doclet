@@ -53,12 +53,12 @@ public class JaxRsAnnotationParser {
 			for (ClassDoc classDoc : this.rootDoc.classes()) {
 
 				// see if deprecated
-				if (this.options.isExcludeDeprecatedResourceClasses() && AnnotationHelper.isDeprecated(classDoc)) {
+				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc)) {
 					continue;
 				}
 
 				// see if excluded via a tag
-				if (AnnotationHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
 					continue;
 				}
 
@@ -108,7 +108,7 @@ public class JaxRsAnnotationParser {
 
 					// look for a class level priority tag for the resource listing
 					int priorityVal = Integer.MAX_VALUE;
-					String priority = AnnotationHelper.getTagValue(classDoc, this.options.getResourcePriorityTags());
+					String priority = ParserHelper.getTagValue(classDoc, this.options.getResourcePriorityTags());
 					if (priority != null) {
 						try {
 							priorityVal = Integer.parseInt(priority);
@@ -117,7 +117,7 @@ public class JaxRsAnnotationParser {
 						}
 					}
 					// look for a class level description tag for the resource listing
-					String description = AnnotationHelper.getTagValue(classDoc, this.options.getResourceDescriptionTags());
+					String description = ParserHelper.getTagValue(classDoc, this.options.getResourceDescriptionTags());
 
 					ApiClassParser classParser = new ApiClassParser(this.options, classDoc, docletClasses);
 					List<Api> apis = classParser.parse();

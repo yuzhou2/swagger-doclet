@@ -1,6 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.carma.swagger.doclet.parser.AnnotationHelper.parsePath;
+import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
@@ -78,8 +78,8 @@ public class CrossClassApiParser {
 		while (currentClassDoc != null) {
 
 			// read default error type for class
-			String defaultErrorTypeClass = AnnotationHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
-			Type defaultErrorType = AnnotationHelper.findModel(this.classes, defaultErrorTypeClass);
+			String defaultErrorTypeClass = ParserHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
+			Type defaultErrorType = ParserHelper.findModel(this.classes, defaultErrorTypeClass);
 
 			Set<Model> classModels = new HashSet<Model>();
 			if (this.options.isParseModels() && defaultErrorType != null) {
@@ -134,7 +134,7 @@ public class CrossClassApiParser {
 
 				// look for a method level priority tag for the resource listing and set on the resource if the resource hasnt had one set
 				int priorityVal = Integer.MAX_VALUE;
-				String priority = AnnotationHelper.getTagValue(method, this.options.getResourcePriorityTags());
+				String priority = ParserHelper.getTagValue(method, this.options.getResourcePriorityTags());
 				if (priority != null) {
 					try {
 						priorityVal = Integer.parseInt(priority);
@@ -146,7 +146,7 @@ public class CrossClassApiParser {
 					declaration.setPriority(priorityVal);
 				}
 				// look for a method level description tag for the resource listing and set on the resource if the resource hasnt had one set
-				String description = AnnotationHelper.getTagValue(method, this.options.getResourceDescriptionTags());
+				String description = ParserHelper.getTagValue(method, this.options.getResourceDescriptionTags());
 				if (description != null && declaration.getDescription() == null) {
 					declaration.setDescription(description);
 				}

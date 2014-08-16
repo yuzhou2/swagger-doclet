@@ -67,7 +67,7 @@ public class ApiModelParser {
 	private void parseModel(Type type, boolean nested) {
 
 		String qName = type.qualifiedTypeName();
-		boolean isPrimitive = AnnotationHelper.isPrimitive(type);
+		boolean isPrimitive = ParserHelper.isPrimitive(type);
 		boolean isJavaxType = qName.startsWith("javax.");
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		boolean isClass = qName.equals("java.lang.Class");
@@ -81,12 +81,12 @@ public class ApiModelParser {
 
 		// check if its got an exclude tag
 		// see if deprecated
-		if (this.options.isExcludeDeprecatedModelClasses() && AnnotationHelper.isDeprecated(classDoc)) {
+		if (this.options.isExcludeDeprecatedModelClasses() && ParserHelper.isDeprecated(classDoc)) {
 			return;
 		}
 
 		// see if excluded via a tag
-		if (AnnotationHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+		if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
 			return;
 		}
 
@@ -151,15 +151,9 @@ public class ApiModelParser {
 			super();
 			this.type = type;
 			this.required = required;
-			if (description != null && description.trim().length() > 0) {
-				this.description = description.trim();
-			}
-			if (min != null && min.trim().length() > 0) {
-				this.min = min.trim();
-			}
-			if (max != null && max.trim().length() > 0) {
-				this.max = max.trim();
-			}
+			this.description = description;
+			this.min = min;
+			this.max = max;
 		}
 	}
 
@@ -224,32 +218,40 @@ public class ApiModelParser {
 						rawToTranslatedFields.put(field.name(), name);
 
 						// ignore deprecated fields
-						if (this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(field)) {
+						if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field)) {
 							excludeFields.add(field.name());
 							continue;
 						}
 
 						// ignore fields we are to explicitly exclude
-						if (AnnotationHelper.hasTag(field, this.options.getExcludeFieldTags())) {
+						if (ParserHelper.hasTag(field, this.options.getExcludeFieldTags())) {
 							excludeFields.add(field.name());
 							continue;
 						}
 
 						// ignore fields that are for a different json view
-						ClassDoc[] jsonViews = AnnotationHelper.getJsonViews(field);
-						if (!AnnotationHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
+						ClassDoc[] jsonViews = ParserHelper.getJsonViews(field);
+						if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
 							excludeFields.add(field.name());
 							continue;
 						}
 
-						String description = getFieldDescription(field);
-						String min = getFieldMin(field);
-						String max = getFieldMax(field);
-						Boolean required = getFieldRequired(field);
-
 						if (name != null && !elements.containsKey(name)) {
 
 							Type fieldType = getModelType(field.type(), nested);
+							OptionalName typeFormat = this.translator.typeName(fieldType);
+
+							String description = getFieldDescription(field);
+							String min = getFieldMin(field);
+							String max = getFieldMax(field);
+							Boolean required = getFieldRequired(field);
+
+							// validate min/max
+							ParserHelper.verifyValue(" for the field: " + field.name() + " of the class: " + classDoc.name() + " min value.",
+									typeFormat.value(), typeFormat.getFormat(), min);
+							ParserHelper.verifyValue(" for the field: " + field.name() + " of the class: " + classDoc.name() + " max value.",
+									typeFormat.value(), typeFormat.getFormat(), max);
+
 							elements.put(field.name(), new TypeRef(fieldType, description, min, max, required));
 						}
 					}
@@ -281,16 +283,16 @@ public class ApiModelParser {
 							boolean excludeMethod = false;
 
 							// ignore deprecated methods
-							excludeMethod = this.options.isExcludeDeprecatedFields() && AnnotationHelper.isDeprecated(method);
+							excludeMethod = this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(method);
 
 							// ignore methods we are to explicitly exclude
-							if (AnnotationHelper.hasTag(method, this.options.getExcludeFieldTags())) {
+							if (ParserHelper.hasTag(method, this.options.getExcludeFieldTags())) {
 								excludeMethod = true;
 							}
 
 							// ignore methods that are for a different json view
-							ClassDoc[] jsonViews = AnnotationHelper.getJsonViews(method);
-							if (!AnnotationHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
+							ClassDoc[] jsonViews = ParserHelper.getJsonViews(method);
+							if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
 								excludeMethod = true;
 							}
 
@@ -315,6 +317,8 @@ public class ApiModelParser {
 								}
 
 								TypeRef typeRef = elements.get(rawFieldName);
+								OptionalName typeFormat = this.translator.typeName(typeRef.type);
+
 								// the field was already found e.g. class had a field and this is the getter
 								// check if there are tags on the getter we can use to fill in description, min and max
 								if (typeRef.description == null) {
@@ -330,6 +334,12 @@ public class ApiModelParser {
 									typeRef.required = getFieldRequired(method);
 								}
 
+								// validate min/max
+								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " min value.",
+										typeFormat.value(), typeFormat.getFormat(), typeRef.min);
+								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " max value.",
+										typeFormat.value(), typeFormat.getFormat(), typeRef.max);
+
 							} else {
 
 								// skip if this method is to be excluded
@@ -344,6 +354,13 @@ public class ApiModelParser {
 								Boolean required = getFieldRequired(method);
 
 								Type returnType = getModelType(method.returnType(), nested);
+								OptionalName typeFormat = this.translator.typeName(returnType);
+
+								// validate min/max
+								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " min value.",
+										typeFormat.value(), typeFormat.getFormat(), min);
+								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " max value.",
+										typeFormat.value(), typeFormat.getFormat(), max);
 
 								elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max, required));
 							}
@@ -367,29 +384,37 @@ public class ApiModelParser {
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem) {
 		// method
-		String description = AnnotationHelper.getTagValue(docItem, this.options.getFieldDescriptionTags());
+		String description = ParserHelper.getTagValue(docItem, this.options.getFieldDescriptionTags());
 		if (description == null) {
 			description = docItem.commentText();
 		}
 		if (description == null || description.trim().length() == 0) {
 			return null;
 		}
-		return description;
+		return description.trim();
 	}
 
 	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		return AnnotationHelper.getTagValue(docItem, this.options.getFieldMinTags());
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMinTags());
+		if (val != null && val.trim().length() > 0) {
+			return val.trim();
+		}
+		return null;
 	}
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		return AnnotationHelper.getTagValue(docItem, this.options.getFieldMaxTags());
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMaxTags());
+		if (val != null && val.trim().length() > 0) {
+			return val.trim();
+		}
+		return null;
 	}
 
 	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {
-		if (AnnotationHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
+		if (ParserHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
 			return Boolean.TRUE;
 		}
-		if (AnnotationHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
+		if (ParserHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
 			return Boolean.FALSE;
 		}
 		Boolean notSpecified = null;
@@ -418,12 +443,12 @@ public class ApiModelParser {
 				});
 			}
 
-			Type containerOf = AnnotationHelper.getContainerType(type, this.varsToTypes);
+			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
 			String itemsRef = null;
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 			if (containerOf != null) {
-				if (AnnotationHelper.isPrimitive(containerOf)) {
+				if (ParserHelper.isPrimitive(containerOf)) {
 					itemsType = containerTypeOf;
 				} else {
 					itemsRef = containerTypeOf;
@@ -431,7 +456,7 @@ public class ApiModelParser {
 			}
 			Boolean uniqueItems = null;
 			if (propertyType.equals("array")) {
-				if (AnnotationHelper.isSet(type.qualifiedTypeName())) {
+				if (ParserHelper.isSet(type.qualifiedTypeName())) {
 					uniqueItems = Boolean.TRUE;
 				}
 			}
@@ -475,7 +500,7 @@ public class ApiModelParser {
 				}
 			}
 			// if its a ref to a param type replace with the type impl
-			Type paramType = AnnotationHelper.getVarType(type.asTypeVariable(), this.varsToTypes);
+			Type paramType = ParserHelper.getVarType(type.asTypeVariable(), this.varsToTypes);
 			if (paramType != null) {
 				return paramType;
 			}

@@ -31,6 +31,59 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/valueconstraints/1",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "putMinMax",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                            "type": "integer",
+                			"format" : "int32",
+                			"minimum": 5,
+                			"maximum": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/valueconstraints/2",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "putMinMaxes",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                            "type": "number",
+                			"format" : "double",
+                			"minimum": 6.5,
+                			"maximum": 9
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2a",
+                            "type": "string",
+                            "type": "integer",
+                			"format" : "int64",
+                			"minimum": 10,
+                			"maximum": 17
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -66,15 +119,15 @@
                 	"minimum": 2,
                 	"maximum": 8
                 },
-                "minFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 1
-                },
                 "maxFieldTag": {
                 	"type": "integer",
                 	"format" : "int32",
                 	"maximum": 10
+                },
+                "minFieldTag": {
+                	"type": "integer",
+                	"format" : "int32",
+                	"minimum": 1
                 }
             }
         }
