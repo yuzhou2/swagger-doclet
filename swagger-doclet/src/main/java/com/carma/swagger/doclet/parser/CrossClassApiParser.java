@@ -74,6 +74,8 @@ public class CrossClassApiParser {
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
 
+		// TODO support sub resources
+
 		ClassDoc currentClassDoc = this.classDoc;
 		while (currentClassDoc != null) {
 

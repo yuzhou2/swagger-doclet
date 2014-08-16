@@ -149,6 +149,8 @@ window.swaggerUi = new SwaggerUi({
 	<tr><td>@min</td><td>Defines a minimum value for a model field.</td><td>model fields and methods</td><td>@minimum</td></tr>
 	<tr><td>@max</td><td>Defines a maximum value for a model field.</td><td>model fields and methods</td><td>@maximum</td></tr>
 	
+	<tr><td>@default</td><td>Defines a default value for a model field. For enums this must be one of the enum values, for numeric types if there is a minimum value then this must be >= to it, similarly if there is a maximum value then this must be <= to it.</td><td>model fields and methods</td><td>@defaultValue</td></tr>
+	
 	<tr><td>@requiredField</td><td>This sets whether a model field is required.</td><td>model fields and methods</td><td>@required</td></tr>
 	
 	<tr><td>@optionalField</td><td>This sets whether a model field is optional. This is only needed if the doclet option -modelFieldsRequiredByDefault has been enabled.</td><td>model fields and methods</td><td>@optional</td></tr>
@@ -162,6 +164,8 @@ window.swaggerUi = new SwaggerUi({
 	<tr><td>@paramsMinValue</td><td>Defines the minimum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MinValue param2Name param2MinValue</td><td>operations</td><td>@paramsMinimumValue, @minValues</td></tr>
 	
 	<tr><td>@paramsMaxValue</td><td>Defines the maximum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MaxValue param2Name param2MaxValue</td><td>operations</td><td>@paramsMaximumValue, @maxValues</td></tr>
+	
+	<tr><td>@paramsDefaultValue</td><td>Defines the default value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1DefaultValue param2Name param2DefaultValue. This doclet also supports reading default values from the JAXRS DefaultValue annotation which takes precedence over this for a given parameter. For enums a default value must be one of the enum values, for numeric types if there is a minimum value then a default value must be >= to it, similarly if there is a maximum value then a default value must be <= to it.</td><td>operations</td><td>@defaultValues</td></tr>
 	
 	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>

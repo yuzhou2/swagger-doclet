@@ -376,7 +376,6 @@ public class ParserHelper {
 	 * @return the name of the parameter used by http requests
 	 */
 	public static String paramNameOf(Parameter parameter) {
-		// TODO (DL): make this part of Translator?
 		AnnotationParser p = new AnnotationParser(parameter);
 		String name = p.getAnnotationValue(JAX_RS_PATH_PARAM, "value");
 		if (name == null) {
