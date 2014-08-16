@@ -113,6 +113,8 @@ public class DocletOptions {
 				parsedOptions.paramsMinValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-paramsMaxValueTags")) {
 				parsedOptions.paramsMaxValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramsDefaultValueTags")) {
+				parsedOptions.paramsDefaultValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
@@ -131,6 +133,8 @@ public class DocletOptions {
 				parsedOptions.fieldMinTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-fieldMaxTags")) {
 				parsedOptions.fieldMaxTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldDefaultTags")) {
+				parsedOptions.fieldDefaultTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-requiredParamsTags")) {
 				parsedOptions.requiredParamsTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-optionalParamsTags")) {
@@ -178,6 +182,7 @@ public class DocletOptions {
 	private List<String> csvParamsTags;
 	private List<String> paramsMinValueTags;
 	private List<String> paramsMaxValueTags;
+	private List<String> paramsDefaultValueTags;
 	private List<String> resourceTags;
 	private List<String> operationNotesTags;
 	private List<String> operationSummaryTags;
@@ -185,6 +190,7 @@ public class DocletOptions {
 
 	private List<String> fieldMinTags;
 	private List<String> fieldMaxTags;
+	private List<String> fieldDefaultTags;
 
 	private List<String> requiredParamsTags;
 	private List<String> optionalParamsTags;
@@ -282,6 +288,10 @@ public class DocletOptions {
 		this.paramsMaxValueTags.add("paramsMaximumValue");
 		this.paramsMaxValueTags.add("maxValues");
 
+		this.paramsDefaultValueTags = new ArrayList<String>();
+		this.paramsDefaultValueTags.add("paramsDefaultValue");
+		this.paramsDefaultValueTags.add("defaultValues");
+
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
 		this.resourceTags.add("resourcePath");
@@ -319,6 +329,10 @@ public class DocletOptions {
 		this.fieldMaxTags = new ArrayList<String>();
 		this.fieldMaxTags.add("max");
 		this.fieldMaxTags.add("maximum");
+
+		this.fieldDefaultTags = new ArrayList<String>();
+		this.fieldDefaultTags.add("default");
+		this.fieldDefaultTags.add("defaultValue");
 
 		this.requiredParamsTags = new ArrayList<String>();
 		this.requiredParamsTags.add("requiredParams");
@@ -472,6 +486,14 @@ public class DocletOptions {
 	 */
 	public List<String> getParamsMaxValueTags() {
 		return this.paramsMaxValueTags;
+	}
+
+	/**
+	 * This gets the paramsDefaultValueTags
+	 * @return the paramsDefaultValueTags
+	 */
+	public List<String> getParamsDefaultValueTags() {
+		return this.paramsDefaultValueTags;
 	}
 
 	/**
@@ -649,6 +671,14 @@ public class DocletOptions {
 	 */
 	public List<String> getFieldMaxTags() {
 		return this.fieldMaxTags;
+	}
+
+	/**
+	 * This gets the fieldDefaultTags
+	 * @return the fieldDefaultTags
+	 */
+	public List<String> getFieldDefaultTags() {
+		return this.fieldDefaultTags;
 	}
 
 	/**

@@ -1,8 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
 import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Lists.transform;
-import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +18,6 @@ import com.carma.swagger.doclet.model.Property;
 import com.carma.swagger.doclet.translator.NameBasedTranslator;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
@@ -115,7 +112,7 @@ public class ApiModelParser {
 		}
 
 		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
-		Map<String, Property> elements = findReferencedElements(types, nested);
+		Map<String, Property> elements = findReferencedElements(classDoc, types, nested);
 		if (!elements.isEmpty()) {
 
 			String modelId = nested ? this.translator.typeName(type).value() : this.translator.typeName(type, this.viewClasses).value();
@@ -141,19 +138,23 @@ public class ApiModelParser {
 
 	static class TypeRef {
 
+		String sourceDesc;
 		Type type;
 		String description;
 		String min;
 		String max;
+		String defaultValue;
 		Boolean required;
 
-		TypeRef(Type type, String description, String min, String max, Boolean required) {
+		TypeRef(String sourceDesc, Type type, String description, String min, String max, String defaultValue, Boolean required) {
 			super();
+			this.sourceDesc = sourceDesc;
 			this.type = type;
-			this.required = required;
 			this.description = description;
 			this.min = min;
 			this.max = max;
+			this.defaultValue = defaultValue;
+			this.required = required;
 		}
 	}
 
@@ -239,20 +240,14 @@ public class ApiModelParser {
 						if (name != null && !elements.containsKey(name)) {
 
 							Type fieldType = getModelType(field.type(), nested);
-							OptionalName typeFormat = this.translator.typeName(fieldType);
 
 							String description = getFieldDescription(field);
 							String min = getFieldMin(field);
 							String max = getFieldMax(field);
 							Boolean required = getFieldRequired(field);
+							String defaultValue = getFieldDefaultValue(field);
 
-							// validate min/max
-							ParserHelper.verifyValue(" for the field: " + field.name() + " of the class: " + classDoc.name() + " min value.",
-									typeFormat.value(), typeFormat.getFormat(), min);
-							ParserHelper.verifyValue(" for the field: " + field.name() + " of the class: " + classDoc.name() + " max value.",
-									typeFormat.value(), typeFormat.getFormat(), max);
-
-							elements.put(field.name(), new TypeRef(fieldType, description, min, max, required));
+							elements.put(field.name(), new TypeRef(" field: " + field.name(), fieldType, description, min, max, defaultValue, required));
 						}
 					}
 				}
@@ -317,7 +312,6 @@ public class ApiModelParser {
 								}
 
 								TypeRef typeRef = elements.get(rawFieldName);
-								OptionalName typeFormat = this.translator.typeName(typeRef.type);
 
 								// the field was already found e.g. class had a field and this is the getter
 								// check if there are tags on the getter we can use to fill in description, min and max
@@ -330,15 +324,14 @@ public class ApiModelParser {
 								if (typeRef.max == null) {
 									typeRef.max = getFieldMax(method);
 								}
+								if (typeRef.defaultValue == null) {
+									typeRef.defaultValue = getFieldDefaultValue(method);
+								}
 								if (typeRef.required == null) {
 									typeRef.required = getFieldRequired(method);
 								}
 
-								// validate min/max
-								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " min value.",
-										typeFormat.value(), typeFormat.getFormat(), typeRef.min);
-								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " max value.",
-										typeFormat.value(), typeFormat.getFormat(), typeRef.max);
+								typeRef.sourceDesc = " method: " + method.name();
 
 							} else {
 
@@ -351,18 +344,13 @@ public class ApiModelParser {
 								String description = getFieldDescription(method);
 								String min = getFieldMin(method);
 								String max = getFieldMax(method);
+								String defaultValue = getFieldDefaultValue(method);
 								Boolean required = getFieldRequired(method);
 
 								Type returnType = getModelType(method.returnType(), nested);
-								OptionalName typeFormat = this.translator.typeName(returnType);
 
-								// validate min/max
-								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " min value.",
-										typeFormat.value(), typeFormat.getFormat(), min);
-								ParserHelper.verifyValue(" for the method: " + method.name() + " of the class: " + classDoc.name() + " max value.",
-										typeFormat.value(), typeFormat.getFormat(), max);
-
-								elements.put(translatedNameViaMethod, new TypeRef(returnType, description, min, max, required));
+								elements.put(translatedNameViaMethod, new TypeRef(" method: " + method.name(), returnType, description, min, max, defaultValue,
+										required));
 							}
 
 						}
@@ -410,6 +398,14 @@ public class ApiModelParser {
 		return null;
 	}
 
+	private String getFieldDefaultValue(com.sun.javadoc.MemberDoc docItem) {
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldDefaultTags());
+		if (val != null && val.trim().length() > 0) {
+			return val.trim();
+		}
+		return null;
+	}
+
 	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {
 		if (ParserHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
 			return Boolean.TRUE;
@@ -421,26 +417,21 @@ public class ApiModelParser {
 		return notSpecified;
 	}
 
-	private Map<String, Property> findReferencedElements(Map<String, TypeRef> types, boolean nested) {
+	private Map<String, Property> findReferencedElements(ClassDoc classDoc, Map<String, TypeRef> types, boolean nested) {
 		Map<String, Property> elements = new HashMap<String, Property>();
 		for (Map.Entry<String, TypeRef> entry : types.entrySet()) {
 			String typeName = entry.getKey();
-
-			Type type = entry.getValue().type;
+			TypeRef typeRef = entry.getValue();
+			Type type = typeRef.type;
 			ClassDoc typeClassDoc = type.asClassDoc();
 
 			OptionalName propertyTypeFormat = this.translator.typeName(type);
 			String propertyType = propertyTypeFormat.value();
 
-			List<String> allowableValues = null;
-			if (typeClassDoc != null && typeClassDoc.isEnum()) {
+			// set enum values
+			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
+			if (allowableValues != null) {
 				propertyType = "string";
-				allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
-
-					public String apply(FieldDoc input) {
-						return input.name();
-					}
-				});
 			}
 
 			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
@@ -461,8 +452,44 @@ public class ApiModelParser {
 				}
 			}
 
-			Property property = new Property(propertyType, propertyTypeFormat.getFormat(), entry.getValue().description, itemsRef, itemsType, uniqueItems,
-					allowableValues, entry.getValue().min, entry.getValue().max);
+			String validationContext = " for the " + typeRef.sourceDesc + " of the class: " + classDoc.name();
+			// validate min/max
+			ParserHelper.verifyNumericValue(validationContext + " min value.", propertyTypeFormat.value(), propertyTypeFormat.getFormat(), typeRef.min);
+			ParserHelper.verifyNumericValue(validationContext + " max value.", propertyTypeFormat.value(), propertyTypeFormat.getFormat(), typeRef.max);
+
+			// if enum and default value check it matches the enum values
+			if (allowableValues != null && typeRef.defaultValue != null && !allowableValues.contains(typeRef.defaultValue)) {
+				throw new IllegalStateException(" Invalid value for the default value of the " + typeRef.sourceDesc + " it should be one of: "
+						+ allowableValues);
+			}
+			// verify default vs min, max and by itself
+			if (typeRef.defaultValue != null) {
+				if (typeRef.min == null && typeRef.max == null) {
+					// just validate the default
+					ParserHelper.verifyValue(validationContext + " default value.", propertyTypeFormat.value(), propertyTypeFormat.getFormat(),
+							typeRef.defaultValue);
+				}
+				// if min/max then default is validated as part of comparison
+				if (typeRef.min != null) {
+					int comparison = ParserHelper.compareNumericValues(validationContext + " min value.", propertyTypeFormat.value(),
+							propertyTypeFormat.getFormat(), typeRef.defaultValue, typeRef.min);
+					if (comparison < 0) {
+						throw new IllegalStateException("Invalid value for the default value of the " + typeRef.sourceDesc + " it should be >= the minimum: "
+								+ typeRef.min);
+					}
+				}
+				if (typeRef.max != null) {
+					int comparison = ParserHelper.compareNumericValues(validationContext + " max value.", propertyTypeFormat.value(),
+							propertyTypeFormat.getFormat(), typeRef.defaultValue, typeRef.max);
+					if (comparison > 0) {
+						throw new IllegalStateException("Invalid value for the default value of the " + typeRef.sourceDesc + " it should be <= the maximum: "
+								+ typeRef.max);
+					}
+				}
+			}
+
+			Property property = new Property(propertyType, propertyTypeFormat.getFormat(), typeRef.description, itemsRef, itemsType, uniqueItems,
+					allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
 			elements.put(typeName, property);
 		}
 		return elements;

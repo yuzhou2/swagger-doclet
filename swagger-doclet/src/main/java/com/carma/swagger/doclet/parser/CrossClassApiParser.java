@@ -54,7 +54,7 @@ public class CrossClassApiParser {
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
-		this.rootPath = firstNonNull(parsePath(classDoc.annotations()), "");
+		this.rootPath = firstNonNull(parsePath(classDoc), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;

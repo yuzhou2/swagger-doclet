@@ -3,8 +3,6 @@ package com.carma.swagger.doclet.parser;
 import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Lists.transform;
-import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +26,8 @@ import com.carma.swagger.doclet.model.Oauth2Scope;
 import com.carma.swagger.doclet.model.OperationAuthorizations;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
-import com.google.common.base.Function;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
@@ -126,7 +122,7 @@ public class ApiMethodParser {
 	 * @return The method with appropriate data set
 	 */
 	public Method parse() {
-		String methodPath = firstNonNull(parsePath(this.methodDoc.annotations()), "");
+		String methodPath = firstNonNull(parsePath(this.methodDoc), "");
 		if (this.httpMethod == null && methodPath.isEmpty()) {
 			return null;
 		}
@@ -394,6 +390,9 @@ public class ApiMethodParser {
 		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMinValueTags());
 		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMaxValueTags());
 
+		// read default values of params
+		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsDefaultValueTags());
+
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
 				continue;
@@ -401,6 +400,7 @@ public class ApiMethodParser {
 
 			Type paramType = parameter.type();
 			String paramCategory = ParserHelper.paramTypeOf(parameter);
+			String paramName = parameter.name();
 
 			// look for a custom input type for body params
 			if ("body".equals(paramCategory)) {
@@ -415,22 +415,17 @@ public class ApiMethodParser {
 			OptionalName paramTypeFormat = this.translator.typeName(paramType);
 			String typeName = paramTypeFormat.value();
 
-			List<String> allowableValues = null;
+			// set enum values
 			ClassDoc typeClassDoc = parameter.type().asClassDoc();
-			if (typeClassDoc != null && typeClassDoc.isEnum()) {
+			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
+			if (allowableValues != null) {
 				typeName = "string";
-				allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
-
-					public String apply(FieldDoc input) {
-						return input.name();
-					}
-				});
 			}
 
 			// set whether its a csv param
 			Boolean allowMultiple = null;
 			if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
-				if (csvParams.contains(parameter.name())) {
+				if (csvParams.contains(paramName)) {
 					allowMultiple = Boolean.TRUE;
 				}
 			}
@@ -442,11 +437,11 @@ public class ApiMethodParser {
 				required = Boolean.TRUE;
 			}
 			// if its in the required list then its required
-			else if (requiredParams.contains(parameter.name())) {
+			else if (requiredParams.contains(paramName)) {
 				required = Boolean.TRUE;
 			}
 			// else if its in the optional list its optional
-			else if (optionalParams.contains(parameter.name())) {
+			else if (optionalParams.contains(paramName)) {
 				// leave as null as this is equivalent to false but doesnt add to the json
 			}
 			// else if its a body param its required
@@ -459,17 +454,52 @@ public class ApiMethodParser {
 			}
 
 			// get min and max param values
-			String minimum = paramMinVals.get(parameter.name());
-			String maximum = paramMaxVals.get(parameter.name());
+			String minimum = paramMinVals.get(paramName);
+			String maximum = paramMaxVals.get(paramName);
+
+			String validationContext = " for the method: " + this.methodDoc.name() + " parameter: " + paramName;
 
 			// verify min max are numbers
-			ParserHelper.verifyValue(" for the method: " + this.methodDoc.name() + " parameter: " + parameter.name() + " min value.", paramTypeFormat.value(),
-					paramTypeFormat.getFormat(), minimum);
-			ParserHelper.verifyValue(" for the method: " + this.methodDoc.name() + " parameter: " + parameter.name() + " max value.", paramTypeFormat.value(),
-					paramTypeFormat.getFormat(), maximum);
+			ParserHelper.verifyNumericValue(validationContext + " min value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), minimum);
+			ParserHelper.verifyNumericValue(validationContext + " max value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), maximum);
 
-			// TODO support default value
-			// TODO if default and min/max check default is in range
+			// get a default value, prioritize the jaxrs annotation
+			// otherwise look for the javadoc tag
+			String defaultVal = ParserHelper.getDefaultValue(parameter);
+			if (defaultVal == null) {
+				defaultVal = paramDefaultVals.get(paramName);
+			}
+
+			// verify default vs min, max and by itself
+			if (defaultVal != null) {
+				if (minimum == null && maximum == null) {
+					// just validate the default
+					ParserHelper.verifyValue(validationContext + " default value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), defaultVal);
+				}
+				// if min/max then default is validated as part of comparison
+				if (minimum != null) {
+					int comparison = ParserHelper.compareNumericValues(validationContext + " min value.", paramTypeFormat.value(), paramTypeFormat.getFormat(),
+							defaultVal, minimum);
+					if (comparison < 0) {
+						throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
+								+ paramName + " it should be >= the minimum: " + minimum);
+					}
+				}
+				if (maximum != null) {
+					int comparison = ParserHelper.compareNumericValues(validationContext + " max value.", paramTypeFormat.value(), paramTypeFormat.getFormat(),
+							defaultVal, maximum);
+					if (comparison > 0) {
+						throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
+								+ paramName + " it should be <= the maximum: " + maximum);
+					}
+				}
+			}
+
+			// if enum and default value check it matches the enum values
+			if (allowableValues != null && defaultVal != null && !allowableValues.contains(defaultVal)) {
+				throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: " + paramName
+						+ " it should be one of: " + allowableValues);
+			}
 
 			// set collection related fields
 			// TODO: consider supporting parameterized collections as api parameters...
@@ -494,7 +524,7 @@ public class ApiMethodParser {
 
 			ApiParameter param = new ApiParameter(paramCategory, ParserHelper.paramNameOf(parameter), required, allowMultiple, typeName,
 					paramTypeFormat.getFormat(), commentForParameter(this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum,
-					maximum);
+					maximum, defaultVal);
 
 			parameters.add(param);
 		}

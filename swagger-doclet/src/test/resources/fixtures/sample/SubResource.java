@@ -11,7 +11,7 @@ public class SubResource {
 
 	@GET
 	@Path("annotated")
-	public String sayHello(@QueryParam("name") @DefaultValue("World") String name) {
+	public String sayHello(@QueryParam("name") @DefaultValue("World2") String name) {
 		return "Hello, " + name + "!";
 	}
 

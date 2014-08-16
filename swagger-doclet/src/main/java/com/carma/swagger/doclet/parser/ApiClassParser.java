@@ -34,7 +34,7 @@ public class ApiClassParser {
 	public ApiClassParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes) {
 		this.options = options;
 		this.classDoc = classDoc;
-		this.rootPath = firstNonNull(parsePath(classDoc.annotations()), "");
+		this.rootPath = firstNonNull(parsePath(classDoc), "");
 		this.models = new LinkedHashSet<Model>();
 		this.classes = classes;
 		this.parentMethod = null;
@@ -47,7 +47,7 @@ public class ApiClassParser {
 	public ApiClassParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Method parentMethod) {
 		this.options = options;
 		this.classDoc = classDoc;
-		this.rootPath = firstNonNull(parsePath(classDoc.annotations()), "");
+		this.rootPath = firstNonNull(parsePath(classDoc), "");
 		this.models = new LinkedHashSet<Model>();
 		this.classes = classes;
 		this.parentMethod = parentMethod;

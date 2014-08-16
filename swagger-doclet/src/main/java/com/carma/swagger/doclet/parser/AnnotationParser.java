@@ -25,7 +25,8 @@ public class AnnotationParser {
 		}
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
 			if (evp.element().name().equals(key)) {
-				return evp.value().value().toString();
+				String val = evp.value().value().toString();
+				return val.trim();
 			}
 		}
 		return null;
@@ -79,7 +80,7 @@ public class AnnotationParser {
 					String[] res = new String[vals.length];
 					int i = 0;
 					for (AnnotationValue annotationVal : vals) {
-						res[i] = annotationVal.value().toString();
+						res[i] = annotationVal.value().toString().trim();
 						i++;
 					}
 					return res;
@@ -89,6 +90,11 @@ public class AnnotationParser {
 		return null;
 	}
 
+	/**
+	 * This gets whether this is annotated by the given annotation
+	 * @param qualifiedAnnotationType The annotation type to check for
+	 * @return True if this is annotated by the given annotation
+	 */
 	public boolean isAnnotatedBy(String qualifiedAnnotationType) {
 		return getAnnotation(qualifiedAnnotationType) != null;
 	}

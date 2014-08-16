@@ -73,6 +73,7 @@ public class Data {
 
 	/**
 	 * @min 1
+	 * @default 2
 	 */
 	public int getMinGetterTag() {
 		return this.minGetterTag;
@@ -80,6 +81,7 @@ public class Data {
 
 	/**
 	 * @max 10
+	 * @defaultValue 5
 	 */
 	public int getMaxGetterTag() {
 		return this.maxGetterTag;
@@ -88,6 +90,7 @@ public class Data {
 	/**
 	 * @min 2
 	 * @max 8
+	 * @defaultValue 2
 	 */
 	public int getMinMaxGetterTag() {
 		return this.minMaxGetterTag;

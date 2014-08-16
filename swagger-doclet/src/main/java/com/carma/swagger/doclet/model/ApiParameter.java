@@ -35,8 +35,8 @@ public class ApiParameter extends Property {
 	 * @param maximum
 	 */
 	public ApiParameter(String paramType, String name, Boolean required, Boolean allowMultiple, String type, String format, String description,
-			String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum) {
-		super(type, format, description, itemsRef, itemsType, uniqueItems, allowableValues, minimum, maximum);
+			String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue) {
+		super(type, format, description, itemsRef, itemsType, uniqueItems, allowableValues, minimum, maximum, defaultValue);
 		this.paramType = paramType;
 		this.name = name;
 		this.required = required;
@@ -178,7 +178,7 @@ public class ApiParameter extends Property {
 		return "ApiParameter [paramType=" + this.paramType + ", name=" + this.name + ", required=" + this.required + ", allowMultiple=" + this.allowMultiple
 				+ ", getType()=" + this.getType() + ", getFormat()=" + this.getFormat() + ", getDescription()=" + this.getDescription()
 				+ ", getAllowableValues()=" + this.getAllowableValues() + ", getUniqueItems()=" + this.getUniqueItems() + ", getItems()=" + this.getItems()
-				+ ", getMinimum()=" + this.getMinimum() + ", getMaximum()=" + this.getMaximum() + "]";
+				+ ", getMinimum()=" + this.getMinimum() + ", getMaximum()=" + this.getMaximum() + ", getDefaultValue()=" + this.getDefaultValue() + "]";
 	}
 
 }

@@ -16,7 +16,8 @@
                         {
                             "paramType": "query",
                             "name": "name",
-                            "type": "string"
+                            "type": "string",
+                            "defaultValue": "World"
                         }
                     ],
                     "responseMessages": [
@@ -92,7 +93,8 @@
                         {
                             "paramType": "query",
                             "name": "name",
-                            "type": "string"
+                            "type": "string",
+                            "defaultValue" : "World2"
                         },
                         {
                             "paramType": "path",

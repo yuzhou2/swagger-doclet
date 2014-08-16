@@ -20,8 +20,7 @@ public class Property {
 	private List<String> allowableValues;
 	private String minimum;
 	private String maximum;
-
-	// FIXME add default value
+	private String defaultValue;
 
 	Property() {
 		super();
@@ -38,9 +37,10 @@ public class Property {
 	 * @param allowableValues
 	 * @param minimum
 	 * @param maximum
+	 * @param defaultValue
 	 */
 	public Property(String type, String format, String description, String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues,
-			String minimum, String maximum) {
+			String minimum, String maximum, String defaultValue) {
 		this.type = type;
 		this.format = format;
 		this.description = emptyToNull(description);
@@ -51,6 +51,7 @@ public class Property {
 		this.allowableValues = allowableValues;
 		this.minimum = minimum;
 		this.maximum = maximum;
+		this.defaultValue = defaultValue;
 	}
 
 	/**
@@ -119,6 +120,14 @@ public class Property {
 	}
 
 	/**
+	 * This gets the defaultValue
+	 * @return the defaultValue
+	 */
+	public String getDefaultValue() {
+		return this.defaultValue;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -127,6 +136,7 @@ public class Property {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.allowableValues == null) ? 0 : this.allowableValues.hashCode());
+		result = prime * result + ((this.defaultValue == null) ? 0 : this.defaultValue.hashCode());
 		result = prime * result + ((this.description == null) ? 0 : this.description.hashCode());
 		result = prime * result + ((this.format == null) ? 0 : this.format.hashCode());
 		result = prime * result + ((this.items == null) ? 0 : this.items.hashCode());
@@ -158,6 +168,13 @@ public class Property {
 				return false;
 			}
 		} else if (!this.allowableValues.equals(other.allowableValues)) {
+			return false;
+		}
+		if (this.defaultValue == null) {
+			if (other.defaultValue != null) {
+				return false;
+			}
+		} else if (!this.defaultValue.equals(other.defaultValue)) {
 			return false;
 		}
 		if (this.description == null) {
@@ -219,7 +236,8 @@ public class Property {
 	@Override
 	public String toString() {
 		return "Property [type=" + this.type + ", format=" + this.format + ", description=" + this.description + ", items=" + this.items + ", uniqueItems="
-				+ this.uniqueItems + ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum + "]";
+				+ this.uniqueItems + ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum
+				+ ", defaultValue=" + this.defaultValue + "]";
 	}
 
 }

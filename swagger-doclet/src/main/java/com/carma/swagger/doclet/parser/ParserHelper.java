@@ -1,6 +1,8 @@
 package com.carma.swagger.doclet.parser;
 
 import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Lists.transform;
+import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
@@ -34,9 +38,11 @@ public class ParserHelper {
 	private static final String JAX_RS_PATH_PARAM = "javax.ws.rs.PathParam";
 	private static final String JAX_RS_QUERY_PARAM = "javax.ws.rs.QueryParam";
 	private static final String JAX_RS_HEADER_PARAM = "javax.ws.rs.HeaderParam";
-	private static final String JERSEY_MULTIPART_FORM_PARAM = "com.sun.jersey.multipart.FormDataParam";
 	private static final String JAX_RS_CONSUMES = "javax.ws.rs.Consumes";
 	private static final String JAX_RS_PRODUCES = "javax.ws.rs.Produces";
+	private static final String JAX_RS_DEFAULT_VALUE = "javax.ws.rs.DefaultValue";
+
+	private static final String JERSEY_MULTIPART_FORM_PARAM = "com.sun.jersey.multipart.FormDataParam";
 
 	@SuppressWarnings("serial")
 	static final List<String> PRIMITIVES = new ArrayList<String>() {
@@ -58,25 +64,111 @@ public class ParserHelper {
 	};
 
 	/**
+	 * This gets the allowable values from an enum class doc or null if the classdoc does not
+	 * represent an enum
+	 * @param typeClassDoc the class doc of the enum class to get the allowable values of
+	 * @return The list of allowable values or null if this is not an enum
+	 */
+	public static List<String> getAllowableValues(ClassDoc typeClassDoc) {
+		// TODO use translator to support @XmlEnum values...
+		List<String> allowableValues = null;
+		if (typeClassDoc != null && typeClassDoc.isEnum()) {
+			allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
+
+				public String apply(FieldDoc input) {
+					if (input == null) {
+						return null;
+					}
+					return input.name();
+				}
+			});
+		}
+		return allowableValues;
+	}
+
+	/**
+	 * This gets the default value of the given parameter
+	 * @param param The parameter
+	 * @return The default value or null if it has no default
+	 */
+	public static String getDefaultValue(Parameter param) {
+		AnnotationParser p = new AnnotationParser(param);
+		String value = p.getAnnotationValue(JAX_RS_DEFAULT_VALUE, "value");
+		return value;
+	}
+
+	/**
 	 * This parses the path from the annotations of a method or class
-	 * @param annotations The items annotations
+	 * @param doc The method or class
 	 * @return The path or null if no path related annotations were present
 	 */
-	public static String parsePath(AnnotationDesc[] annotations) {
-		for (AnnotationDesc annotationDesc : annotations) {
-			if (annotationDesc.annotationType().qualifiedTypeName().equals(JAX_RS_PATH)) {
-				for (AnnotationDesc.ElementValuePair pair : annotationDesc.elementValues()) {
-					if (pair.element().name().equals("value")) {
-						String path = pair.value().value().toString();
-						if (path.endsWith("/")) {
-							path = path.substring(0, path.length() - 1);
-						}
-						return path.isEmpty() || path.startsWith("/") ? path : "/" + path;
-					}
-				}
+	public static String parsePath(com.sun.javadoc.ProgramElementDoc doc) {
+		AnnotationParser p = new AnnotationParser(doc);
+		String path = p.getAnnotationValue(JAX_RS_PATH, "value");
+		if (path != null) {
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
 			}
+			return path.isEmpty() || path.startsWith("/") ? path : "/" + path;
 		}
 		return null;
+	}
+
+	/**
+	 * This verifies that the given numeric values are valid for the given data type and format and returns the comparison.
+	 * If not valid it raises an exception. It ignores null/empty values.
+	 * @param context Additional description for contextualizing the error message
+	 * @param type The data type as per json schema
+	 * @param format The data format
+	 * @param value1 The first value to check
+	 * @param value2 The 2nd value to check
+	 * @throws IllegalStateException if the value is invalid.
+	 * @return null if either value is null/empty, otherwise -1,0,1 as per standard java compare behaviour.
+	 */
+	public static Integer compareNumericValues(String context, String type, String format, String value1, String value2) {
+		if (value1 == null || value1.trim().isEmpty() || value2 == null || value2.trim().isEmpty()) {
+			return null;
+		}
+		Number val1 = verifyNumericValue(context, type, format, value1);
+		Number val2 = verifyNumericValue(context, type, format, value1);
+		return Double.valueOf(val1.doubleValue()).compareTo(val2.doubleValue());
+	}
+
+	/**
+	 * This verifies that the given value is valid for the given data type and format for use as a numeric value
+	 * which means it must be integer or number type.
+	 * If not valid it raises an exception. It ignores null/empty values.
+	 * @param context Additional description for contextualizing the error message
+	 * @param type The data type as per json schema
+	 * @param format The data format
+	 * @param value The value to check
+	 * @throws IllegalStateException if the value is invalid.
+	 * @return The value as a number suitable for the given type and format
+	 */
+	public static Number verifyNumericValue(String context, String type, String format, String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return null;
+		}
+		try {
+			if (type.equals("integer")) {
+				if (format.equals("int32")) {
+					return Integer.parseInt(value);
+				} else {
+					return Long.parseLong(value);
+				}
+			} else if (type.equals("number")) {
+				if (format.equals("double")) {
+					return Double.parseDouble(value);
+				} else {
+					return Float.parseFloat(value);
+				}
+			} else if (format != null && format.equals("byte")) {
+				return Byte.parseByte(value);
+			}
+		} catch (NumberFormatException nfe) {
+			throw new IllegalStateException("The value was not valid for the type: " + type + " and format: " + format + context, nfe);
+		}
+		throw new IllegalStateException("Min/Max values are not allowed for the type: " + type + " and format: " + format + context);
 	}
 
 	/**
