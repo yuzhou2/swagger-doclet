@@ -40,6 +40,12 @@ public class ServiceDoclet {
 
 		options.put("-genericWrapperTypes", 2);
 
+		options.put("-fileParameterAnnotations", 2);
+		options.put("-fileParameterTypes", 2);
+		options.put("-formParameterAnnotations", 2);
+		options.put("-formParameterTypes", 2);
+		options.put("-stringTypePrefixes", 2);
+
 		options.put("-responseTypeTags", 2);
 		options.put("-inputTypeTags", 2);
 
@@ -59,6 +65,8 @@ public class ServiceDoclet {
 		options.put("-paramsMinValueTags", 2);
 		options.put("-paramsMaxValueTags", 2);
 		options.put("-paramsDefaultValueTags", 2);
+		options.put("-paramsNameTags", 2);
+		options.put("-parameterNameAnnotations", 2);
 
 		options.put("-requiredFieldTags", 2);
 		options.put("-optionalFieldTags", 2);

@@ -26,6 +26,11 @@ import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 
+/**
+ * The ApiModelParser represents a parser for api model classes which are used for parameters, resource method return types and
+ * model fields.
+ * @version $Id$
+ */
 public class ApiModelParser {
 
 	private final DocletOptions options;
@@ -36,10 +41,23 @@ public class ApiModelParser {
 
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
+	/**
+	 * This creates a ApiModelParser
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 */
 	public ApiModelParser(DocletOptions options, Translator translator, Type rootType) {
 		this(options, translator, rootType, null);
 	}
 
+	/**
+	 * This creates a ApiModelParser
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param viewClasses
+	 */
 	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses) {
 		this.options = options;
 		this.translator = translator;
@@ -64,7 +82,7 @@ public class ApiModelParser {
 	private void parseModel(Type type, boolean nested) {
 
 		String qName = type.qualifiedTypeName();
-		boolean isPrimitive = ParserHelper.isPrimitive(type);
+		boolean isPrimitive = ParserHelper.isPrimitive(type, this.options);
 		boolean isJavaxType = qName.startsWith("javax.");
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		boolean isClass = qName.equals("java.lang.Class");
@@ -188,7 +206,7 @@ public class ApiModelParser {
 		// due to annotations like XMLElement
 		Map<String, String> rawToTranslatedFields = new HashMap<String, String>();
 
-		NameBasedTranslator nameTranslator = new NameBasedTranslator();
+		NameBasedTranslator nameTranslator = new NameBasedTranslator(this.options);
 
 		for (ClassDoc classDoc : classes) {
 
@@ -439,7 +457,7 @@ public class ApiModelParser {
 			String itemsType = null;
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 			if (containerOf != null) {
-				if (ParserHelper.isPrimitive(containerOf)) {
+				if (ParserHelper.isPrimitive(containerOf, this.options)) {
 					itemsType = containerTypeOf;
 				} else {
 					itemsRef = containerTypeOf;

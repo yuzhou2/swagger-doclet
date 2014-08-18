@@ -41,7 +41,11 @@
 			<artifactId>jersey-core</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
     </dependencies>
 
     <build>
@@ -63,7 +67,7 @@
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
-                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:8080/apidocs -apiBasePath http://127.0.0.1:8080 -swaggerUiPath ../../../src/main/resources/swagger-ui</additionalparam>
+                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:8080/apidocs -apiBasePath http://127.0.0.1:8080 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.22</additionalparam>
                         </configuration>
                         <goals>
                             <goal>javadoc</goal>

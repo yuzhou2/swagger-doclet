@@ -1,6 +1,7 @@
 package com.carma.swagger.doclet.sample;
 
 import com.carma.swagger.doclet.sample.resources.AuthResource;
+import com.carma.swagger.doclet.sample.resources.FileResource;
 import com.carma.swagger.doclet.sample.resources.GreetingsResource;
 import com.carma.swagger.doclet.sample.resources.HttpServletRequestResource;
 import com.carma.swagger.doclet.sample.resources.ModelResource;
@@ -49,5 +50,6 @@ public class SampleService extends Service<Configuration> {
 		environment.addResource(new ParentResource());
 		environment.addResource(new SubResource());
 		environment.addResource(new PersonResource());
+		environment.addResource(new FileResource());
 	}
 }

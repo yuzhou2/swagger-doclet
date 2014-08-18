@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.carma.swagger.doclet.DocletOptions;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sun.javadoc.AnnotationDesc;
@@ -33,16 +34,29 @@ import com.sun.javadoc.TypeVariable;
  */
 public class ParserHelper {
 
-	private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
-	private static final String JAX_RS_PATH = "javax.ws.rs.Path";
 	private static final String JAX_RS_PATH_PARAM = "javax.ws.rs.PathParam";
 	private static final String JAX_RS_QUERY_PARAM = "javax.ws.rs.QueryParam";
 	private static final String JAX_RS_HEADER_PARAM = "javax.ws.rs.HeaderParam";
+	private static final String JAX_RS_FORM_PARAM = "javax.ws.rs.FormParam";
+
+	/**
+	 * This is a set of the FQN of the various JAXRS parameter annotations
+	 */
+	public static final Set<String> JAXRS_PARAM_ANNOTATIONS = new HashSet<String>();
+	static {
+		// TODO support cookie and matrix params...
+		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_PATH_PARAM);
+		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_QUERY_PARAM);
+		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_HEADER_PARAM);
+		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_FORM_PARAM);
+	}
+
+	private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
+	private static final String JAX_RS_PATH = "javax.ws.rs.Path";
+
 	private static final String JAX_RS_CONSUMES = "javax.ws.rs.Consumes";
 	private static final String JAX_RS_PRODUCES = "javax.ws.rs.Produces";
 	private static final String JAX_RS_DEFAULT_VALUE = "javax.ws.rs.DefaultValue";
-
-	private static final String JERSEY_MULTIPART_FORM_PARAM = "com.sun.jersey.multipart.FormDataParam";
 
 	@SuppressWarnings("serial")
 	static final List<String> PRIMITIVES = new ArrayList<String>() {
@@ -211,6 +225,22 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets the qualified type name of a javadoc type,
+	 * It adds [] onto any array types
+	 * @param type The type
+	 * @return The qualified type name
+	 */
+	public static String getQualifiedTypeName(Type type) {
+		String qName = type.qualifiedTypeName();
+		// handle arrays
+		String dimension = type.dimension();
+		if (dimension != null && "[]".equals(dimension)) {
+			qName = qName + "[]";
+		}
+		return qName;
+	}
+
+	/**
 	 * Determines the String representation of the object Type.
 	 * This includes the type as the first item and the format as the 2nd.
 	 * Common name Swagger spec 1.2
@@ -223,12 +253,17 @@ public class ParserHelper {
 	 * boolean boolean
 	 * date string, date
 	 * dateTime string, date-time
-	 * @param javaType The java type to get the swagger type and format of
+	 * @param type The java type to get the swagger type and format of
+	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(String javaType) {
+	public static String[] typeOf(Type type, DocletOptions options) {
 
-		if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
+		String javaType = getQualifiedTypeName(type);
+
+		if (javaType.toLowerCase().equals("byte[]")) {
+			return new String[] { "ByteArray", null };
+		} else if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
 			return new String[] { "string", "byte" };
 		} else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
 			return new String[] { "integer", "int32" };
@@ -253,7 +288,17 @@ public class ParserHelper {
 			return new String[] { "array", null };
 		} else if (isSet(javaType)) {
 			return new String[] { "array", null };
+		} else if (javaType.equalsIgnoreCase("java.io.File")) {
+			// special handling of files, the datatype File is reserved for multipart
+			return new String[] { "JavaFile", null };
 		} else {
+
+			// see if its a special string type
+			for (String prefix : options.getStringTypePrefixes()) {
+				if (javaType.startsWith(prefix)) {
+					return new String[] { "string", null };
+				}
+			}
 
 			// must be a complex type, return class name
 			int i = javaType.lastIndexOf(".");
@@ -349,11 +394,35 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether the given parameter is a File data type
+	 * @param parameter The parameter
+	 * @param options The doclet options
+	 * @return True if the parameter is a File data type
+	 */
+	public static boolean isFileParameterDataType(Parameter parameter, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(parameter);
+		for (String fileAnnotation : options.getFileParameterAnnotations()) {
+			if (p.isAnnotatedBy(fileAnnotation)) {
+				return true;
+			}
+		}
+		String qName = ParserHelper.getQualifiedTypeName(parameter.type());
+		for (String fileType : options.getFileParameterTypes()) {
+			if (qName.equals(fileType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Determines the string representation of the parameter type.
+	 * @param multipart Whether the method the parameter is for consumes multipart
 	 * @param parameter The parameter to get the type of
+	 * @param options The doclet options
 	 * @return The type of parameter, one of path, header, query, form or body.
 	 */
-	public static String paramTypeOf(Parameter parameter) {
+	public static String paramTypeOf(boolean multipart, Parameter parameter, DocletOptions options) {
 		AnnotationParser p = new AnnotationParser(parameter);
 		if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
 			return "path";
@@ -361,32 +430,66 @@ public class ParserHelper {
 			return "header";
 		} else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
 			return "query";
-		} else if (p.isAnnotatedBy(JERSEY_MULTIPART_FORM_PARAM)) {
-			// TODO: support resteasy form params...
+		} else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
 			return "form";
 		}
+
+		// look for form parameter types
+		for (String formAnnotation : options.getFormParameterAnnotations()) {
+			if (p.isAnnotatedBy(formAnnotation)) {
+				return "form";
+			}
+		}
+		String qName = getQualifiedTypeName(parameter.type());
+		for (String formType : options.getFormParameterTypes()) {
+			if (qName.equals(formType)) {
+				return "form";
+			}
+		}
+
+		// look for File data types, for multipart these are always form parameter types
+		// as per the swagger 1.2 spec
+		if (multipart && isFileParameterDataType(parameter, options)) {
+			return "form";
+		}
+
 		// TODO support bean param
-		// TODO: support File type in swagger spec
+
+		// otherwise default to body
 		return "body";
 	}
 
 	/**
 	 * Determines the string representation of the parameter name.
 	 * @param parameter The parameter to get the name of that is used for the api
+	 * @param overrideParamNames A map of rawname to override names for parameters
+	 * @param paramNameAnnotations List of FQN of annotations that can be used for the parameter name
 	 * @return the name of the parameter used by http requests
 	 */
-	public static String paramNameOf(Parameter parameter) {
-		AnnotationParser p = new AnnotationParser(parameter);
-		String name = p.getAnnotationValue(JAX_RS_PATH_PARAM, "value");
-		if (name == null) {
-			name = p.getAnnotationValue(JAX_RS_QUERY_PARAM, "value");
+	public static String paramNameOf(Parameter parameter, Map<String, String> overrideParamNames, List<String> paramNameAnnotations) {
+
+		String name = null;
+		String rawName = parameter.name();
+
+		// if there is an override name use that ahead of any annotation
+		if (overrideParamNames != null && overrideParamNames.containsKey(rawName)) {
+			name = overrideParamNames.get(rawName);
 		}
+		// look for any of the configured annotations that can determine the parameter name
 		if (name == null) {
-			name = p.getAnnotationValue(JAX_RS_HEADER_PARAM, "value");
+			AnnotationParser p = new AnnotationParser(parameter);
+			for (String paramNameAnnotation : paramNameAnnotations) {
+				name = p.getAnnotationValue(paramNameAnnotation, "value");
+				if (name != null) {
+					break;
+				}
+			}
 		}
+		// otherwise use the raw parameter name as defined on the method signature
 		if (name == null) {
-			name = parameter.name();
+			name = rawName;
 		}
+
 		return name;
 	}
 
@@ -506,13 +609,14 @@ public class ParserHelper {
 	/**
 	 * This gets whether the given type is primitive
 	 * @param type The type to check
+	 * @param options The doclet options
 	 * @return True if the given type is primitive
 	 */
-	public static boolean isPrimitive(Type type) {
+	public static boolean isPrimitive(Type type, DocletOptions options) {
 		if (type == null) {
 			return false;
 		}
-		return PRIMITIVES.contains(typeOf(type.qualifiedTypeName())[0]);
+		return PRIMITIVES.contains(typeOf(type, options)[0]);
 	}
 
 	/**

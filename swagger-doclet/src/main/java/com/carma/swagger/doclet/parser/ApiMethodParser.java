@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.core.MediaType;
+
 import com.carma.swagger.doclet.DocletOptions;
 import com.carma.swagger.doclet.model.ApiParameter;
 import com.carma.swagger.doclet.model.ApiResponseMessage;
@@ -34,6 +36,10 @@ import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
+/**
+ * The ApiMethodParser represents a parser for resource methods
+ * @version $Id$
+ */
 public class ApiMethodParser {
 
 	// pattern that can match a code, a description and an optional response model type
@@ -91,6 +97,14 @@ public class ApiMethodParser {
 	private final String classDefaultErrorType;
 	private final String methodDefaultErrorType;
 
+	/**
+	 * This creates a ApiMethodParser
+	 * @param options
+	 * @param parentPath
+	 * @param methodDoc
+	 * @param classes
+	 * @param classDefaultErrorType
+	 */
 	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
@@ -104,6 +118,14 @@ public class ApiMethodParser {
 		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
 	}
 
+	/**
+	 * This creates a ApiMethodParser
+	 * @param options
+	 * @param parentMethod
+	 * @param methodDoc
+	 * @param classes
+	 * @param classDefaultErrorType
+	 */
 	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
@@ -172,7 +194,7 @@ public class ApiMethodParser {
 			// its a collection, add the containter of type to the model
 			modelType = containerOf;
 			// set the items type or ref
-			if (ParserHelper.isPrimitive(containerOf)) {
+			if (ParserHelper.isPrimitive(containerOf, this.options)) {
 				returnTypeItemsType = this.translator.typeName(containerOf).value();
 			} else {
 				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
@@ -374,24 +396,32 @@ public class ApiMethodParser {
 		// parameters
 		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
 
-		Set<String> paramNames = ParserHelper.getParamNames(this.methodDoc);
+		Set<String> rawParamNames = ParserHelper.getParamNames(this.methodDoc);
 
 		// read required and optional params
-		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getOptionalParamsTags());
-		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getRequiredParamsTags());
+		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getOptionalParamsTags());
+		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getRequiredParamsTags());
 
 		// read exclude params
-		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getExcludeParamsTags());
+		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getExcludeParamsTags());
 
 		// read csv params
-		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, paramNames, this.options.getCsvParamsTags());
+		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getCsvParamsTags());
 
 		// read min and max values of params
-		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMinValueTags());
-		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsMaxValueTags());
+		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMinValueTags());
+		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMaxValueTags());
 
 		// read default values of params
-		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, paramNames, this.options.getParamsDefaultValueTags());
+		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames,
+				this.options.getParamsDefaultValueTags());
+
+		// read override names of params
+		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsNameTags());
+
+		// read whether the method consumes multipart
+		List<String> consumes = ParserHelper.getConsumes(this.methodDoc);
+		boolean consumesMultipart = consumes != null && consumes.contains(MediaType.MULTIPART_FORM_DATA);
 
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
@@ -399,7 +429,7 @@ public class ApiMethodParser {
 			}
 
 			Type paramType = parameter.type();
-			String paramCategory = ParserHelper.paramTypeOf(parameter);
+			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
 			String paramName = parameter.name();
 
 			// look for a custom input type for body params
@@ -408,28 +438,107 @@ public class ApiMethodParser {
 				paramType = readCustomParamType(customParamType, paramType);
 			}
 
-			if (this.options.isParseModels()) {
-				this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
-			}
-
-			OptionalName paramTypeFormat = this.translator.typeName(paramType);
+			OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType);
 			String typeName = paramTypeFormat.value();
+			String format = paramTypeFormat.getFormat();
 
-			// set enum values
-			ClassDoc typeClassDoc = parameter.type().asClassDoc();
-			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
-			if (allowableValues != null) {
-				typeName = "string";
-			}
-
-			// set whether its a csv param
 			Boolean allowMultiple = null;
-			if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
-				if (csvParams.contains(paramName)) {
-					allowMultiple = Boolean.TRUE;
+			List<String> allowableValues = null;
+			String itemsRef = null;
+			String itemsType = null;
+			Boolean uniqueItems = null;
+			String minimum = null;
+			String maximum = null;
+			String defaultVal = null;
+
+			// set to form param type if data type is File
+			if ("File".equals(typeName)) {
+				paramCategory = "form";
+			} else {
+
+				if (this.options.isParseModels()) {
+					this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
+				}
+
+				// set enum values
+				ClassDoc typeClassDoc = parameter.type().asClassDoc();
+				allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
+				if (allowableValues != null) {
+					typeName = "string";
+				}
+
+				// set whether its a csv param
+				if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
+					if (csvParams.contains(paramName)) {
+						allowMultiple = Boolean.TRUE;
+					}
+				}
+
+				// get min and max param values
+				minimum = paramMinVals.get(paramName);
+				maximum = paramMaxVals.get(paramName);
+
+				String validationContext = " for the method: " + this.methodDoc.name() + " parameter: " + paramName;
+
+				// verify min max are numbers
+				ParserHelper.verifyNumericValue(validationContext + " min value.", typeName, format, minimum);
+				ParserHelper.verifyNumericValue(validationContext + " max value.", typeName, format, maximum);
+
+				// get a default value, prioritize the jaxrs annotation
+				// otherwise look for the javadoc tag
+				defaultVal = ParserHelper.getDefaultValue(parameter);
+				if (defaultVal == null) {
+					defaultVal = paramDefaultVals.get(paramName);
+				}
+
+				// verify default vs min, max and by itself
+				if (defaultVal != null) {
+					if (minimum == null && maximum == null) {
+						// just validate the default
+						ParserHelper.verifyValue(validationContext + " default value.", typeName, format, defaultVal);
+					}
+					// if min/max then default is validated as part of comparison
+					if (minimum != null) {
+						int comparison = ParserHelper.compareNumericValues(validationContext + " min value.", typeName, format, defaultVal, minimum);
+						if (comparison < 0) {
+							throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
+									+ paramName + " it should be >= the minimum: " + minimum);
+						}
+					}
+					if (maximum != null) {
+						int comparison = ParserHelper.compareNumericValues(validationContext + " max value.", typeName, format, defaultVal, maximum);
+						if (comparison > 0) {
+							throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
+									+ paramName + " it should be <= the maximum: " + maximum);
+						}
+					}
+				}
+
+				// if enum and default value check it matches the enum values
+				if (allowableValues != null && defaultVal != null && !allowableValues.contains(defaultVal)) {
+					throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: " + paramName
+							+ " it should be one of: " + allowableValues);
+				}
+
+				// set collection related fields
+				// TODO: consider supporting parameterized collections as api parameters...
+				Type containerOf = null;
+				containerOf = ParserHelper.getContainerType(paramType, null);
+				String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
+				if (containerOf != null) {
+					if (ParserHelper.isPrimitive(containerOf, this.options)) {
+						itemsType = containerTypeOf;
+					} else {
+						itemsRef = containerTypeOf;
+					}
+				}
+
+				if (typeName.equals("array")) {
+					if (ParserHelper.isSet(paramType.qualifiedTypeName())) {
+						uniqueItems = Boolean.TRUE;
+					}
 				}
 			}
-
 			// set whether the parameter is required or not
 			Boolean required = null;
 			// if its a path param then its required as per swagger spec
@@ -442,89 +551,22 @@ public class ApiMethodParser {
 			}
 			// else if its in the optional list its optional
 			else if (optionalParams.contains(paramName)) {
-				// leave as null as this is equivalent to false but doesnt add to the json
+				// leave as null as this is equivalent to false but doesn't add to the json
 			}
-			// else if its a body param its required
-			else if ("body".equals(paramCategory)) {
+			// else if its a body or File param its required
+			else if ("body".equals(paramCategory) || ("File".equals(typeName) && "form".equals(paramCategory))) {
 				required = Boolean.TRUE;
 			}
 			// otherwise its optional
 			else {
-				// leave as null as this is equivalent to false but doesnt add to the json
+				// leave as null as this is equivalent to false but doesn't add to the json
 			}
 
-			// get min and max param values
-			String minimum = paramMinVals.get(paramName);
-			String maximum = paramMaxVals.get(paramName);
+			// get the parameter name to use for the documentation
+			String renderedParamName = ParserHelper.paramNameOf(parameter, paramNames, this.options.getParameterNameAnnotations());
 
-			String validationContext = " for the method: " + this.methodDoc.name() + " parameter: " + paramName;
-
-			// verify min max are numbers
-			ParserHelper.verifyNumericValue(validationContext + " min value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), minimum);
-			ParserHelper.verifyNumericValue(validationContext + " max value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), maximum);
-
-			// get a default value, prioritize the jaxrs annotation
-			// otherwise look for the javadoc tag
-			String defaultVal = ParserHelper.getDefaultValue(parameter);
-			if (defaultVal == null) {
-				defaultVal = paramDefaultVals.get(paramName);
-			}
-
-			// verify default vs min, max and by itself
-			if (defaultVal != null) {
-				if (minimum == null && maximum == null) {
-					// just validate the default
-					ParserHelper.verifyValue(validationContext + " default value.", paramTypeFormat.value(), paramTypeFormat.getFormat(), defaultVal);
-				}
-				// if min/max then default is validated as part of comparison
-				if (minimum != null) {
-					int comparison = ParserHelper.compareNumericValues(validationContext + " min value.", paramTypeFormat.value(), paramTypeFormat.getFormat(),
-							defaultVal, minimum);
-					if (comparison < 0) {
-						throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
-								+ paramName + " it should be >= the minimum: " + minimum);
-					}
-				}
-				if (maximum != null) {
-					int comparison = ParserHelper.compareNumericValues(validationContext + " max value.", paramTypeFormat.value(), paramTypeFormat.getFormat(),
-							defaultVal, maximum);
-					if (comparison > 0) {
-						throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
-								+ paramName + " it should be <= the maximum: " + maximum);
-					}
-				}
-			}
-
-			// if enum and default value check it matches the enum values
-			if (allowableValues != null && defaultVal != null && !allowableValues.contains(defaultVal)) {
-				throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: " + paramName
-						+ " it should be one of: " + allowableValues);
-			}
-
-			// set collection related fields
-			// TODO: consider supporting parameterized collections as api parameters...
-			Type containerOf = ParserHelper.getContainerType(paramType, null);
-			String itemsRef = null;
-			String itemsType = null;
-			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
-			if (containerOf != null) {
-				if (ParserHelper.isPrimitive(containerOf)) {
-					itemsType = containerTypeOf;
-				} else {
-					itemsRef = containerTypeOf;
-				}
-			}
-
-			Boolean uniqueItems = null;
-			if (typeName.equals("array")) {
-				if (ParserHelper.isSet(paramType.qualifiedTypeName())) {
-					uniqueItems = Boolean.TRUE;
-				}
-			}
-
-			ApiParameter param = new ApiParameter(paramCategory, ParserHelper.paramNameOf(parameter), required, allowMultiple, typeName,
-					paramTypeFormat.getFormat(), commentForParameter(this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum,
-					maximum, defaultVal);
+			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, commentForParameter(
+					this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 			parameters.add(param);
 		}

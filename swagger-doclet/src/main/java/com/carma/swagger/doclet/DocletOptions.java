@@ -13,12 +13,17 @@ import java.util.List;
 
 import com.carma.swagger.doclet.model.ApiAuthorizations;
 import com.carma.swagger.doclet.model.ApiInfo;
+import com.carma.swagger.doclet.parser.ParserHelper;
 import com.carma.swagger.doclet.translator.AnnotationAwareTranslator;
 import com.carma.swagger.doclet.translator.FirstNotNullTranslator;
 import com.carma.swagger.doclet.translator.NameBasedTranslator;
 import com.carma.swagger.doclet.translator.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The DocletOptions represents the supported options for this doclet.
+ * @version $Id$
+ */
 public class DocletOptions {
 
 	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {
@@ -99,6 +104,18 @@ public class DocletOptions {
 				parsedOptions.excludeResourcePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-genericWrapperTypes")) {
 				parsedOptions.genericWrapperTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fileParameterAnnotations")) {
+				parsedOptions.fileParameterAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fileParameterTypes")) {
+				parsedOptions.fileParameterTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-formParameterAnnotations")) {
+				parsedOptions.formParameterAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-formParameterTypes")) {
+				parsedOptions.formParameterTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-parameterNameAnnotations")) {
+				parsedOptions.parameterNameAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-stringTypePrefixes")) {
+				parsedOptions.stringTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeClassTags")) {
 				parsedOptions.excludeClassTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeOperationTags")) {
@@ -115,6 +132,8 @@ public class DocletOptions {
 				parsedOptions.paramsMaxValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-paramsDefaultValueTags")) {
 				parsedOptions.paramsDefaultValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramsNameTags")) {
+				parsedOptions.paramsNameTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
 				parsedOptions.resourceTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-responseTypeTags")) {
@@ -183,6 +202,7 @@ public class DocletOptions {
 	private List<String> paramsMinValueTags;
 	private List<String> paramsMaxValueTags;
 	private List<String> paramsDefaultValueTags;
+	private List<String> paramsNameTags;
 	private List<String> resourceTags;
 	private List<String> operationNotesTags;
 	private List<String> operationSummaryTags;
@@ -207,6 +227,17 @@ public class DocletOptions {
 
 	private List<String> resourcePriorityTags;
 	private List<String> resourceDescriptionTags;
+
+	private List<String> fileParameterAnnotations; // FQN of annotations that if present denote a parameter as being a File data type
+	private List<String> fileParameterTypes; // FQN of types of a parameter that are File data types
+
+	private List<String> formParameterAnnotations; // FQN of annotations that if present denote a parameter as being a form parameter type
+	private List<String> formParameterTypes; // FQN of types of a parameter that are form parameter types
+
+	private List<String> parameterNameAnnotations;
+
+	private List<String> stringTypePrefixes; // list of type prefixes that are mapped to string data type, can be used for example to map header types to
+												// strings
 
 	private boolean excludeDeprecatedResourceClasses = true;
 	private boolean excludeDeprecatedModelClasses = true;
@@ -246,12 +277,50 @@ public class DocletOptions {
 		this.excludeModelPrefixes = new ArrayList<String>();
 		this.excludeModelPrefixes.add("org.joda.time.DateTime");
 		this.excludeModelPrefixes.add("java.util.UUID");
-		// dont document MultipartFormDataInput as doclet can't handle it
-		this.excludeModelPrefixes.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
+		this.excludeModelPrefixes.add("java.io.");
+		this.excludeModelPrefixes.add("com.sun.jersey.core.header.");
+		this.excludeModelPrefixes.add("org.springframework.web.multipart.");
+		this.excludeModelPrefixes.add("org.jboss.resteasy.plugins.providers.multipart.");
+
+		// types which are mapped to strings
+		this.stringTypePrefixes = new ArrayList<String>();
+		this.stringTypePrefixes.add("com.sun.jersey.core.header.");
 
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();
 		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
+
+		// annotations and types which are mapped to File data type,
+		// NOTE these only apply for multipart resources
+		this.fileParameterAnnotations = new ArrayList<String>();
+		this.fileParameterAnnotations.add("org.jboss.resteasy.annotations.providers.multipart.MultipartForm");
+
+		this.fileParameterTypes = new ArrayList<String>();
+		this.fileParameterTypes.add("java.io.File");
+		this.fileParameterTypes.add("java.io.InputStream");
+		this.fileParameterTypes.add("byte[]");
+		this.fileParameterTypes.add("org.springframework.web.multipart.commons.CommonsMultipartFile");
+		this.fileParameterTypes.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
+
+		// annotations and types which are mapped to form parameter type
+		this.formParameterAnnotations = new ArrayList<String>();
+		this.formParameterAnnotations.add("com.sun.jersey.multipart.FormDataParam");
+		this.formParameterAnnotations.add("javax.ws.rs.FormParam");
+
+		this.formParameterTypes = new ArrayList<String>();
+		this.formParameterTypes.add("com.sun.jersey.core.header.FormDataContentDisposition");
+
+		// overrides for parameter names
+		this.paramsNameTags = new ArrayList<String>();
+		this.paramsNameTags.add("paramsName");
+		this.paramsNameTags.add("overrideParamsName");
+
+		// annotations to use for parameter names
+		this.parameterNameAnnotations = new ArrayList<String>();
+		for (String annotation : ParserHelper.JAXRS_PARAM_ANNOTATIONS) {
+			this.parameterNameAnnotations.add(annotation);
+		}
+		this.parameterNameAnnotations.add("com.sun.jersey.multipart.FormDataParam");
 
 		this.excludeResourcePrefixes = new ArrayList<String>();
 
@@ -377,19 +446,19 @@ public class DocletOptions {
 
 		this.translator = new FirstNotNullTranslator()
 				.addNext(
-						new AnnotationAwareTranslator().ignore("javax.xml.bind.annotation.XmlTransient")
+						new AnnotationAwareTranslator(this).ignore("javax.xml.bind.annotation.XmlTransient")
 								.element("javax.xml.bind.annotation.XmlElement", "name").rootElement("javax.xml.bind.annotation.XmlRootElement", "name"))
 				.addNext(
-						new AnnotationAwareTranslator().ignore("com.fasterxml.jackson.annotation.JsonIgnore")
+						new AnnotationAwareTranslator(this).ignore("com.fasterxml.jackson.annotation.JsonIgnore")
 								.element("com.fasterxml.jackson.annotation.JsonProperty", "value")
 								.rootElement("com.fasterxml.jackson.annotation.JsonRootName", "value"))
 
 				.addNext(
-						new AnnotationAwareTranslator().ignore("org.codehaus.jackson.map.annotate.JsonIgnore")
+						new AnnotationAwareTranslator(this).ignore("org.codehaus.jackson.map.annotate.JsonIgnore")
 								.element("org.codehaus.jackson.map.annotate.JsonProperty", "value")
 								.rootElement("org.codehaus.jackson.map.annotate.JsonRootName", "value"))
 
-				.addNext(new NameBasedTranslator());
+				.addNext(new NameBasedTranslator(this));
 	}
 
 	public File getOutputDirectory() {
@@ -497,6 +566,14 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This gets the paramsNameTags
+	 * @return the paramsNameTags
+	 */
+	public List<String> getParamsNameTags() {
+		return this.paramsNameTags;
+	}
+
+	/**
 	 * This gets the resourceTags
 	 * @return the resourceTags
 	 */
@@ -547,6 +624,54 @@ public class DocletOptions {
 	 */
 	public List<String> getGenericWrapperTypes() {
 		return this.genericWrapperTypes;
+	}
+
+	/**
+	 * This gets the fileParameterAnnotations
+	 * @return the fileParameterAnnotations
+	 */
+	public List<String> getFileParameterAnnotations() {
+		return this.fileParameterAnnotations;
+	}
+
+	/**
+	 * This gets the fileParameterTypes
+	 * @return the fileParameterTypes
+	 */
+	public List<String> getFileParameterTypes() {
+		return this.fileParameterTypes;
+	}
+
+	/**
+	 * This gets the formParameterAnnotations
+	 * @return the formParameterAnnotations
+	 */
+	public List<String> getFormParameterAnnotations() {
+		return this.formParameterAnnotations;
+	}
+
+	/**
+	 * This gets the formParameterTypes
+	 * @return the formParameterTypes
+	 */
+	public List<String> getFormParameterTypes() {
+		return this.formParameterTypes;
+	}
+
+	/**
+	 * This gets the parameterNameAnnotations
+	 * @return the parameterNameAnnotations
+	 */
+	public List<String> getParameterNameAnnotations() {
+		return this.parameterNameAnnotations;
+	}
+
+	/**
+	 * This gets the stringTypePrefixes
+	 * @return the stringTypePrefixes
+	 */
+	public List<String> getStringTypePrefixes() {
+		return this.stringTypePrefixes;
 	}
 
 	/**

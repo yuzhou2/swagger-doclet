@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Type;
 
 public interface Translator {
@@ -12,6 +13,8 @@ public interface Translator {
 	OptionalName typeName(Type type, ClassDoc[] views);
 
 	OptionalName typeName(Type type);
+
+	OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType);
 
 	OptionalName fieldName(FieldDoc field);
 
@@ -50,7 +53,7 @@ public interface Translator {
 		}
 
 		public String value() {
-			return name;
+			return this.name;
 		}
 
 		/**
@@ -62,11 +65,11 @@ public interface Translator {
 		}
 
 		public boolean isPresent() {
-			return status == Status.PRESENT;
+			return this.status == Status.PRESENT;
 		}
 
 		public boolean isMissing() {
-			return status == Status.MISSING;
+			return this.status == Status.MISSING;
 		}
 
 		private static enum Status {
@@ -84,17 +87,17 @@ public interface Translator {
 				return false;
 			}
 			OptionalName that = (OptionalName) o;
-			return Objects.equal(status, that.status) && Objects.equal(name, that.name);
+			return Objects.equal(this.status, that.status) && Objects.equal(this.name, that.name);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(status, name);
+			return Objects.hashCode(this.status, this.name);
 		}
 
 		@Override
 		public String toString() {
-			return Objects.toStringHelper(this).add("status", status).add("name", name).toString();
+			return Objects.toStringHelper(this).add("status", this.status).add("name", this.name).toString();
 		}
 	}
 

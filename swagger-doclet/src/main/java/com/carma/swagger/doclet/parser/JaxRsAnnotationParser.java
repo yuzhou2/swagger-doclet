@@ -36,6 +36,7 @@ import com.sun.javadoc.RootDoc;
 public class JaxRsAnnotationParser {
 
 	private static final String SWAGGER_VERSION = "1.2";
+	private static final String SWAGGER_UI_VERSION = "2.0.22";
 
 	private final DocletOptions options;
 	private final RootDoc rootDoc;
@@ -250,7 +251,7 @@ public class JaxRsAnnotationParser {
 		ZipInputStream swaggerZip = null;
 		try {
 			if (uiPathFile == null) {
-				swaggerZip = new ZipInputStream(ServiceDoclet.class.getResourceAsStream("/swagger-ui.zip"));
+				swaggerZip = new ZipInputStream(ServiceDoclet.class.getResourceAsStream("/swagger-ui-" + SWAGGER_UI_VERSION + ".zip"));
 				System.out.println("Using default swagger-ui.zip file from SwaggerDoclet jar file");
 			} else {
 				swaggerZip = new ZipInputStream(new FileInputStream(uiPathFile));

@@ -6,41 +6,69 @@ import static com.carma.swagger.doclet.translator.Translator.OptionalName.presen
 import java.util.HashMap;
 import java.util.Map;
 
-import com.carma.swagger.doclet.parser.ParserHelper;
+import com.carma.swagger.doclet.DocletOptions;
 import com.carma.swagger.doclet.parser.AnnotationParser;
+import com.carma.swagger.doclet.parser.ParserHelper;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.Type;
 
+/**
+ * The AnnotationAwareTranslator represents a translator that can source the names from various
+ * annotations like jaxb and json ones.
+ * @version $Id$
+ */
 public class AnnotationAwareTranslator implements Translator {
 
-	private final Map<OptionalName, Type> reverseIndex;
-	private final Map<Type, OptionalName> namedTypes;
+	private final Map<QualifiedType, OptionalName> typeNameCache;
 
 	private String ignore;
 	private String element;
 	private String elementProperty;
 	private String rootElement;
 	private String rootElementProperty;
+	private DocletOptions options;
 
-	public AnnotationAwareTranslator() {
-		this.reverseIndex = new HashMap<OptionalName, Type>();
-		this.namedTypes = new HashMap<Type, OptionalName>();
+	/**
+	 * This creates a AnnotationAwareTranslator that uses the given doclet options
+	 * @param options the doclet options
+	 */
+	public AnnotationAwareTranslator(DocletOptions options) {
+		this.options = options;
+		this.typeNameCache = new HashMap<QualifiedType, OptionalName>();
 	}
 
+	/**
+	 * This adds an ignore annotation to this translator
+	 * @param qualifiedAnnotationType The FQN of the annotation that if present means a field is ignored e.g. JsonIgnore, XmlTransient
+	 * @return this
+	 */
 	public AnnotationAwareTranslator ignore(String qualifiedAnnotationType) {
 		this.ignore = qualifiedAnnotationType;
 		return this;
 	}
 
+	/**
+	 * This adds an element annotation to this translator, these ones are used for field and method names
+	 * @param qualifiedAnnotationType The FQN of the annotation that if present means a field/method uses this annotation's property for the name
+	 * @param property The property name of the annotation to use for the field/method name
+	 * @return this
+	 */
 	public AnnotationAwareTranslator element(String qualifiedAnnotationType, String property) {
 		this.element = qualifiedAnnotationType;
 		this.elementProperty = property;
 		return this;
 	}
 
+	/**
+	 * This adds an root annotation to this translator, these ones are used for class type names
+	 * @param qualifiedAnnotationType The FQN of the annotation that if present means a class type uses uses this annotation's property for the name
+	 * @param property The property name of the annotation to use for the class type name
+	 * @return this
+	 */
 	public AnnotationAwareTranslator rootElement(String qualifiedAnnotationType, String property) {
 		this.rootElement = qualifiedAnnotationType;
 		this.rootElementProperty = property;
@@ -64,31 +92,67 @@ public class AnnotationAwareTranslator implements Translator {
 		return name;
 	}
 
-	public OptionalName typeName(Type type) {
-		if (this.namedTypes.containsKey(type)) {
-			return this.namedTypes.get(type);
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 */
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType) {
+		if (paramType == null) {
+			paramType = parameter.type();
 		}
-		if (ParserHelper.isPrimitive(type) || type.asClassDoc() == null) {
+		QualifiedType cacheKey = new QualifiedType(String.valueOf(multipart), paramType);
+
+		if (this.typeNameCache.containsKey(cacheKey)) {
+			return this.typeNameCache.get(cacheKey);
+		}
+
+		// look for File data types
+		if (multipart) {
+			boolean isFileDataType = ParserHelper.isFileParameterDataType(parameter, this.options);
+			if (isFileDataType) {
+				OptionalName res = presentOrMissing("File");
+				this.typeNameCache.put(cacheKey, res);
+				return res;
+			}
+		}
+
+		return typeName(cacheKey);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type)
+	 */
+	public OptionalName typeName(Type type) {
+		return typeName(new QualifiedType("typeName", type));
+	}
+
+	private OptionalName typeName(QualifiedType type) {
+		if (this.typeNameCache.containsKey(type)) {
+			return this.typeNameCache.get(type);
+		}
+
+		if (ParserHelper.isPrimitive(type.getType(), this.options) || type.getType().asClassDoc() == null) {
 			return null;
 		}
 
-		OptionalName name = nameFor(this.rootElement, this.rootElementProperty, type.asClassDoc());
-		if (name.isPresent()) {
-			StringBuilder nameBuilder = new StringBuilder(name.value());
-			while (this.reverseIndex.containsKey(name)) {
-				nameBuilder.append('_');
-				name = presentOrMissing(nameBuilder.toString());
-			}
-			this.namedTypes.put(type, name);
-			this.reverseIndex.put(name, type);
-		}
+		OptionalName name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc());
+		this.typeNameCache.put(type, name);
 		return name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#fieldName(com.sun.javadoc.FieldDoc)
+	 */
 	public OptionalName fieldName(FieldDoc field) {
 		return nameFor(this.element, this.elementProperty, field);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#methodName(com.sun.javadoc.MethodDoc)
+	 */
 	public OptionalName methodName(MethodDoc method) {
 		return nameFor(this.element, this.elementProperty, method);
 	}

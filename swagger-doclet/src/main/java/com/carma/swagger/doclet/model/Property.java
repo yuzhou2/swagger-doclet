@@ -56,7 +56,7 @@ public class Property {
 
 	/**
 	 * This gets the type of property
-	 * @return
+	 * @return the type of property
 	 */
 	public String getType() {
 		return this.type;
@@ -72,7 +72,7 @@ public class Property {
 
 	/**
 	 * This gets the description of the property
-	 * @return
+	 * @return the description of the property
 	 */
 	public String getDescription() {
 		return this.description;

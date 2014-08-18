@@ -95,6 +95,7 @@
 		<jackson.version>2.1.4</jackson.version>
 		<guava.version>14.0.1</guava.version>
 		<jersey.version>1.17.1</jersey.version>
+		<resteasy.version>2.3.3.Final</resteasy.version>
 	</properties>
 
 	<dependencies>
@@ -118,6 +119,20 @@
 			<version>${jersey.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>${resteasy.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

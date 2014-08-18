@@ -167,6 +167,8 @@ window.swaggerUi = new SwaggerUi({
 	
 	<tr><td>@paramsDefaultValue</td><td>Defines the default value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1DefaultValue param2Name param2DefaultValue. This doclet also supports reading default values from the JAXRS DefaultValue annotation which takes precedence over this for a given parameter. For enums a default value must be one of the enum values, for numeric types if there is a minimum value then a default value must be >= to it, similarly if there is a maximum value then a default value must be <= to it.</td><td>operations</td><td>@defaultValues</td></tr>
 	
+	<tr><td>@paramsNameValue</td><td>Defines custom names for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1CustomName param2Name param2CustomName. </td><td>operations</td><td>@overrideParamsName</td></tr>
+	
 	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
@@ -269,7 +271,7 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-disableDeprecatedParamExclusion</td><td>By default operation parameters which have the @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
-	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. Note resteasy multipart is not currently supported by the Swagger UI which is why its been left out. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
+	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, java.io. . This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
 	
 	<tr><td>-excludeResourcePrefixes</td><td>This allows you to exclude resource classes from the generated documentation. This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package.</td></tr>
 	
@@ -339,6 +341,20 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-requiredFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are required. The default list contains required and requiredField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-optionalFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are optional. The default list contains optional and optionalField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-fileParameterAnnotations</td><td>This adds additional annotation classes to the list of annotations that flag a resource parameter as having the File data type. The default list contains org.jboss.resteasy.annotations.providers.multipart.MultipartForm. This list only applies when the resource has multipart/form-data as its @Consumes</td></tr>
+	
+	<tr><td>-fileParameterTypes</td><td>This adds additional classes to the list of parameter type classes that flag a resource parameter as having the File data type. The default list contains java.io.File, java.io.InputStream, byte[], org.springframework.web.multipart.commons.CommonsMultipartFile, org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput. This list only applies when the resource has multipart/form-data as its @Consumes</td></tr>
+	
+	<tr><td>-formParameterAnnotations</td><td>This adds additional annotation classes to the list of annotations that flag a resource parameter as having the form parameter type. The default list contains com.sun.jersey.multipart.FormDataParam, javax.ws.rs.FormParam.</td></tr>
+	
+	<tr><td>-formParameterTypes</td><td>This adds additional classes to the list of parameter type classes that flag a resource parameter as having the form parameter type. The default list contains com.sun.jersey.core.header.FormDataContentDisposition.</td></tr>
+	
+	<tr><td>-parameterNameAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used for the name of resource parameters. These take precedence over the default parameter name from the method signature. They are superceded by any of the paramsNameTags javadoc tags for a given parameter.</td></tr>
+	
+	<tr><td>-paramsNameTags</td><td>This adds additional tags to the list of javadoc tags used for setting custom names for parameters. These supercede both the default parameter name from the method signature as well as any annotations used for the parameter name. The default list contains paramsName and overrideParamsName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. which means that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type.</td></tr>
 	
 </table>
 
@@ -465,6 +481,10 @@ Updated Allowable Values
 Produces/Consumes
 
 Model field descriptions
+
+Multipart File Upload
+
+Form URL Encoded Parameters
 
 #### Other features:
 
