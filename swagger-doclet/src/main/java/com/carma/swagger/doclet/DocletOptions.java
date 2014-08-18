@@ -299,7 +299,6 @@ public class DocletOptions {
 		this.fileParameterTypes.add("java.io.File");
 		this.fileParameterTypes.add("java.io.InputStream");
 		this.fileParameterTypes.add("byte[]");
-		this.fileParameterTypes.add("org.springframework.web.multipart.commons.CommonsMultipartFile");
 		this.fileParameterTypes.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
 
 		// annotations and types which are mapped to form parameter type

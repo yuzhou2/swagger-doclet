@@ -67,11 +67,10 @@ public class FileUploadResource {
 	@POST
 	@Consumes({ MediaType.MULTIPART_FORM_DATA })
 	@Path("/resteasymultipartformdatainput")
-	// TODO ideally composite multipart types like MultipartFormDataInput and the CommonsMultipartFile
+	// TODO ideally composite multipart types like Map<String, Customer> and @MultipartForm that resteasy supports,
 	// can be treated similar to @BeanParam type classes where
 	// the related class can define the parts that should be submitted on upload as additional parameters...
 	Response resteasyMultipartFormDataInput(MultipartFormDataInput data) {
-		// List<InputPart> parts = data.getFormDataMap().get("photo");
 		return Response.ok().build();
 	}
 
