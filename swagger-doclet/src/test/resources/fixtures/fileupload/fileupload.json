@@ -1,0 +1,193 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/fileupload",
+    "apis": [
+    	{
+            "path": "/fileupload/bytearraymultipart",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "byteArrayMultiPart",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "form",
+                            "name": "payload",
+                            "type": "File",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"multipart/form-data"
+                    ]
+                }
+            ]
+        },
+    	{
+            "path": "/fileupload/bytearraysinglepart",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "byteArraySinglePart",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "payload",
+                            "type": "ByteArray",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"application/octet-stream"
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/fileupload/formparams",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "formParams",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "form",
+                            "name": "param1",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "form",
+                            "name": "param2",
+                            "type": "string"
+                        }
+                    ],
+                    "consumes": [
+                    	"application/x-www-form-urlencoded"
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/fileupload/jerseyformdata",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "jerseyFormData",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "form",
+                            "name": "file",
+                            "type": "File",
+                            "required" : true
+                        },
+                        {
+                            "paramType": "form",
+                            "name": "contentDisposition",
+                            "type": "string"
+                        }
+                    ],
+                    "consumes": [
+                    	"multipart/form-data"
+                    ]
+                }
+            ]
+        },
+    	{
+            "path": "/fileupload/multipartjavafile",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "multipartJavafile",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "form",
+                            "name": "theFile",
+                            "type": "File",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"multipart/form-data","application/octet-stream"
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/fileupload/resteasymultipartformdatainput",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "resteasyMultipartFormDataInput",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "form",
+                            "name": "photo",
+                            "type": "File",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"multipart/form-data"
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/fileupload/singlepartinputstream",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "singlePartInputStream",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "photo",
+                            "type": "InputStream",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"image/*"
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/fileupload/singlepartjavafile",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "singlePartJavaFile",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "theFile",
+                            "type": "JavaFile",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"image/*"
+                    ]
+                }
+            ]
+        }
+    ]
+}
