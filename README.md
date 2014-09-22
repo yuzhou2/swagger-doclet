@@ -356,6 +356,10 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. which means that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type.</td></tr>
 	
+	<tr><td>-compositeParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote a parameter class as being a composite parameter class. The default list contains javax.ws.rs.BeanParam.</td></tr>
+	
+	<tr><td>-compositeParamTypes</td><td>This adds additional classes to the list of parameter type classes that are used to denote a parameter class as being a composite parameter class. The default list is empty.</td></tr>
+	
 </table>
 
 
@@ -492,7 +496,10 @@ Support resource operations being spread across multiple resource classes
 
 Support custom/override put/post body model type
 
-support exclude resources/fields (via exclude tags and also via deprecation annotations/tags)
+Support exclude resources/fields (via exclude tags and also via deprecation annotations/tags)
+
+Support @BeanParam
+
 
 
 

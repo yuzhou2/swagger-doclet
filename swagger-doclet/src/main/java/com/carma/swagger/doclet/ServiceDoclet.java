@@ -46,6 +46,9 @@ public class ServiceDoclet {
 		options.put("-formParameterTypes", 2);
 		options.put("-stringTypePrefixes", 2);
 
+		options.put("-compositeParamAnnotations", 2);
+		options.put("-compositeParamTypes", 2);
+
 		options.put("-responseTypeTags", 2);
 		options.put("-inputTypeTags", 2);
 

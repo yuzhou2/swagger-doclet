@@ -112,6 +112,12 @@ public class DocletOptions {
 				parsedOptions.formParameterAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-formParameterTypes")) {
 				parsedOptions.formParameterTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+
+			} else if (option[0].equals("-compositeParamAnnotations")) {
+				parsedOptions.compositeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-compositeParamTypes")) {
+				parsedOptions.compositeParamTypes.addAll(asList(copyOfRange(option, 1, option.length)));
+
 			} else if (option[0].equals("-parameterNameAnnotations")) {
 				parsedOptions.parameterNameAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-stringTypePrefixes")) {
@@ -192,6 +198,9 @@ public class DocletOptions {
 	private List<String> responseTypeTags;
 	private List<String> inputTypeTags;
 	private List<String> defaultErrorTypeTags;
+
+	private List<String> compositeParamAnnotations;
+	private List<String> compositeParamTypes;
 
 	private List<String> excludeParamAnnotations;
 	private List<String> excludeClassTags;
@@ -321,6 +330,11 @@ public class DocletOptions {
 		}
 		this.parameterNameAnnotations.add("com.sun.jersey.multipart.FormDataParam");
 
+		// annotations/types to use for composite param objects
+		this.compositeParamAnnotations = new ArrayList<String>();
+		this.compositeParamAnnotations.add("javax.ws.rs.BeanParam");
+		this.compositeParamTypes = new ArrayList<String>();
+
 		this.excludeResourcePrefixes = new ArrayList<String>();
 
 		this.excludeClassTags = new ArrayList<String>();
@@ -443,10 +457,18 @@ public class DocletOptions {
 		this.resourceDescriptionTags = new ArrayList<String>();
 		this.resourceDescriptionTags.add("resourceDescription");
 
-		this.translator = new FirstNotNullTranslator()
+		FirstNotNullTranslator fnnTranslator =
+
+		new FirstNotNullTranslator();
+		for (String paramAnnotation : ParserHelper.JAXRS_PARAM_ANNOTATIONS) {
+			fnnTranslator.addNext(new AnnotationAwareTranslator(this).element(paramAnnotation, "value"));
+		}
+
+		fnnTranslator
 				.addNext(
 						new AnnotationAwareTranslator(this).ignore("javax.xml.bind.annotation.XmlTransient")
 								.element("javax.xml.bind.annotation.XmlElement", "name").rootElement("javax.xml.bind.annotation.XmlRootElement", "name"))
+
 				.addNext(
 						new AnnotationAwareTranslator(this).ignore("com.fasterxml.jackson.annotation.JsonIgnore")
 								.element("com.fasterxml.jackson.annotation.JsonProperty", "value")
@@ -455,9 +477,11 @@ public class DocletOptions {
 				.addNext(
 						new AnnotationAwareTranslator(this).ignore("org.codehaus.jackson.map.annotate.JsonIgnore")
 								.element("org.codehaus.jackson.map.annotate.JsonProperty", "value")
-								.rootElement("org.codehaus.jackson.map.annotate.JsonRootName", "value"))
+								.rootElement("org.codehaus.jackson.map.annotate.JsonRootName", "value")).addNext(new NameBasedTranslator(this));
 
-				.addNext(new NameBasedTranslator(this));
+		fnnTranslator.addNext(new NameBasedTranslator(this));
+
+		this.translator = fnnTranslator;
 	}
 
 	public File getOutputDirectory() {
@@ -655,6 +679,22 @@ public class DocletOptions {
 	 */
 	public List<String> getFormParameterTypes() {
 		return this.formParameterTypes;
+	}
+
+	/**
+	 * This gets the compositeParamAnnotations
+	 * @return the compositeParamAnnotations
+	 */
+	public List<String> getCompositeParamAnnotations() {
+		return this.compositeParamAnnotations;
+	}
+
+	/**
+	 * This gets the compositeParamTypes
+	 * @return the compositeParamTypes
+	 */
+	public List<String> getCompositeParamTypes() {
+		return this.compositeParamTypes;
 	}
 
 	/**

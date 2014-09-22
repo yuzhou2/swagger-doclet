@@ -95,6 +95,7 @@
 		<jackson.version>2.1.4</jackson.version>
 		<guava.version>14.0.1</guava.version>
 		<jersey.version>1.17.1</jersey.version>
+		<jersey2.version>2.9</jersey2.version>
 		<resteasy.version>2.3.3.Final</resteasy.version>
 	</properties>
 
@@ -113,6 +114,8 @@
 			<version>${guava.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!-- Jersey 1 -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
@@ -126,13 +129,38 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<dependency>
+		
+		
+		<!-- Jersey 2 -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jdk-http</artifactId>
+            <version>${jersey2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- 
+    	<dependency>
+    		<groupId>javax.ws.rs</groupId>
+    		<artifactId>javax.ws.rs-api</artifactId>
+    		<version>2.0</version>
+    		<scope>test</scope>
+		</dependency> -->
+    	
+    	<!-- resteasy -->
+    	<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-multipart-provider</artifactId>
 			<version>${resteasy.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+    	
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

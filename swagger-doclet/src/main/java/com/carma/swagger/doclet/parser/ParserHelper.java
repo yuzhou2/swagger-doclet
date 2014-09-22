@@ -23,6 +23,7 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
@@ -416,6 +417,90 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets (for composite param fields) whether the given parameter is a File data type
+	 * @param paramMember The field or method that is the parameter
+	 * @param type The type of the parameter
+	 * @param options The doclet options
+	 * @return True if the parameter is a File data type
+	 */
+	private static boolean isFileParameterDataType(ProgramElementDoc paramMember, Type type, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(paramMember);
+		for (String fileAnnotation : options.getFileParameterAnnotations()) {
+			if (p.isAnnotatedBy(fileAnnotation)) {
+				return true;
+			}
+		}
+		String qName = ParserHelper.getQualifiedTypeName(type);
+		for (String fileType : options.getFileParameterTypes()) {
+			if (qName.equals(fileType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Determines the string representation of the parameter type for composite types.
+	 * @param returnDefault Whether to return a default value if there is no specific jaxrs param annotation
+	 * @param multipart Whether the method the parameter is for consumes multipart
+	 * @param paramMember The field or method that is the parameter
+	 * @param type The type of the parameter
+	 * @param options The doclet options
+	 * @return The type of parameter, one of path, header, query, form or body.
+	 */
+	public static String paramTypeOf(boolean returnDefault, boolean multipart, ProgramElementDoc paramMember, Type type, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(paramMember);
+		if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
+			return "path";
+		} else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
+			return "header";
+		} else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
+			return "query";
+		} else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
+			return "form";
+		}
+
+		String qName = getQualifiedTypeName(type);
+
+		// bean param and other composites
+		for (String compositeAnnotation : options.getCompositeParamAnnotations()) {
+			if (p.isAnnotatedBy(compositeAnnotation)) {
+				return "composite";
+			}
+		}
+		for (String compositeType : options.getCompositeParamTypes()) {
+			if (qName.equals(compositeType)) {
+				return "composite";
+			}
+		}
+
+		// look for form parameter types
+		for (String formAnnotation : options.getFormParameterAnnotations()) {
+			if (p.isAnnotatedBy(formAnnotation)) {
+				return "form";
+			}
+		}
+		for (String formType : options.getFormParameterTypes()) {
+			if (qName.equals(formType)) {
+				return "form";
+			}
+		}
+
+		// look for File data types, for multipart these are always form parameter types
+		// as per the swagger 1.2 spec
+		if (multipart && isFileParameterDataType(paramMember, type, options)) {
+			return "form";
+		}
+
+		if (!returnDefault) {
+			return null;
+		}
+
+		// otherwise default to body
+		return "body";
+	}
+
+	/**
 	 * Determines the string representation of the parameter type.
 	 * @param multipart Whether the method the parameter is for consumes multipart
 	 * @param parameter The parameter to get the type of
@@ -434,13 +519,26 @@ public class ParserHelper {
 			return "form";
 		}
 
+		String qName = getQualifiedTypeName(parameter.type());
+
+		// bean param and other composites
+		for (String compositeAnnotation : options.getCompositeParamAnnotations()) {
+			if (p.isAnnotatedBy(compositeAnnotation)) {
+				return "composite";
+			}
+		}
+		for (String compositeType : options.getCompositeParamTypes()) {
+			if (qName.equals(compositeType)) {
+				return "composite";
+			}
+		}
+
 		// look for form parameter types
 		for (String formAnnotation : options.getFormParameterAnnotations()) {
 			if (p.isAnnotatedBy(formAnnotation)) {
 				return "form";
 			}
 		}
-		String qName = getQualifiedTypeName(parameter.type());
 		for (String formType : options.getFormParameterTypes()) {
 			if (qName.equals(formType)) {
 				return "form";
@@ -452,8 +550,6 @@ public class ParserHelper {
 		if (multipart && isFileParameterDataType(parameter, options)) {
 			return "form";
 		}
-
-		// TODO support bean param
 
 		// otherwise default to body
 		return "body";

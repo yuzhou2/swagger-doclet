@@ -4,6 +4,7 @@ import static com.google.common.base.Strings.emptyToNull;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -11,6 +12,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @version $Id$
  */
 public class Property {
+
+	// these are not serialized, only used internally
+	private String rawFieldName;
+	private String paramCategory;
 
 	private String type;
 	private String format;
@@ -28,6 +33,8 @@ public class Property {
 
 	/**
 	 * This creates a Property
+	 * @param rawFieldName
+	 * @param paramCategory
 	 * @param type
 	 * @param format
 	 * @param description
@@ -39,8 +46,10 @@ public class Property {
 	 * @param maximum
 	 * @param defaultValue
 	 */
-	public Property(String type, String format, String description, String itemsRef, String itemsType, Boolean uniqueItems, List<String> allowableValues,
-			String minimum, String maximum, String defaultValue) {
+	public Property(String rawFieldName, String paramCategory, String type, String format, String description, String itemsRef, String itemsType,
+			Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue) {
+		this.rawFieldName = rawFieldName;
+		this.paramCategory = paramCategory;
 		this.type = type;
 		this.format = format;
 		this.description = emptyToNull(description);
@@ -52,6 +61,24 @@ public class Property {
 		this.minimum = minimum;
 		this.maximum = maximum;
 		this.defaultValue = defaultValue;
+	}
+
+	/**
+	 * This gets the raw field name the property came from
+	 * @return the raw field name the property came from
+	 */
+	@JsonIgnore
+	public String getRawFieldName() {
+		return this.rawFieldName;
+	}
+
+	/**
+	 * This gets category of parameter of the field, only applicable to composite parameter fields
+	 * @return the category of parameter of the field, only applicable to composite parameter fields
+	 */
+	@JsonIgnore
+	public String getParamCategory() {
+		return this.paramCategory;
 	}
 
 	/**
@@ -235,9 +262,9 @@ public class Property {
 	 */
 	@Override
 	public String toString() {
-		return "Property [type=" + this.type + ", format=" + this.format + ", description=" + this.description + ", items=" + this.items + ", uniqueItems="
-				+ this.uniqueItems + ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum
-				+ ", defaultValue=" + this.defaultValue + "]";
+		return "Property [rawFieldName=" + this.rawFieldName + ", paramCategory=" + this.paramCategory + ", type=" + this.type + ", format=" + this.format
+				+ ", description=" + this.description + ", items=" + this.items + ", uniqueItems=" + this.uniqueItems + ", allowableValues="
+				+ this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum + ", defaultValue=" + this.defaultValue + "]";
 	}
 
 }

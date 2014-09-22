@@ -41,6 +41,10 @@ public class ApiModelParser {
 
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
+	// composite param model processing specifics
+	private boolean composite = false;
+	private boolean consumesMultipart = false;
+
 	/**
 	 * This creates a ApiModelParser
 	 * @param options
@@ -74,6 +78,23 @@ public class ApiModelParser {
 		this.models = new LinkedHashSet<Model>();
 	}
 
+	/**
+	 * This creates a ApiModelParser for use when using composite parameter model parsing
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param consumesMultipart
+	 */
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean consumesMultipart) {
+		this(options, translator, rootType, null);
+		this.consumesMultipart = consumesMultipart;
+		this.composite = true;
+	}
+
+	/**
+	 * This parsers a model class built from parsing this class
+	 * @return The set of model classes
+	 */
 	public Set<Model> parse() {
 		parseModel(this.rootType, false);
 		return this.models;
@@ -154,8 +175,18 @@ public class ApiModelParser {
 		}
 	}
 
+	/**
+	 * This gets the id of the root model
+	 * @return The id of the root model
+	 */
+	public String getRootModelId() {
+		return this.translator.typeName(this.rootType, this.viewClasses).value();
+	}
+
 	static class TypeRef {
 
+		String rawName;
+		String paramCategory;
 		String sourceDesc;
 		Type type;
 		String description;
@@ -164,8 +195,11 @@ public class ApiModelParser {
 		String defaultValue;
 		Boolean required;
 
-		TypeRef(String sourceDesc, Type type, String description, String min, String max, String defaultValue, Boolean required) {
+		TypeRef(String rawName, String paramCategory, String sourceDesc, Type type, String description, String min, String max, String defaultValue,
+				Boolean required) {
 			super();
+			this.rawName = rawName;
+			this.paramCategory = paramCategory;
 			this.sourceDesc = sourceDesc;
 			this.type = type;
 			this.description = description;
@@ -213,7 +247,7 @@ public class ApiModelParser {
 			AnnotationParser p = new AnnotationParser(classDoc);
 			String xmlAccessorType = p.getAnnotationValue("javax.xml.bind.annotation.XmlAccessorType", "value");
 
-			boolean superClass = !classDoc.equals(rootClassDoc);
+			Set<String> customizedFieldNames = new HashSet<String>();
 
 			// add fields
 			Set<String> excludeFields = new HashSet<String>();
@@ -228,13 +262,11 @@ public class ApiModelParser {
 							continue;
 						}
 
-						// if super class ignore private fields
-						if (superClass && field.isPrivate()) {
-							continue;
-						}
-
 						String name = this.translator.fieldName(field).value();
 						rawToTranslatedFields.put(field.name(), name);
+						if (!field.name().equals(name)) {
+							customizedFieldNames.add(field.name());
+						}
 
 						// ignore deprecated fields
 						if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field)) {
@@ -259,13 +291,17 @@ public class ApiModelParser {
 
 							Type fieldType = getModelType(field.type(), nested);
 
-							String description = getFieldDescription(field);
+							String description = getFieldDescription(field, true);
 							String min = getFieldMin(field);
 							String max = getFieldMax(field);
 							Boolean required = getFieldRequired(field);
 							String defaultValue = getFieldDefaultValue(field);
 
-							elements.put(field.name(), new TypeRef(" field: " + field.name(), fieldType, description, min, max, defaultValue, required));
+							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
+									: null;
+
+							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min, max,
+									defaultValue, required));
 						}
 					}
 				}
@@ -285,13 +321,14 @@ public class ApiModelParser {
 						// we tie getters and their corresponding methods together via this rawFieldName
 						String rawFieldName = nameTranslator.methodName(method).value();
 
-						// this is either an overridden name of the field on a getter or a non getter method
-						// with a supported annotation
 						String translatedNameViaMethod = this.translator.methodName(method).value();
 
 						if (translatedNameViaMethod != null) {
 
-							boolean isFieldGetter = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
+							boolean isFieldMethod = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
+
+							boolean isFieldGetter = isFieldMethod && method.name().startsWith("get");
+							boolean isFieldSetter = isFieldMethod && method.name().startsWith("set");
 
 							boolean excludeMethod = false;
 
@@ -309,7 +346,7 @@ public class ApiModelParser {
 								excludeMethod = true;
 							}
 
-							if (isFieldGetter) {
+							if (isFieldGetter || isFieldSetter) {
 
 								// skip if the field has already been excluded
 								if (excludeFields.contains(rawFieldName)) {
@@ -320,13 +357,16 @@ public class ApiModelParser {
 								// so it doesnt appear in the model
 								if (excludeMethod) {
 									elements.remove(rawFieldName);
+									excludeFields.add(rawFieldName);
 									continue;
 								}
 
-								// see if the field name should be overwritten via annotations on the getter
+								// see if the field name should be overwritten via annotations on the getter/setter
+								// note if the field has its own customizing annotation then that takes precedence
 								String nameViaField = rawToTranslatedFields.get(rawFieldName);
-								if (!translatedNameViaMethod.equals(nameViaField)) {
+								if (!customizedFieldNames.contains(rawFieldName) && !translatedNameViaMethod.equals(nameViaField)) {
 									rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
+									customizedFieldNames.add(rawFieldName);
 								}
 
 								TypeRef typeRef = elements.get(rawFieldName);
@@ -334,7 +374,7 @@ public class ApiModelParser {
 								// the field was already found e.g. class had a field and this is the getter
 								// check if there are tags on the getter we can use to fill in description, min and max
 								if (typeRef.description == null) {
-									typeRef.description = getFieldDescription(method);
+									typeRef.description = getFieldDescription(method, isFieldGetter);
 								}
 								if (typeRef.min == null) {
 									typeRef.min = getFieldMin(method);
@@ -348,6 +388,9 @@ public class ApiModelParser {
 								if (typeRef.required == null) {
 									typeRef.required = getFieldRequired(method);
 								}
+								if (this.composite && typeRef.paramCategory == null) {
+									typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
+								}
 
 								typeRef.sourceDesc = " method: " + method.name();
 
@@ -359,7 +402,7 @@ public class ApiModelParser {
 								}
 
 								// this is a getter or other method where there wasn't a specific field
-								String description = getFieldDescription(method);
+								String description = getFieldDescription(method, true);
 								String min = getFieldMin(method);
 								String max = getFieldMax(method);
 								String defaultValue = getFieldDefaultValue(method);
@@ -367,8 +410,10 @@ public class ApiModelParser {
 
 								Type returnType = getModelType(method.returnType(), nested);
 
-								elements.put(translatedNameViaMethod, new TypeRef(" method: " + method.name(), returnType, description, min, max, defaultValue,
-										required));
+								String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
+
+								elements.put(translatedNameViaMethod, new TypeRef(rawFieldName, paramCategory, " method: " + method.name(), returnType,
+										description, min, max, defaultValue, required));
 							}
 
 						}
@@ -382,16 +427,20 @@ public class ApiModelParser {
 		Map<String, TypeRef> res = new HashMap<String, TypeRef>();
 		for (Map.Entry<String, TypeRef> entry : elements.entrySet()) {
 			String translatedName = rawToTranslatedFields.get(entry.getKey());
-			res.put(translatedName == null ? entry.getKey() : translatedName, entry.getValue());
+			TypeRef typeRef = entry.getValue();
+			if (this.composite && typeRef.paramCategory == null) {
+				typeRef.paramCategory = "body";
+			}
+			res.put(translatedName == null ? entry.getKey() : translatedName, typeRef);
 		}
 
 		return res;
 	}
 
-	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem) {
+	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem, boolean useCommentText) {
 		// method
 		String description = ParserHelper.getTagValue(docItem, this.options.getFieldDescriptionTags());
-		if (description == null) {
+		if (description == null && useCommentText) {
 			description = docItem.commentText();
 		}
 		if (description == null || description.trim().length() == 0) {
@@ -506,8 +555,8 @@ public class ApiModelParser {
 				}
 			}
 
-			Property property = new Property(propertyType, propertyTypeFormat.getFormat(), typeRef.description, itemsRef, itemsType, uniqueItems,
-					allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
+			Property property = new Property(typeRef.rawName, typeRef.paramCategory, propertyType, propertyTypeFormat.getFormat(), typeRef.description,
+					itemsRef, itemsType, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
 			elements.put(typeName, property);
 		}
 		return elements;

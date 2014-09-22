@@ -66,18 +66,30 @@ public class NameBasedTranslator implements Translator {
 		return presentOrMissing(typeFormat[0], typeFormat[1]);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type)
+	 */
 	public OptionalName typeName(Type type) {
 		String[] typeFormat = ParserHelper.typeOf(type, this.options);
 		return presentOrMissing(typeFormat[0], typeFormat[1]);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#fieldName(com.sun.javadoc.FieldDoc)
+	 */
 	public OptionalName fieldName(FieldDoc field) {
 		return presentOrMissing(field.name());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see com.carma.swagger.doclet.translator.Translator#methodName(com.sun.javadoc.MethodDoc)
+	 */
 	public OptionalName methodName(MethodDoc method) {
 		String name = null;
-		if (method.name().startsWith("get") && method.name().length() > 3) {
+		if ((method.name().startsWith("get") || method.name().startsWith("set")) && method.name().length() > 3) {
 			name = method.name().substring(3);
 			name = name.substring(0, 1).toLowerCase() + (name.length() > 1 ? name.substring(1) : "");
 		}

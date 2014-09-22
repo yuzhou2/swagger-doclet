@@ -26,6 +26,7 @@ import com.carma.swagger.doclet.model.Method;
 import com.carma.swagger.doclet.model.Model;
 import com.carma.swagger.doclet.model.Oauth2Scope;
 import com.carma.swagger.doclet.model.OperationAuthorizations;
+import com.carma.swagger.doclet.model.Property;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
 import com.sun.javadoc.AnnotationDesc;
@@ -432,6 +433,39 @@ public class ApiMethodParser {
 			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
 			String paramName = parameter.name();
 
+			// see if its a special composite type e.g. @BeanParam
+			if ("composite".equals(paramCategory)) {
+
+				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart);
+				Set<Model> models = modelParser.parse();
+				String rootModelId = modelParser.getRootModelId();
+				for (Model model : models) {
+					if (model.getId().equals(rootModelId)) {
+						Map<String, Property> modelProps = model.getProperties();
+						for (Map.Entry<String, Property> entry : modelProps.entrySet()) {
+							Property property = entry.getValue();
+							String renderedParamName = entry.getKey();
+							String fawFieldName = property.getRawFieldName();
+
+							Boolean allowMultiple = getAllowMultiple(paramCategory, fawFieldName, csvParams);
+							Boolean required = getRequired(paramCategory, fawFieldName, property.getType(), optionalParams, requiredParams);
+
+							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
+							String itemsType = property.getItems() == null ? null : property.getItems().getType();
+
+							ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
+									property.getFormat(), property.getDescription(), itemsRef, itemsType, property.getUniqueItems(),
+									property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
+
+							parameters.add(param);
+						}
+						break;
+					}
+				}
+
+				continue;
+			}
+
 			// look for a custom input type for body params
 			if ("body".equals(paramCategory)) {
 				String customParamType = ParserHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
@@ -468,11 +502,7 @@ public class ApiMethodParser {
 				}
 
 				// set whether its a csv param
-				if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
-					if (csvParams.contains(paramName)) {
-						allowMultiple = Boolean.TRUE;
-					}
-				}
+				allowMultiple = getAllowMultiple(paramCategory, paramName, csvParams);
 
 				// get min and max param values
 				minimum = paramMinVals.get(paramName);
@@ -539,28 +569,9 @@ public class ApiMethodParser {
 					}
 				}
 			}
-			// set whether the parameter is required or not
-			Boolean required = null;
-			// if its a path param then its required as per swagger spec
-			if ("path".equals(paramCategory)) {
-				required = Boolean.TRUE;
-			}
-			// if its in the required list then its required
-			else if (requiredParams.contains(paramName)) {
-				required = Boolean.TRUE;
-			}
-			// else if its in the optional list its optional
-			else if (optionalParams.contains(paramName)) {
-				// leave as null as this is equivalent to false but doesn't add to the json
-			}
-			// else if its a body or File param its required
-			else if ("body".equals(paramCategory) || ("File".equals(typeName) && "form".equals(paramCategory))) {
-				required = Boolean.TRUE;
-			}
-			// otherwise its optional
-			else {
-				// leave as null as this is equivalent to false but doesn't add to the json
-			}
+
+			// get whether required
+			Boolean required = getRequired(paramCategory, paramName, typeName, optionalParams, requiredParams);
 
 			// get the parameter name to use for the documentation
 			String renderedParamName = ParserHelper.paramNameOf(parameter, paramNames, this.options.getParameterNameAnnotations());
@@ -577,6 +588,42 @@ public class ApiMethodParser {
 		}
 
 		return parameters;
+	}
+
+	private Boolean getAllowMultiple(String paramCategory, String paramName, List<String> csvParams) {
+		Boolean allowMultiple = null;
+		if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
+			if (csvParams != null && csvParams.contains(paramName)) {
+				allowMultiple = Boolean.TRUE;
+			}
+		}
+		return allowMultiple;
+	}
+
+	private Boolean getRequired(String paramCategory, String paramName, String typeName, List<String> optionalParams, List<String> requiredParams) {
+		// set whether the parameter is required or not
+		Boolean required = null;
+		// if its a path param then its required as per swagger spec
+		if ("path".equals(paramCategory)) {
+			required = Boolean.TRUE;
+		}
+		// if its in the required list then its required
+		else if (requiredParams.contains(paramName)) {
+			required = Boolean.TRUE;
+		}
+		// else if its in the optional list its optional
+		else if (optionalParams.contains(paramName)) {
+			// leave as null as this is equivalent to false but doesn't add to the json
+		}
+		// else if its a body or File param its required
+		else if ("body".equals(paramCategory) || ("File".equals(typeName) && "form".equals(paramCategory))) {
+			required = Boolean.TRUE;
+		}
+		// otherwise its optional
+		else {
+			// leave as null as this is equivalent to false but doesn't add to the json
+		}
+		return required;
 	}
 
 	/**
