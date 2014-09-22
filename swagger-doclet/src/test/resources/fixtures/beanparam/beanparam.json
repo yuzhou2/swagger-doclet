@@ -1,0 +1,74 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/beanparam",
+    "apis": [
+        {
+            "path": "/beanparam/1",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getMultipleQueryParams",
+                    "type": "string",
+                    "parameters": [
+                    	{
+                            "paramType": "query",
+                            "name": "p3",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string"
+                        }
+                    ],
+                    "produces": [
+                    	"text/plain"
+                    ]
+                }
+                
+            ]
+        },
+        {
+            "path": "/beanparam/2",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getMixedParams",
+                    "type": "string",
+                    "parameters": [
+                    	{
+                            "paramType": "query",
+                            "name": "p3",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "path",
+                            "name": "p2",
+                            "type": "integer",
+                            "format" : "int32"
+                        },
+                        {
+                            "paramType": "form",
+                            "name": "p1",
+                            "type": "string"
+                        }
+                    ],
+                    "produces": [
+                    	"text/plain"
+                    ]
+                }
+                
+            ]
+        }
+    ]
+}
