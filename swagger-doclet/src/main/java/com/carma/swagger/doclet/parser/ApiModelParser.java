@@ -217,9 +217,7 @@ public class ApiModelParser {
 		while (classDoc != null) {
 
 			// ignore parent object class
-			String qName = classDoc.qualifiedName();
-			boolean isBaseObject = qName.equals("java.lang.Object");
-			if (isBaseObject) {
+			if (!ParserHelper.hasAncestor(classDoc)) {
 				break;
 			}
 

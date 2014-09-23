@@ -107,8 +107,7 @@ public class ServiceDoclet {
 		// flags params as multiple
 		options.put("-csvParamsTags", 2);
 
-		// used to support api listings
-		// where operations in an api can be spread across multiple resource classes
+		// legacy no longer needed
 		options.put("-crossClassResources", 1);
 
 		// control deprecation exclusion

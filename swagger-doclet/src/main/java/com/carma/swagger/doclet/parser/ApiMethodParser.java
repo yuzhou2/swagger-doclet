@@ -349,7 +349,7 @@ public class ApiMethodParser {
 						Matcher matcher = pattern.matcher(tagValue.text());
 						if (matcher.find()) {
 
-							int statusCode = Integer.valueOf(matcher.group(1).trim());
+							int statusCode = Integer.parseInt(matcher.group(1).trim());
 							// trim special chars the desc may start with
 							String desc = trimLeadingChars(matcher.group(2), '|', '-');
 

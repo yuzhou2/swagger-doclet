@@ -1,0 +1,86 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/a",
+    "apis": [
+        {
+            "path": "/a/{id}/sub",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "y",
+                    "type": "integer",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/a/{id}/sub/1",
+            "description": "",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "x",
+                    "type": "SubData",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/a/{id}/sub/sub2",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "z",
+                    "type": "SubSubData",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "SubSubData": {
+            "id": "SubSubData",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "SubData": {
+            "id": "SubData",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

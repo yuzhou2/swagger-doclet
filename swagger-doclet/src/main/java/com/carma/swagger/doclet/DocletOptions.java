@@ -78,8 +78,6 @@ public class DocletOptions {
 				parsedOptions.modelFieldsRequiredByDefault = true;
 			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
 				parsedOptions.includeSwaggerUi = false;
-			} else if (option[0].equals("-crossClassResources")) {
-				parsedOptions.crossClassResources = true;
 			} else if (option[0].equals("-disableSortApisByPath")) {
 				parsedOptions.sortApisByPath = false;
 			} else if (option[0].equals("-sortResourcesByPath")) {
@@ -256,7 +254,6 @@ public class DocletOptions {
 
 	private boolean parseModels = true;
 	private boolean modelFieldsRequiredByDefault = false;
-	private boolean crossClassResources = false;
 	private boolean sortResourcesByPath = false;
 	private boolean sortResourcesByPriority = false;
 	private boolean sortApisByPath = true;
@@ -736,24 +733,6 @@ public class DocletOptions {
 	 */
 	public DocletOptions setModelFieldsRequiredByDefault(boolean modelFieldsRequiredByDefault) {
 		this.modelFieldsRequiredByDefault = modelFieldsRequiredByDefault;
-		return this;
-	}
-
-	/**
-	 * This gets the crossClassResources
-	 * @return the crossClassResources
-	 */
-	public boolean isCrossClassResources() {
-		return this.crossClassResources;
-	}
-
-	/**
-	 * This sets the crossClassResources
-	 * @param crossClassResources the crossClassResources to set
-	 * @return this
-	 */
-	public DocletOptions setCrossClassResources(boolean crossClassResources) {
-		this.crossClassResources = crossClassResources;
 		return this;
 	}
 

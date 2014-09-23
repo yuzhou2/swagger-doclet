@@ -37,7 +37,7 @@ public class CrossClassResourceListingTest {
 	@Before
 	public void setup() throws IOException {
 		this.recorderMock = mock(Recorder.class);
-		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setCrossClassResources(true);
+		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
 
 	}
 

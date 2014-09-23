@@ -2,39 +2,29 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/a",
+    "resourcePath": "/resource",
     "apis": [
         {
-            "path": "/v1/x",
+            "path": "/resource/bar",
             "description": "",
             "operations": [
                 {
                     "method": "GET",
-                    "nickname": "getX",
+                    "nickname": "doSomething",
                     "type": "void"
                 }
             ]
         },
         {
-            "path": "/v1/x/sub/w",
+            "path": "/resource/foo",
             "description": "",
             "operations": [
                 {
                     "method": "GET",
-                    "nickname": "getW",
-                    "type": "SubData"
+                    "nickname": "doSomething",
+                    "type": "void"
                 }
             ]
         }
-    ],
-    "models": {
-        "SubData": {
-            "id": "SubData",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
-    }
+    ]
 }

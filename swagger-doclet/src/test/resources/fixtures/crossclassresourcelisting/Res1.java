@@ -28,4 +28,9 @@ public class Res1 {
 		// noop
 	}
 
+	@Path("/x/sub")
+	public Res1Sub getXSub() {
+		return null;
+	}
+
 }

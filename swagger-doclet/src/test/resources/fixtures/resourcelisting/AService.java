@@ -4,6 +4,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 /**
+ * @resource a1
  * @resourcePriority 2
  * @resourceDescription A
  */

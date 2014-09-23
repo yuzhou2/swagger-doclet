@@ -10,7 +10,7 @@
             "path": "/b.{format}"
         },
         {
-            "path": "/a.{format}"
+            "path": "/a1.{format}"
         }
     ]
 }

@@ -102,6 +102,22 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether a class doc has an ancestor class that can be processed, e.g.
+	 * if its parent is java.lang.Object it returns false.
+	 * @param classDoc The class doc
+	 * @return True if the class doc class has a parent class that is not java.lang.Object.
+	 */
+	public static boolean hasAncestor(ClassDoc classDoc) {
+		if (classDoc == null) {
+			return false;
+		}
+		// ignore parent object class
+		String qName = classDoc.qualifiedName();
+		boolean isBaseObject = qName.equals("java.lang.Object");
+		return !isBaseObject;
+	}
+
+	/**
 	 * This gets the default value of the given parameter
 	 * @param param The parameter
 	 * @return The default value or null if it has no default

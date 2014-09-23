@@ -1,7 +1,5 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.google.common.collect.Maps.uniqueIndex;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,10 +22,8 @@ import com.carma.swagger.doclet.Recorder;
 import com.carma.swagger.doclet.ServiceDoclet;
 import com.carma.swagger.doclet.model.Api;
 import com.carma.swagger.doclet.model.ApiDeclaration;
-import com.carma.swagger.doclet.model.Model;
 import com.carma.swagger.doclet.model.ResourceListing;
 import com.carma.swagger.doclet.model.ResourceListingAPI;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.sun.javadoc.ClassDoc;
@@ -83,60 +79,21 @@ public class JaxRsAnnotationParser {
 
 			List<ApiDeclaration> declarations = null;
 
-			if (this.options.isCrossClassResources()) {
-				// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
-				Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
-				for (ClassDoc classDoc : docletClasses) {
-					CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, SWAGGER_VERSION,
-							this.options.getApiVersion(), this.options.getApiBasePath());
-					classParser.parse(resourceToDeclaration);
-				}
-				Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();
+			// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
+			Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
+			for (ClassDoc classDoc : docletClasses) {
+				CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, SWAGGER_VERSION, this.options.getApiVersion(),
+						this.options.getApiBasePath());
+				classParser.parse(resourceToDeclaration);
+			}
+			Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();
 
-				declarations = new ArrayList<ApiDeclaration>(declarationColl);
+			declarations = new ArrayList<ApiDeclaration>(declarationColl);
 
-				// clear any empty models
-				for (ApiDeclaration api : declarations) {
-					if (api.getModels() != null && api.getModels().isEmpty()) {
-						api.setModels(null);
-					}
-				}
-
-			} else {
-				// use the original parse mode which treats each resource as a separate api
-				declarations = new ArrayList<ApiDeclaration>();
-				for (ClassDoc classDoc : docletClasses) {
-
-					// look for a class level priority tag for the resource listing
-					int priorityVal = Integer.MAX_VALUE;
-					String priority = ParserHelper.getTagValue(classDoc, this.options.getResourcePriorityTags());
-					if (priority != null) {
-						try {
-							priorityVal = Integer.parseInt(priority);
-						} catch (NumberFormatException ex) {
-							System.err.println("Warning invalid priority tag value: " + priority + " on class doc: " + classDoc);
-						}
-					}
-					// look for a class level description tag for the resource listing
-					String description = ParserHelper.getTagValue(classDoc, this.options.getResourceDescriptionTags());
-
-					ApiClassParser classParser = new ApiClassParser(this.options, classDoc, docletClasses);
-					List<Api> apis = classParser.parse();
-					if (apis.isEmpty()) {
-						continue;
-					}
-
-					Map<String, Model> models = uniqueIndex(classParser.models(), new Function<Model, String>() {
-
-						public String apply(Model model) {
-							return model.getId();
-						}
-					});
-
-					// The idea (and need) for the declaration is that "/foo" and "/foo/annotated" are stored in separate
-					// Api classes but are part of the same resource.
-					declarations.add(new ApiDeclaration(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath(),
-							classParser.getRootPath(), apis, models, priorityVal, description));
+			// clear any empty models
+			for (ApiDeclaration api : declarations) {
+				if (api.getModels() != null && api.getModels().isEmpty()) {
+					api.setModels(null);
 				}
 			}
 

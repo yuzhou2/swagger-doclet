@@ -8,7 +8,7 @@
             "description": "B"
         },
         {
-            "path": "/a.{format}",
+            "path": "/a1.{format}",
             "description": "A"
         },
         {

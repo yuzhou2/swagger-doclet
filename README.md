@@ -169,8 +169,12 @@ window.swaggerUi = new SwaggerUi({
 	
 	<tr><td>@paramsNameValue</td><td>Defines custom names for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1CustomName param2Name param2CustomName. </td><td>operations</td><td>@overrideParamsName</td></tr>
 	
-	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set</td><td>operations</td><td>@resourceOrder</td></tr>
-	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. If you are using the standard api class parser then you should put this tag on the class javadoc. If you are using the cross class resource parser then you should put this tag on one of the operation methods of each resource.</td><td>operations (if using cross class parsing), class javadoc</td><td></td></tr>
+	<tr><td>@resourcePath</td><td>This sets the path for resources in the resource listing e.g. the service.json file. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td>@resource,@parentEndpointName</td></tr>
+	
+	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td></td></tr>
+	
+	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing e.g. the service.json file. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td>@resourceOrder</td></tr>
+	
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
 	<tr><td>@scope</td><td>Indicates this method requires authorization and in particular the calling user must have this scope. Multiple scopes can be added using multiple tags. The scopes defined on the operation level must be one of the scopes in the Authorizations section of the service.json</td><td>operations</td><td>@oauth2Scope</td></tr>
 	<tr><td>@authentication</td><td>This is an alternative way to define that an endpoint either requires authorization or does not require authorization. It can be set to either @authentication Required or @authentication Not required. If it is set to required then you must also set some default scopes that are to be applied via the -authOperationScopes doclet option.</td><td>operations</td><td>@authorization</td></tr>
@@ -253,8 +257,6 @@ These are the options that you may want to use to add additional functionality o
 	
 	<tr><td>-disableModels</td><td>This turns off generation of models in the documentation.</td></tr>
 	
-	<tr><td>-crossClassResources</td><td>This is whether to use the cross class resource parser. This parser allows you to have operations of the same resource in different jaxrs Resource classes. NOTE: This parser does not currently support sub resources.</td></tr>
-	
 	<tr><td>-disableSortApisByPath</td><td>This is whether to disable sorting of apis inside a resource by their path. If not set then they will be ordered by their path. If set then they will be in the order encountered by the parser.</td></tr>
 	
 	<tr><td>-sortResourcesByPriority</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their priority as defined by the @resourcePriority tags. Resources without a priorty tag are placed at the bottom. This takes precedence over -sortResourcesByPath. If neither this nor the -sortResourcesByPath options are set then they will be listed in the order encountered by the parser.</td></tr>
@@ -298,7 +300,7 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-excludeParamsTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operation parameters. The default set contains excludeParams, hiddenParams, hideParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-resourceTags</td><td>This adds additional tags to the set of javadoc tags used for setting the resource that an operation is part of. This only applies to the cross class parser. The default set contains resource, resourcePath, parentEndpointName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	<tr><td>-resourceTags</td><td>This adds additional tags to the set of javadoc tags used for setting the resource that an operation is part of. The default set contains resource, resourcePath, parentEndpointName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-responseTypeTags</td><td>This adds additional tags to the set of javadoc tags used for setting a custom response model for an operation. The default set contains responseType, outputType. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
