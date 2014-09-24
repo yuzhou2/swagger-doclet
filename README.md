@@ -52,7 +52,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0-SNAPSHOT</version>
+        						<version>1.0</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -385,7 +385,7 @@ An example project using Dropwizard is included in `swagger-doclet-sample-dropwi
 ```
 $ cd swagger-doclet-sample-dropwizard
 $ mvn package
-$ java -jar target/swagger-doclet-sample-dropwizard-1.0-SNAPSHOT.jar server sample.yml
+$ java -jar target/swagger-doclet-sample-dropwizard-1.0.jar server sample.yml
 ```
 
 The example server should be running on port 8080:
