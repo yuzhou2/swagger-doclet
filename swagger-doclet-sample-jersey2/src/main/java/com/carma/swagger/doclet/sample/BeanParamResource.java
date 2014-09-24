@@ -19,10 +19,11 @@ public class BeanParamResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/1")
 	public String get1(@BeanParam MultipleQueryParams bean) {
-		String p1 = bean == null ? null : bean.getParam1();
-		int p2 = bean == null ? null : bean.getParam2();
-		String p3 = bean == null ? null : bean.getParam3();
-		return "get method, bean param fields are p1: " + p1 + ", p2: " + p2 + ", p3: " + p3;
+		if (bean == null) {
+			return "no bean was passed in";
+		} else {
+			return "get method, bean param fields are p1: " + bean.getParam1() + ", p2: " + bean.getParam2() + ", p3: " + bean.getParam3();
+		}
 	}
 
 }
