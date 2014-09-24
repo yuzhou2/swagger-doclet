@@ -9,10 +9,6 @@
     </parent>
 
     <artifactId>swagger-doclet-sample-jersey2</artifactId>
-    <packaging>jar</packaging>
-    <name>swagger-doclet-sample-jersey2</name>
-    
-    <description>Example using only the standard JAX-RS API's and the lightweight HTTP server bundled in JDK.</description>
 
     <dependencies>
         <!-- Jersey 2 -->
