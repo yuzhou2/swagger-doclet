@@ -43,6 +43,8 @@ import com.sun.javadoc.Type;
  */
 public class ApiMethodParser {
 
+	private static final Pattern GENERIC_RESPONSE_PATTERN = Pattern.compile("(.*)<(.*)>");
+
 	// pattern that can match a code, a description and an optional response model type
 	private static final Pattern[] RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+)([^`]+)(`.*)?") };
 
@@ -192,7 +194,7 @@ public class ApiMethodParser {
 		Type containerOf = ParserHelper.getContainerType(returnType, null);
 
 		if (containerOf != null) {
-			// its a collection, add the containter of type to the model
+			// its a collection, add the container of type to the model
 			modelType = containerOf;
 			// set the items type or ref
 			if (ParserHelper.isPrimitive(containerOf, this.options)) {
@@ -202,16 +204,26 @@ public class ApiMethodParser {
 			}
 
 		} else {
-			// if its not a container then adjust the return type name for any views
-			returnTypeName = this.translator.typeName(returnType, viewClasses).value();
 
 			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 			// but typically return a different object in its entity (such as for a 201 created response)
 			String customReturnTypeName = ParserHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
 			NameToType nameToType = readCustomReturnType(customReturnTypeName);
 			if (nameToType != null) {
-				returnTypeName = nameToType.translatedName;
-				returnType = nameToType.type;
+				returnTypeName = nameToType.returnTypeName;
+				returnType = nameToType.returnType;
+				// set collection data
+				if (nameToType.containerOf != null) {
+					// its a model collection, add the container of type to the model
+					modelType = nameToType.containerOf;
+					returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, viewClasses).value();
+				} else if (nameToType.containerOfPrimitive != null) {
+					// its a primitive collection
+					returnTypeItemsType = nameToType.containerOfPrimitive;
+				}
+			} else {
+				// if its not a container then adjust the return type name for any views
+				returnTypeName = this.translator.typeName(returnType, viewClasses).value();
 			}
 
 		}
@@ -651,26 +663,70 @@ public class ApiMethodParser {
 
 	static class NameToType {
 
-		String translatedName;
-		Type type;
+		Type returnType;
+		Type containerOf;
+		String containerOfPrimitive;
+		String returnTypeName;
 	}
 
 	NameToType readCustomReturnType(String customTypeName) {
-		if (customTypeName != null) {
+		if (customTypeName != null && customTypeName.trim().length() > 0) {
+			customTypeName = customTypeName.trim();
+
+			// split it into container and container of, if its in the form XXX<Y>
+			Matcher matcher = GENERIC_RESPONSE_PATTERN.matcher(customTypeName);
+			if (matcher.find()) {
+				String collectionType = matcher.group(1);
+				if (ParserHelper.isCollection(collectionType)) {
+					String containerOfType = matcher.group(2);
+					Type containerOf = null;
+					String containerOfPrimitive = null;
+					if (ParserHelper.isPrimitive(containerOfType, this.options)) {
+						containerOfPrimitive = ParserHelper.typeOf(containerOfType, this.options)[0];
+					} else {
+						containerOf = ParserHelper.findModel(this.classes, containerOfType);
+						if (containerOf == null) {
+							raiseCustomTypeNotFoundError(containerOfType);
+						}
+					}
+
+					NameToType res = new NameToType();
+					res.returnTypeName = ParserHelper.typeOf(collectionType, this.options)[0];
+					res.returnType = null;
+					res.containerOf = containerOf;
+					res.containerOfPrimitive = containerOfPrimitive;
+					return res;
+				} else {
+					throw new UnsupportedOperationException(
+							"Generic response types are not supported for custom @returnType, only collection types are allowed.");
+				}
+			}
+
 			// lookup the type from the doclet classes
 			Type customType = ParserHelper.findModel(this.classes, customTypeName);
-			if (customType != null) {
+			if (customType == null) {
+				raiseCustomTypeNotFoundError(customTypeName);
+			} else {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
 				String translated = this.translator.typeName(customType).value();
 				if (translated != null) {
 					NameToType res = new NameToType();
-					res.translatedName = translated;
-					res.type = customType;
+					res.returnTypeName = translated;
+					res.returnType = customType;
 					return res;
 				}
 			}
 		}
 		return null;
+	}
+
+	private void raiseCustomTypeNotFoundError(String customType) {
+		throw new IllegalStateException(
+				"Could not find the source for the custom response class: "
+						+ customType
+						+ ". If it is not in the same project as the one you have added the doclet to, "
+						+ "for example if it is in a dependent project then you should copy the source to the doclet calling project using the maven-dependency-plugin's unpack goal,"
+						+ " and then add it to the source using the build-helper-maven-plugin's add-source goal.");
 	}
 
 	private boolean shouldIncludeParameter(HttpMethod httpMethod, List<String> excludeParams, Parameter parameter) {

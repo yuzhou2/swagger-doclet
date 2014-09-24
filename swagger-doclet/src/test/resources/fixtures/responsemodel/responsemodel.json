@@ -25,6 +25,22 @@
                 },
                 {
                     "method": "GET",
+                    "nickname": "responseDefinedViaTagForList",
+                    "type": "array",
+                    "items": {
+                    	"$ref": "Response2"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "nickname": "responseDefinedViaTagForPrimitiveList",
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
+                },
+                {
+                    "method": "GET",
                     "nickname": "responseDefinedViaResponseCode",
                     "type": "Response",
                     "responseMessages": [

@@ -258,7 +258,7 @@ public class ParserHelper {
 	}
 
 	/**
-	 * Determines the String representation of the object Type.
+	 * Determines the String representation of the given FQN.
 	 * This includes the type as the first item and the format as the 2nd.
 	 * Common name Swagger spec 1.2
 	 * integer integer, int32
@@ -270,13 +270,11 @@ public class ParserHelper {
 	 * boolean boolean
 	 * date string, date
 	 * dateTime string, date-time
-	 * @param type The java type to get the swagger type and format of
+	 * @param javaType The java type to get the swagger type and format of
 	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(Type type, DocletOptions options) {
-
-		String javaType = getQualifiedTypeName(type);
+	public static String[] typeOf(String javaType, DocletOptions options) {
 
 		if (javaType.toLowerCase().equals("byte[]")) {
 			return new String[] { "ByteArray", null };
@@ -325,6 +323,31 @@ public class ParserHelper {
 				return new String[] { javaType, null };
 			}
 		}
+
+	}
+
+	/**
+	 * Determines the String representation of the object Type.
+	 * This includes the type as the first item and the format as the 2nd.
+	 * Common name Swagger spec 1.2
+	 * integer integer, int32
+	 * long integer, int64
+	 * float number, float
+	 * double number, double
+	 * string string
+	 * byte string, byte
+	 * boolean boolean
+	 * date string, date
+	 * dateTime string, date-time
+	 * @param type The java type to get the swagger type and format of
+	 * @param options The doclet options
+	 * @return An array with the type as the first item and the format as the 2nd.
+	 */
+	public static String[] typeOf(Type type, DocletOptions options) {
+
+		String javaType = getQualifiedTypeName(type);
+
+		return typeOf(javaType, options);
 	}
 
 	/**
@@ -716,6 +739,19 @@ public class ParserHelper {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * This gets whether the given type is primitive
+	 * @param type The type to check
+	 * @param options The doclet options
+	 * @return True if the given type is primitive
+	 */
+	public static boolean isPrimitive(String type, DocletOptions options) {
+		if (type == null) {
+			return false;
+		}
+		return PRIMITIVES.contains(typeOf(type, options)[0]);
 	}
 
 	/**

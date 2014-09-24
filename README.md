@@ -114,9 +114,9 @@ window.swaggerUi = new SwaggerUi({
 	<tr><td>@responseMessage</td><td>Use to describe each success or response status returned from an operation. It is made up of a numeric status code, a description an an optional response model specifically for this error.<br><br>For example:<br><br>
 	@responseMessage 404 not found<br><br>
 	@responseMessage 404 not found `fixtures.responsemessages.Response1<br><br>
-	NOTE: The optional response model class is added after a backtick as in the example above. 
+	NOTE: The optional response model class is added after a backtick as in the example above.
 	</td><td>operations</td><td>@status, @errorResponse, @successResponse, @errorCode, @successCode</td></tr>
-	<tr><td>@responseType</td><td>If you want the documented response model class to be different to the one in the java method signature you can use this to override it. This is useful to replace the Jax Rs response class with a particular entity type that may be returned. For example: 
+	<tr><td>@responseType</td><td><p>If you want the documented response model class to be different to the one in the java method signature you can use this to override it. This is useful to replace the Jax Rs response class with a particular entity type that may be returned. For example:</p>
 	<p>
 	<code><pre>
 	/**
@@ -127,8 +127,20 @@ window.swaggerUi = new SwaggerUi({
 	public Response responseDefinedViaTag() {
 		return Response.ok().entity(new Response2()).build();
 	}
-	</pre></code></p>In the above method the response model documented will be fixtures.responsemodel.Response2
-	<br><br>
+	</pre></code></p><p>In the above method the response model documented will be fixtures.responsemodel.Response2.</p>
+	<p><i>NOTE: if the response class is not in the same maven project as the one the doclet plugin is on then you will need to include the response class in the source of your project. One way to do this in maven is to use the maven-dependency-plugin's unpack goal to unpack the *.java files of the dependency source jar to a temporary directory such as ${project.build.directory}/additional-sources and then attach that directory to your project source using the build-helper-maven-plugin's add-source goal.</i></p>
+	<p>You can also use collections both of entities:</p>
+	<p><code><pre>
+	@responseType&nbsp;java.util.List&lt;fixtures.responsemodel.Response2&gt;	</pre>
+	</code>
+	</p>
+	<p>and primitives:</p>
+	<p><code><pre>
+	@responseType&nbsp;java.util.List&lt;java.lang.String&gt;
+	</pre>
+	</code>
+	</p>
+
 	</td><td>operations</td><td>@outputType</td></tr>
 	<tr><td>@inputType</td><td>If you want to have a different class type used as the model for a body parameter then you can use this. For example: 
 	<p>

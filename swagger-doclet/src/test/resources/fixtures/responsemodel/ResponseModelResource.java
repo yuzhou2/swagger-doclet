@@ -1,5 +1,7 @@
 package fixtures.responsemodel;
 
+import java.util.ArrayList;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -31,6 +33,24 @@ public class ResponseModelResource {
 	@GET
 	public Response responseDefinedViaTag() {
 		return Response.ok().entity(new Response2()).build();
+	}
+
+	/**
+	 * @responseType java.util.List<fixtures.responsemodel.Response2>
+	 */
+	@SuppressWarnings("javadoc")
+	@GET
+	public Response responseDefinedViaTagForList() {
+		return Response.ok().entity(new ArrayList<Response2>()).build();
+	}
+
+	/**
+	 * @responseType java.util.List<String>
+	 */
+	@SuppressWarnings("javadoc")
+	@GET
+	public Response responseDefinedViaTagForPrimitiveList() {
+		return Response.ok().entity(new ArrayList<String>()).build();
 	}
 
 	/**
