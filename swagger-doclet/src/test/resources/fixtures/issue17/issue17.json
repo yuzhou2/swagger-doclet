@@ -12,6 +12,19 @@
                     "method": "GET",
                     "nickname": "getUser",
                     "type": "User"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "createUser",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "user",
+                            "type": "User2",
+                            "required": true
+                        }
+                    ]
                 }
             ]
         }
@@ -19,6 +32,17 @@
     "models": {
         "User": {
             "id": "User",
+            "properties": {
+                "first_name": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "User2": {
+            "id": "User2",
             "properties": {
                 "first_name": {
                     "type": "string"
