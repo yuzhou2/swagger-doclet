@@ -465,7 +465,9 @@ public class DocletOptions {
 				.addNext(
 						new AnnotationAwareTranslator(this).ignore("javax.xml.bind.annotation.XmlTransient")
 								.element("javax.xml.bind.annotation.XmlElement", "name").rootElement("javax.xml.bind.annotation.XmlRootElement", "name"))
-
+				.addNext(
+						new AnnotationAwareTranslator(this).ignore("javax.xml.bind.annotation.XmlTransient").element("javax.xml.bind.annotation.XmlAttribute",
+								"name"))
 				.addNext(
 						new AnnotationAwareTranslator(this).ignore("com.fasterxml.jackson.annotation.JsonIgnore")
 								.element("com.fasterxml.jackson.annotation.JsonProperty", "value")

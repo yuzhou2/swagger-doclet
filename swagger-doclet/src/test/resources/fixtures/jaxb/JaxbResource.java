@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 @Path("/jaxb")
 @SuppressWarnings("javadoc")
 public class JaxbResource {
-
+	
 	@GET
 	public ResponseModel get() {
 		return new ResponseModel();
@@ -17,5 +17,11 @@ public class JaxbResource {
 	@POST
 	public Response create(PayloadModel payload) {
 		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("/user")
+	public User getUser() {
+		return new User();
 	}
 }

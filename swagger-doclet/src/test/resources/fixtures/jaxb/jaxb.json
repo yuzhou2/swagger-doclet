@@ -8,7 +8,7 @@
             "path": "/jaxb",
             "description": "",
             "operations": [
-                {
+            	{
                     "method": "GET",
                     "nickname": "get",
                     "type": "response"
@@ -27,10 +27,21 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/jaxb/user",
+            "description": "",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getUser",
+                    "type": "User"
+                }
+            ]
         }
     ],
     "models": {
-        "response": {
+    	"response": {
             "id": "response",
             "properties": {
                 "visibleField": {
@@ -48,6 +59,23 @@
                     "type": "string"
                 },
                 "odd-name": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "id": "User",
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "middle_name": {
+                    "type": "string"
+                },
+                "ti": {
                     "type": "string"
                 }
             }
