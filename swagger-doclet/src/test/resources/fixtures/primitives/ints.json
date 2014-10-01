@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/ints",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/modelinheritance",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

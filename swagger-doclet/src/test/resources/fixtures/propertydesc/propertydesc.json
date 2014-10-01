@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/propertydesc",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

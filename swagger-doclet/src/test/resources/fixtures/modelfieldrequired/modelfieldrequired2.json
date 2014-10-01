@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/modelfieldrequired",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

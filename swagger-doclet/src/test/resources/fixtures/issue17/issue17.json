@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/issue17",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

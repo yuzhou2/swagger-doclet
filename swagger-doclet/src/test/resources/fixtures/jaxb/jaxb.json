@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/jaxb",
-            "description": "",
             "operations": [
             	{
                     "method": "GET",
@@ -30,7 +29,6 @@
         },
         {
             "path": "/jaxb/user",
-            "description": "",
             "operations": [
             	{
                     "method": "GET",

@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/genericresponse",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

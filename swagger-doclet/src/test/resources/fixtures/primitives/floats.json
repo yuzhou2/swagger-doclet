@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/floats",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/oauth2",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

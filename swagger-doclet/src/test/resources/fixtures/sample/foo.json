@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/foo",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -44,7 +43,6 @@
         },
         {
             "path": "/foo/annotated",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -63,7 +61,6 @@
         },
         {
             "path": "/foo/{fooId}/sub",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -83,7 +80,6 @@
         },
         {
             "path": "/foo/{fooId}/sub/annotated",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

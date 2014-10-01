@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/person",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -20,7 +19,6 @@
         },
         {
             "path": "/person/{name}",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -39,7 +37,6 @@
         },
         {
             "path": "/person/{name}/2",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -58,7 +55,6 @@
         },
         {
             "path": "/person/{name}/3",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -77,7 +73,6 @@
         },
         {
             "path": "/person/{name}/4",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

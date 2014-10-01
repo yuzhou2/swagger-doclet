@@ -5,7 +5,6 @@
   "resourcePath" : "/users",
   "apis" : [ {
     "path" : "/users",
-    "description" : "",
     "operations" : [ {
       "method" : "POST",
       "nickname" : "createUser",
@@ -41,7 +40,6 @@
     } ]
   }, {
     "path" : "/users/{username}",
-    "description" : "",
     "operations" : [ {
       "method" : "GET",
       "nickname" : "retrieveUser",

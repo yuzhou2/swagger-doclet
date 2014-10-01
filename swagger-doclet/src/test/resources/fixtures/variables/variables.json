@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/variables",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/objects",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

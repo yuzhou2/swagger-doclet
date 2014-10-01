@@ -6,7 +6,6 @@
     "apis": [
     	{
             "path": "/inputtype/postData2b",
-            "description": "",
             "operations": [
             	{
                     "method": "POST",
@@ -36,7 +35,6 @@
         },
         {
             "path": "/inputtype/postData2c/{p2}",
-            "description": "",
             "operations": [
             	{
                     "method": "POST",
@@ -67,7 +65,6 @@
         },
         {
             "path": "/inputtype/putData1",
-            "description": "",
             "operations": [
             	{
                     "method": "PUT",
@@ -86,7 +83,6 @@
         },
         {
             "path": "/inputtype/putData2",
-            "description": "",
             "operations": [
             	{
                     "method": "PUT",

@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/producesconsumes",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

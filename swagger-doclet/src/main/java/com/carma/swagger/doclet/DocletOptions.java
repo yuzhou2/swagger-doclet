@@ -173,6 +173,8 @@ public class DocletOptions {
 				parsedOptions.inputTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-defaultErrorTypeTags")) {
 				parsedOptions.defaultErrorTypeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-apiDescriptionTags")) {
+				parsedOptions.apiDescriptionTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-operationNotesTags")) {
 				parsedOptions.operationNotesTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-operationSummaryTags")) {
@@ -240,6 +242,7 @@ public class DocletOptions {
 	private List<String> paramsDefaultValueTags;
 	private List<String> paramsNameTags;
 	private List<String> resourceTags;
+	private List<String> apiDescriptionTags;
 	private List<String> operationNotesTags;
 	private List<String> operationSummaryTags;
 	private List<String> fieldDescriptionTags;
@@ -415,6 +418,9 @@ public class DocletOptions {
 
 		this.defaultErrorTypeTags = new ArrayList<String>();
 		this.defaultErrorTypeTags.add("defaultErrorType");
+
+		this.apiDescriptionTags = new ArrayList<String>();
+		this.apiDescriptionTags.add("apiDescription");
 
 		this.operationNotesTags = new ArrayList<String>();
 		this.operationNotesTags.add("description");
@@ -789,6 +795,14 @@ public class DocletOptions {
 	 */
 	public List<String> getDefaultErrorTypeTags() {
 		return this.defaultErrorTypeTags;
+	}
+
+	/**
+	 * This gets a list of javadoc tag names that can be used for the api description
+	 * @return list of javadoc tag names that can be used for the api description
+	 */
+	public List<String> getApiDescriptionTags() {
+		return this.apiDescriptionTags;
 	}
 
 	/**

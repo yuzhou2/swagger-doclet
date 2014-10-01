@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/a/{id}/sub",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -26,7 +25,6 @@
         },
         {
             "path": "/a/{id}/sub/1",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -46,7 +44,6 @@
         },
         {
             "path": "/a/{id}/sub/sub2",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

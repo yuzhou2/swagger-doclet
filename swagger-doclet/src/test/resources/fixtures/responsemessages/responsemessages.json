@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/responsemessages",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

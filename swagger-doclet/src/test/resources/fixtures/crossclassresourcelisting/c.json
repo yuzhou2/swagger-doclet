@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/v1/c",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

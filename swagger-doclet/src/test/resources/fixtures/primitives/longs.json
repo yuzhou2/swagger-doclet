@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/longs",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

@@ -56,6 +56,7 @@ public class ServiceDoclet {
 		options.put("-responseMessageTags", 2);
 
 		options.put("-resourceTags", 2);
+		options.put("-apiDescriptionTags", 2);
 		options.put("-operationNotesTags", 2);
 		options.put("-operationSummaryTags", 2);
 		options.put("-fieldDescriptionTags", 2);

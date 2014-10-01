@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/booleans",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

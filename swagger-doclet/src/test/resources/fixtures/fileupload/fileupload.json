@@ -6,7 +6,6 @@
     "apis": [
     	{
             "path": "/fileupload/bytearraymultipart",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -28,7 +27,6 @@
         },
     	{
             "path": "/fileupload/bytearraysinglepart",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -50,7 +48,6 @@
         },
         {
             "path": "/fileupload/formparams",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -76,7 +73,6 @@
         },
         {
             "path": "/fileupload/jerseyformdata",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -103,7 +99,6 @@
         },
     	{
             "path": "/fileupload/multipartjavafile",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -125,7 +120,6 @@
         },
         {
             "path": "/fileupload/resteasymultipartformdatainput",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -147,7 +141,6 @@
         },
         {
             "path": "/fileupload/singlepartinputstream",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -169,7 +162,6 @@
         },
         {
             "path": "/fileupload/singlepartjavafile",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

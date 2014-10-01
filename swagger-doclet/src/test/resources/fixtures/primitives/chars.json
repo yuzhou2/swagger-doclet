@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/chars",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

@@ -11,6 +11,7 @@ public class Res1 {
 	 * @resourcePath a
 	 * @priority 2
 	 * @resourceDescription A
+	 * @apiDescription A
 	 */
 	@GET
 	@Path("/x")

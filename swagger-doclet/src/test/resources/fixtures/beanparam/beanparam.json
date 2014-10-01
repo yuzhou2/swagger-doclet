@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/beanparam/1",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -39,7 +38,6 @@
         },
         {
             "path": "/beanparam/2",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

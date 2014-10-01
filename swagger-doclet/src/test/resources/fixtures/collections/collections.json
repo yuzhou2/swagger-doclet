@@ -6,7 +6,6 @@
     "apis": [
         {
         	"path": "/collections",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -17,7 +16,6 @@
         },
         {
         	"path": "/collections/items",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -31,7 +29,6 @@
         },
         {
         	"path": "/collections/strings",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

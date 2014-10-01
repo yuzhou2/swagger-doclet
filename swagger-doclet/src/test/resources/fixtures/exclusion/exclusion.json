@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/exclusion",
-            "description": "",
             "operations": [
             	{
                     "method": "GET",

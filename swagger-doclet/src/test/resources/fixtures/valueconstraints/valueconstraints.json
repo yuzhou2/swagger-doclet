@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/valueconstraints",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -35,7 +34,6 @@
         },
         {
             "path": "/valueconstraints/1",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",
@@ -58,7 +56,6 @@
         },
         {
             "path": "/valueconstraints/2",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

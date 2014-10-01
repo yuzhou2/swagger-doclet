@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/bytes",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

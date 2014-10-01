@@ -28,6 +28,14 @@ public class Api {
 		return this.description;
 	}
 
+	/**
+	 * This sets the description
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public Collection<Operation> getOperations() {
 		return this.operations;
 	}

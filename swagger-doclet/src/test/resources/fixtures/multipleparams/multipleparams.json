@@ -6,7 +6,7 @@
     "apis": [
         {
             "path": "/multipleparams",
-            "description": "",
+            "description" : "parms",
             "operations": [
                 {
                     "method": "GET",
@@ -82,7 +82,6 @@
         },
         {
             "path": "/multipleparams/{id}",
-            "description": "",
             "operations": [
                 {
                     "method": "POST",

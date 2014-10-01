@@ -168,7 +168,7 @@ public class CrossClassApiParser {
 					setApiDeclarationDescription(classResourceDescription, method, declaration);
 
 					// find api this method should be added to
-					addMethod(parsedMethod, declaration);
+					addMethod(method, parsedMethod, declaration);
 
 					// add models
 					Set<Model> methodModels = methodParser.models();
@@ -249,7 +249,7 @@ public class CrossClassApiParser {
 		}
 	}
 
-	private void addMethod(Method parsedMethod, ApiDeclaration declaration) {
+	private void addMethod(MethodDoc method, Method parsedMethod, ApiDeclaration declaration) {
 		Api methodApi = null;
 		for (Api api : declaration.getApis()) {
 			if (parsedMethod.getPath().equals(api.getPath())) {
@@ -257,13 +257,15 @@ public class CrossClassApiParser {
 				break;
 			}
 		}
+
+		// read api level description
+		String apiDescription = ParserHelper.getTagValue(method, this.options.getApiDescriptionTags(), this.options);
+
 		if (methodApi == null) {
-
-			// TODO support api level descriptions...
-			String apiDescription = "";
-
 			methodApi = new Api(parsedMethod.getPath(), this.options.replaceVars(apiDescription), new ArrayList<Operation>());
 			declaration.getApis().add(methodApi);
+		} else if (methodApi.getDescription() == null && apiDescription != null) {
+			methodApi.setDescription(apiDescription);
 		}
 
 		methodApi.getOperations().add(new Operation(parsedMethod));

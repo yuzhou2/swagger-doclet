@@ -6,7 +6,7 @@
     "apis": [
         {
             "path": "/v1/x",
-            "description": "",
+            "description": "A",
             "operations": [
                 {
                     "method": "GET",
@@ -17,7 +17,6 @@
         },
         {
             "path": "/v1/x/sub/w",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

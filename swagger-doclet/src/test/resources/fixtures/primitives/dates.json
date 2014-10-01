@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/dates",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

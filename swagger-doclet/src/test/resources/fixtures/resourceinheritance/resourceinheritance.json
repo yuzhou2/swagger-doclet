@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/foo/bar",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
@@ -17,7 +16,6 @@
         },
         {
             "path": "/foo/{id}",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

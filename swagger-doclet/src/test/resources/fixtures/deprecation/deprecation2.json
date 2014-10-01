@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/deprecation",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",

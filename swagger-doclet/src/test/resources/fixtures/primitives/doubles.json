@@ -6,7 +6,6 @@
     "apis": [
         {
             "path": "/primitives/doubles",
-            "description": "",
             "operations": [
                 {
                     "method": "GET",
