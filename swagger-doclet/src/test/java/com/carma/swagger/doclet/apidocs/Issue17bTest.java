@@ -19,7 +19,7 @@ import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
 @SuppressWarnings("javadoc")
-public class ExclusionTest {
+public class Issue17bTest {
 
 	private Recorder recorderMock;
 	private DocletOptions options;
@@ -32,10 +32,11 @@ public class ExclusionTest {
 
 	@Test
 	public void testStart() throws IOException {
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.exclusion");
+
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue17b");
 		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final ApiDeclaration api = loadFixture("/fixtures/exclusion/exclusion.json", ApiDeclaration.class);
+		final ApiDeclaration api = loadFixture("/fixtures/issue17b/issue17b.json", ApiDeclaration.class);
 		verify(this.recorderMock).record(any(File.class), eq(api));
 	}
 

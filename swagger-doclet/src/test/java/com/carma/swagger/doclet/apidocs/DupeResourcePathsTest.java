@@ -21,6 +21,7 @@ import com.carma.swagger.doclet.model.ResourceListing;
 import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
+@SuppressWarnings("javadoc")
 public class DupeResourcePathsTest {
 
 	private Recorder recorderMock;

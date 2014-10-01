@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@SuppressWarnings("javadoc")
 public class FixtureLoader {
 
 	private FixtureLoader() {

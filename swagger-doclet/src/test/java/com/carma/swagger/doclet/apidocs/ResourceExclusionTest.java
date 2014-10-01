@@ -24,6 +24,7 @@ import com.sun.javadoc.RootDoc;
  * @version $Id$
  * @author conor.roche
  */
+@SuppressWarnings("javadoc")
 public class ResourceExclusionTest {
 
 	private Recorder recorderMock;

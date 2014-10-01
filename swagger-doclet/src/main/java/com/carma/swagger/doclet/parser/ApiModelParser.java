@@ -261,6 +261,14 @@ public class ApiModelParser {
 						}
 
 						String name = this.translator.fieldName(field).value();
+
+						// ignore fields that have no name which will be the case for fields annotated with one of the
+						// ignore annotations like JsonIgnore or XmlTransient
+						if (name == null) {
+							excludeFields.add(field.name());
+							continue;
+						}
+
 						rawToTranslatedFields.put(field.name(), name);
 						if (!field.name().equals(name)) {
 							customizedFieldNames.add(field.name());
@@ -285,7 +293,7 @@ public class ApiModelParser {
 							continue;
 						}
 
-						if (name != null && !elements.containsKey(name)) {
+						if (!elements.containsKey(name)) {
 
 							Type fieldType = getModelType(field.type(), nested);
 
@@ -318,15 +326,23 @@ public class ApiModelParser {
 
 						// we tie getters and their corresponding methods together via this rawFieldName
 						String rawFieldName = nameTranslator.methodName(method).value();
+						boolean isFieldMethod = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
+
+						boolean isFieldGetter = isFieldMethod && method.name().startsWith("get");
+						boolean isFieldSetter = isFieldMethod && method.name().startsWith("set");
 
 						String translatedNameViaMethod = this.translator.methodName(method).value();
 
-						if (translatedNameViaMethod != null) {
+						if (translatedNameViaMethod == null) {
 
-							boolean isFieldMethod = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
+							// this is an ignored field via @JsonIgnore or @XmlTransient
+							if (isFieldGetter || isFieldSetter) {
+								elements.remove(rawFieldName);
+								excludeFields.add(rawFieldName);
+							}
+							continue;
 
-							boolean isFieldGetter = isFieldMethod && method.name().startsWith("get");
-							boolean isFieldSetter = isFieldMethod && method.name().startsWith("set");
+						} else {
 
 							boolean excludeMethod = false;
 

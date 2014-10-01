@@ -18,6 +18,7 @@ import com.carma.swagger.doclet.model.ApiDeclaration;
 import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
+@SuppressWarnings("javadoc")
 public class ResponseMessagesTest {
 
 	private Recorder recorderMock;

@@ -23,6 +23,7 @@ import com.sun.javadoc.RootDoc;
  * @version $Id$
  * @author conor.roche
  */
+@SuppressWarnings("javadoc")
 public class GenericResponseResourceTest {
 
 	private Recorder recorderMock;

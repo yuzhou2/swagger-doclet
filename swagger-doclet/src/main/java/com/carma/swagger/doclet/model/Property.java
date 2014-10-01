@@ -262,9 +262,9 @@ public class Property {
 	 */
 	@Override
 	public String toString() {
-		return "Property [rawFieldName=" + this.rawFieldName + ", paramCategory=" + this.paramCategory + ", type=" + this.type + ", format=" + this.format
-				+ ", description=" + this.description + ", items=" + this.items + ", uniqueItems=" + this.uniqueItems + ", allowableValues="
-				+ this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum + ", defaultValue=" + this.defaultValue + "]";
+		return "Property [type=" + this.type + ", format=" + this.format + ", description=" + this.description + ", items=" + this.items + ", uniqueItems="
+				+ this.uniqueItems + ", allowableValues=" + this.allowableValues + ", minimum=" + this.minimum + ", maximum=" + this.maximum
+				+ ", defaultValue=" + this.defaultValue + "]";
 	}
 
 }

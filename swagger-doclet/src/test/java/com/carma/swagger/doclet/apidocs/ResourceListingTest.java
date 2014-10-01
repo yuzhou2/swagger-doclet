@@ -23,13 +23,14 @@ import com.sun.javadoc.RootDoc;
  * @version $Id$
  * @author conor.roche
  */
+@SuppressWarnings("javadoc")
 public class ResourceListingTest {
 
 	private Recorder recorderMock;
 	private DocletOptions options;
 
 	@Before
-	public void setup() throws IOException {
+	public void setup() {
 		this.recorderMock = mock(Recorder.class);
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
 
