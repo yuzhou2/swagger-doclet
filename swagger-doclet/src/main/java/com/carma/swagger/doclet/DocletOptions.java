@@ -7,13 +7,16 @@ import static java.util.Arrays.copyOfRange;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.carma.swagger.doclet.model.ApiAuthorizations;
 import com.carma.swagger.doclet.model.ApiInfo;
 import com.carma.swagger.doclet.parser.ParserHelper;
+import com.carma.swagger.doclet.parser.VariableReplacer;
 import com.carma.swagger.doclet.translator.AnnotationAwareTranslator;
 import com.carma.swagger.doclet.translator.FirstNotNullTranslator;
 import com.carma.swagger.doclet.translator.NameBasedTranslator;
@@ -62,6 +65,30 @@ public class DocletOptions {
 				parsedOptions.apiAuthorizations = loadModelFromJson("-apiAuthorizationsFile", option[1], ApiAuthorizations.class);
 			} else if (option[0].equals("-apiInfoFile")) {
 				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], ApiInfo.class);
+			} else if (option[0].equals("-variablesPropertiesFile")) {
+
+				File varFile = new File(option[1]);
+				if (!varFile.exists() && !varFile.canRead()) {
+					throw new IllegalStateException("Unable to read variables file: " + varFile.getAbsolutePath() + " check it exists and is readable.");
+				}
+				Properties props = new Properties();
+				InputStream is = null;
+				try {
+					is = new FileInputStream(varFile);
+					props.load(is);
+					parsedOptions.variableReplacements = props;
+				} catch (IOException ex) {
+					throw new IllegalStateException("Failed to read variables file: " + varFile.getAbsolutePath(), ex);
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException ex) {
+							// ignore
+							ex.printStackTrace();
+						}
+					}
+				}
 			} else if (option[0].equals("-docBasePath")) {
 				parsedOptions.docBasePath = option[1];
 			} else if (option[0].equals("-apiBasePath")) {
@@ -188,6 +215,8 @@ public class DocletOptions {
 	private String apiVersion = "0";
 
 	private boolean includeSwaggerUi = true;
+
+	private Properties variableReplacements;
 
 	private List<String> excludeResourcePrefixes;
 	private List<String> excludeModelPrefixes;
@@ -1092,6 +1121,28 @@ public class DocletOptions {
 	public DocletOptions setApiInfo(ApiInfo apiInfo) {
 		this.apiInfo = apiInfo;
 		return this;
+	}
+
+	/**
+	 * This sets the variable replacements to use
+	 * @param variableReplacements properties to use for variable replacements
+	 * @return this
+	 */
+	public DocletOptions setVariableReplacements(Properties variableReplacements) {
+		this.variableReplacements = variableReplacements;
+		return this;
+	}
+
+	/**
+	 * This replaces any variables in the given value with replacements defined in the doclets variable replacements file
+	 * @param value The value to replace variables in
+	 * @return The value with any variable references replaced
+	 */
+	public String replaceVars(String value) {
+		if (value != null && this.variableReplacements != null && !this.variableReplacements.isEmpty()) {
+			return VariableReplacer.replaceVariables(this.variableReplacements, value);
+		}
+		return value;
 	}
 
 }

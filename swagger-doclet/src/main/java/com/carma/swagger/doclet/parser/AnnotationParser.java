@@ -1,23 +1,47 @@
 package com.carma.swagger.doclet.parser;
 
+import com.carma.swagger.doclet.DocletOptions;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationValue;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ProgramElementDoc;
 
+/**
+ * The AnnotationParser represents a utility class for reading values from annotations
+ * @version $Id$
+ */
 public class AnnotationParser {
 
 	private final AnnotationDesc[] annotations;
+	private final DocletOptions options;
 
-	public AnnotationParser(ProgramElementDoc element) {
+	/**
+	 * This creates an AnnotationParser for a method/field
+	 * @param element The method/field javadoc item
+	 * @param options The doclet options
+	 */
+	public AnnotationParser(ProgramElementDoc element, DocletOptions options) {
 		this.annotations = element.annotations();
+		this.options = options;
 	}
 
-	public AnnotationParser(Parameter parameter) {
+	/**
+	 * This creates an AnnotationParser for a parameter
+	 * @param parameter The parameter javadoc item
+	 * @param options The doclet options
+	 */
+	public AnnotationParser(Parameter parameter, DocletOptions options) {
 		this.annotations = parameter.annotations();
+		this.options = options;
 	}
 
+	/**
+	 * This gets the value of the annotation with the given FQN and attribute named key
+	 * @param qualifiedAnnotationType The FQN of the annotation to get the value of
+	 * @param key The name of the attribute of the annotation to get the value of
+	 * @return The value of the given named attribute of the given annotation
+	 */
 	public String getAnnotationValue(String qualifiedAnnotationType, String key) {
 		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
 		if (annotation == null) {
@@ -26,7 +50,8 @@ public class AnnotationParser {
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
 			if (evp.element().name().equals(key)) {
 				String val = evp.value().value().toString();
-				return val.trim();
+				val = val.trim();
+				return this.options.replaceVars(val);
 			}
 		}
 		return null;
@@ -80,7 +105,9 @@ public class AnnotationParser {
 					String[] res = new String[vals.length];
 					int i = 0;
 					for (AnnotationValue annotationVal : vals) {
-						res[i] = annotationVal.value().toString().trim();
+						String str = annotationVal.value().toString().trim();
+						str = this.options.replaceVars(str);
+						res[i] = str;
 						i++;
 					}
 					return res;

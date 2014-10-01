@@ -56,7 +56,7 @@ public class CrossClassApiParser {
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
-		this.rootPath = firstNonNull(parsePath(classDoc), "");
+		this.rootPath = firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
@@ -80,7 +80,7 @@ public class CrossClassApiParser {
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
-		this.rootPath = parentResourcePath + firstNonNull(parsePath(classDoc), "");
+		this.rootPath = parentResourcePath + firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
@@ -105,7 +105,7 @@ public class CrossClassApiParser {
 		while (currentClassDoc != null) {
 
 			// read default error type for class
-			String defaultErrorTypeClass = ParserHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags());
+			String defaultErrorTypeClass = ParserHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags(), this.options);
 			Type defaultErrorType = ParserHelper.findModel(this.classes, defaultErrorTypeClass);
 
 			Set<Model> classModels = new HashSet<Model>();
@@ -114,9 +114,9 @@ public class CrossClassApiParser {
 			}
 
 			// read class level resource path, priority and description
-			String classResourcePath = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceTags());
-			String classResourcePriority = ParserHelper.getTagValue(currentClassDoc, this.options.getResourcePriorityTags());
-			String classResourceDescription = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceDescriptionTags());
+			String classResourcePath = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceTags(), this.options);
+			String classResourcePriority = ParserHelper.getTagValue(currentClassDoc, this.options.getResourcePriorityTags(), this.options);
+			String classResourceDescription = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
 
 			// check if its a sub resource
 			// TODO: be more deterministic e.g. build map of sub resource types that are explicitly referenced
@@ -165,7 +165,7 @@ public class CrossClassApiParser {
 					setApiPriority(classResourcePriority, method, currentClassDoc, declaration);
 
 					// look for a method level description tag for the resource listing and set on the resource if the resource hasn't had one set
-					setApiDescription(classResourceDescription, method, declaration);
+					setApiDeclarationDescription(classResourceDescription, method, declaration);
 
 					// find api this method should be added to
 					addMethod(parsedMethod, declaration);
@@ -226,7 +226,7 @@ public class CrossClassApiParser {
 
 	private void setApiPriority(String classResourcePriority, MethodDoc method, ClassDoc currentClassDoc, ApiDeclaration declaration) {
 		int priorityVal = Integer.MAX_VALUE;
-		String priority = ParserHelper.getTagValue(method, this.options.getResourcePriorityTags());
+		String priority = ParserHelper.getTagValue(method, this.options.getResourcePriorityTags(), this.options);
 		if (priority != null) {
 			priorityVal = Integer.parseInt(priority);
 		} else if (classResourcePriority != null) {
@@ -239,13 +239,13 @@ public class CrossClassApiParser {
 		}
 	}
 
-	private void setApiDescription(String classResourceDescription, MethodDoc method, ApiDeclaration declaration) {
-		String description = ParserHelper.getTagValue(method, this.options.getResourceDescriptionTags());
+	private void setApiDeclarationDescription(String classResourceDescription, MethodDoc method, ApiDeclaration declaration) {
+		String description = ParserHelper.getTagValue(method, this.options.getResourceDescriptionTags(), this.options);
 		if (description == null) {
 			description = classResourceDescription;
 		}
 		if (description != null && declaration.getDescription() == null) {
-			declaration.setDescription(description);
+			declaration.setDescription(this.options.replaceVars(description));
 		}
 	}
 
@@ -258,7 +258,11 @@ public class CrossClassApiParser {
 			}
 		}
 		if (methodApi == null) {
-			methodApi = new Api(parsedMethod.getPath(), "", new ArrayList<Operation>());
+
+			// TODO support api level descriptions...
+			String apiDescription = "";
+
+			methodApi = new Api(parsedMethod.getPath(), this.options.replaceVars(apiDescription), new ArrayList<Operation>());
 			declaration.getApis().add(methodApi);
 		}
 

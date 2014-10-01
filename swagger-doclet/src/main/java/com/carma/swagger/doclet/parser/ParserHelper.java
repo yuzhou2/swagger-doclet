@@ -120,10 +120,11 @@ public class ParserHelper {
 	/**
 	 * This gets the default value of the given parameter
 	 * @param param The parameter
+	 * @param options The doclet options
 	 * @return The default value or null if it has no default
 	 */
-	public static String getDefaultValue(Parameter param) {
-		AnnotationParser p = new AnnotationParser(param);
+	public static String getDefaultValue(Parameter param, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(param, options);
 		String value = p.getAnnotationValue(JAX_RS_DEFAULT_VALUE, "value");
 		return value;
 	}
@@ -131,16 +132,21 @@ public class ParserHelper {
 	/**
 	 * This parses the path from the annotations of a method or class
 	 * @param doc The method or class
+	 * @param options The doclet options
 	 * @return The path or null if no path related annotations were present
 	 */
-	public static String parsePath(com.sun.javadoc.ProgramElementDoc doc) {
-		AnnotationParser p = new AnnotationParser(doc);
+	public static String parsePath(com.sun.javadoc.ProgramElementDoc doc, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(doc, options);
 		String path = p.getAnnotationValue(JAX_RS_PATH, "value");
 		if (path != null) {
 			if (path.endsWith("/")) {
 				path = path.substring(0, path.length() - 1);
 			}
-			return path.isEmpty() || path.startsWith("/") ? path : "/" + path;
+			if (!path.isEmpty() && !path.startsWith("/")) {
+				path = "/" + path;
+			}
+
+			return path;
 		}
 		return null;
 	}
@@ -440,7 +446,7 @@ public class ParserHelper {
 	 * @return True if the parameter is a File data type
 	 */
 	public static boolean isFileParameterDataType(Parameter parameter, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(parameter);
+		AnnotationParser p = new AnnotationParser(parameter, options);
 		for (String fileAnnotation : options.getFileParameterAnnotations()) {
 			if (p.isAnnotatedBy(fileAnnotation)) {
 				return true;
@@ -463,7 +469,7 @@ public class ParserHelper {
 	 * @return True if the parameter is a File data type
 	 */
 	private static boolean isFileParameterDataType(ProgramElementDoc paramMember, Type type, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(paramMember);
+		AnnotationParser p = new AnnotationParser(paramMember, options);
 		for (String fileAnnotation : options.getFileParameterAnnotations()) {
 			if (p.isAnnotatedBy(fileAnnotation)) {
 				return true;
@@ -488,7 +494,7 @@ public class ParserHelper {
 	 * @return The type of parameter, one of path, header, query, form or body.
 	 */
 	public static String paramTypeOf(boolean returnDefault, boolean multipart, ProgramElementDoc paramMember, Type type, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(paramMember);
+		AnnotationParser p = new AnnotationParser(paramMember, options);
 		if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
 			return "path";
 		} else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
@@ -547,7 +553,7 @@ public class ParserHelper {
 	 * @return The type of parameter, one of path, header, query, form or body.
 	 */
 	public static String paramTypeOf(boolean multipart, Parameter parameter, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(parameter);
+		AnnotationParser p = new AnnotationParser(parameter, options);
 		if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
 			return "path";
 		} else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
@@ -599,9 +605,10 @@ public class ParserHelper {
 	 * @param parameter The parameter to get the name of that is used for the api
 	 * @param overrideParamNames A map of rawname to override names for parameters
 	 * @param paramNameAnnotations List of FQN of annotations that can be used for the parameter name
+	 * @param options The doclet options
 	 * @return the name of the parameter used by http requests
 	 */
-	public static String paramNameOf(Parameter parameter, Map<String, String> overrideParamNames, List<String> paramNameAnnotations) {
+	public static String paramNameOf(Parameter parameter, Map<String, String> overrideParamNames, List<String> paramNameAnnotations, DocletOptions options) {
 
 		String name = null;
 		String rawName = parameter.name();
@@ -612,7 +619,7 @@ public class ParserHelper {
 		}
 		// look for any of the configured annotations that can determine the parameter name
 		if (name == null) {
-			AnnotationParser p = new AnnotationParser(parameter);
+			AnnotationParser p = new AnnotationParser(parameter, options);
 			for (String paramNameAnnotation : paramNameAnnotations) {
 				name = p.getAnnotationValue(paramNameAnnotation, "value");
 				if (name != null) {
@@ -631,10 +638,11 @@ public class ParserHelper {
 	/**
 	 * This gets the json views for the given method/field
 	 * @param doc The method/field to get the json views of
+	 * @param options The doclet options
 	 * @return The json views for the given method/field or null if there were none
 	 */
-	public static ClassDoc[] getJsonViews(com.sun.javadoc.ProgramElementDoc doc) {
-		AnnotationParser p = new AnnotationParser(doc);
+	public static ClassDoc[] getJsonViews(com.sun.javadoc.ProgramElementDoc doc, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(doc, options);
 		ClassDoc[] viewClasses = p.getAnnotationClassDocValues("com.fasterxml.jackson.annotation.JsonView", "value");
 		if (viewClasses == null) {
 			viewClasses = p.getAnnotationClassDocValues("org.codehaus.jackson.map.annotate.JsonView", "value");
@@ -702,19 +710,21 @@ public class ParserHelper {
 	/**
 	 * This gets the list of consumes mime types from the given method
 	 * @param methodDoc The method javadoc
+	 * @param options The doclet options
 	 * @return The list or null if none were found
 	 */
-	public static List<String> getConsumes(MethodDoc methodDoc) {
-		return listValues(methodDoc, JAX_RS_CONSUMES, "value");
+	public static List<String> getConsumes(MethodDoc methodDoc, DocletOptions options) {
+		return listValues(methodDoc, JAX_RS_CONSUMES, "value", options);
 	}
 
 	/**
 	 * This gets the list of produces mime types from the given method
 	 * @param methodDoc The method javadoc
+	 * @param options The doclet options
 	 * @return The list or null if none were found
 	 */
-	public static List<String> getProduces(MethodDoc methodDoc) {
-		return listValues(methodDoc, JAX_RS_PRODUCES, "value");
+	public static List<String> getProduces(MethodDoc methodDoc, DocletOptions options) {
+		return listValues(methodDoc, JAX_RS_PRODUCES, "value", options);
 	}
 
 	/**
@@ -722,10 +732,12 @@ public class ParserHelper {
 	 * @param doc The method/field doc
 	 * @param qualifiedAnnotationType The FQN of the annotation
 	 * @param annotationValueName The name of the value field of the annotation to use
+	 * @param options The doclet options
 	 * @return A list of values or null if none were found
 	 */
-	public static List<String> listValues(com.sun.javadoc.ProgramElementDoc doc, String qualifiedAnnotationType, String annotationValueName) {
-		AnnotationParser p = new AnnotationParser(doc);
+	public static List<String> listValues(com.sun.javadoc.ProgramElementDoc doc, String qualifiedAnnotationType, String annotationValueName,
+			DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(doc, options);
 		String[] vals = p.getAnnotationValues(qualifiedAnnotationType, annotationValueName);
 		if (vals != null && vals.length > 0) {
 			List<String> res = new ArrayList<String>(vals.length);
@@ -804,10 +816,12 @@ public class ParserHelper {
 	 * @param method The method
 	 * @param params The pre-read params of the method, if null they will be read from the given method
 	 * @param matchTags The names of the javadoc tags to look for
+	 * @param options The doclet options
 	 * @return a map of parameter name to value from a javadoc tag on a method or an empty map if none were found
 	 */
-	public static Map<String, String> getMethodParamNameValuePairs(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags) {
-		String value = getTagValue(method, matchTags);
+	public static Map<String, String> getMethodParamNameValuePairs(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
+			DocletOptions options) {
+		String value = getTagValue(method, matchTags, options);
 		if (value != null) {
 			String[] parts = value.split("\\s+");
 			if (parts != null && parts.length > 0) {
@@ -846,13 +860,14 @@ public class ParserHelper {
 	 * @param method The method
 	 * @param params The pre-read params of the method, if null they will be read from the given method
 	 * @param matchTags The names of the javadoc tags to look for
+	 * @param options The doclet options
 	 * @return The list of parameter names or an empty list if there were none
 	 */
-	public static List<String> getCsvParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags) {
+	public static List<String> getCsvParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags, DocletOptions options) {
 		if (params == null) {
 			params = getParamNames(method);
 		}
-		List<String> tagParams = getTagCsvValues(method, matchTags);
+		List<String> tagParams = getTagCsvValues(method, matchTags, options);
 		// check each param is an actual param of the method
 		if (tagParams != null) {
 			for (String param : tagParams) {
@@ -871,17 +886,18 @@ public class ParserHelper {
 	 * e.g. @myTag 1,2,3 would return a list of 1,2,3 assuming matchTags contained myTag
 	 * @param item The javadoc item
 	 * @param matchTags The tags to match
+	 * @param options The doclet options
 	 * @return The csv values of the first matching tags value or an empty list if there were none.
 	 */
-	public static List<String> getTagCsvValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
-		String value = getTagValue(item, matchTags);
+	public static List<String> getTagCsvValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
+		String value = getTagValue(item, matchTags, options);
 		if (value != null) {
 			String[] vals = value.split(",");
 			if (vals != null && vals.length > 0) {
 				List<String> res = new ArrayList<String>();
 				for (String val : vals) {
 					if (val != null && val.trim().length() > 0) {
-						res.add(val.trim());
+						res.add(options.replaceVars(val.trim()));
 					}
 				}
 				return res.isEmpty() ? null : res;
@@ -894,10 +910,11 @@ public class ParserHelper {
 	 * This gets the value of the first tag found from the given collection of tag names
 	 * @param item The item to get the tag value of
 	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
 	 * @return The value of the first tag found with the name in the given collection or null if either the tag
 	 *         was not present or had no value
 	 */
-	public static String getTagValue(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+	public static String getTagValue(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
 		String customValue = null;
 		if (matchTags != null) {
 			for (String matchTag : matchTags) {
@@ -911,7 +928,7 @@ public class ParserHelper {
 				}
 			}
 		}
-		return customValue;
+		return options.replaceVars(customValue);
 	}
 
 	private static final Set<String> DEPRECATED_TAGS = new HashSet<String>();
@@ -955,9 +972,10 @@ public class ParserHelper {
 	 * This gets values of any of the javadoc tags that are in the given collection
 	 * @param item The javadoc item to get the tags of
 	 * @param matchTags The names of the tags to get
+	 * @param options The doclet options
 	 * @return A list of tag values or null if none were found
 	 */
-	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags) {
+	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
 		List<String> res = null;
 		if (matchTags != null) {
 			for (String matchTag : matchTags) {
@@ -969,7 +987,7 @@ public class ParserHelper {
 						}
 						String customValue = tag.text().trim();
 						if (customValue.length() > 0) {
-							res.add(customValue);
+							res.add(options.replaceVars(customValue));
 						}
 					}
 				}
@@ -1013,10 +1031,18 @@ public class ParserHelper {
 		return null;
 	}
 
+	/**
+	 * The ExcludedAnnotations represents a filter that can be used for filtering
+	 * only if the specified annotation classes are present
+	 */
 	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {
 
 		private final Collection<String> annotationClasses;
 
+		/**
+		 * This creates a ExcludedAnnotations
+		 * @param annotationClasses
+		 */
 		public ExcludedAnnotations(Collection<String> annotationClasses) {
 			this.annotationClasses = annotationClasses;
 		}
@@ -1027,6 +1053,10 @@ public class ParserHelper {
 		}
 	}
 
+	/**
+	 * The JaxRsAnnotations represents a predicate that can be used for filtering
+	 * only if a jaxrs annotation is present
+	 */
 	public static class JaxRsAnnotations implements Predicate<AnnotationDesc> {
 
 		public boolean apply(AnnotationDesc annotationDesc) {

@@ -1,0 +1,49 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/variables",
+    "apis": [
+        {
+            "path": "/variables",
+            "description": "",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postData",
+                    "type": "Data",
+                    "summary" : "This endpoint v1val is for v2val",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "enumValue",
+                            "type": "string",
+                            "enum": [
+						        "VALUE1",
+						        "VALUE2"
+						    	],
+						    "defaultValue" : "VALUE1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "v4val"
+                }
+            }
+        }
+    }
+}

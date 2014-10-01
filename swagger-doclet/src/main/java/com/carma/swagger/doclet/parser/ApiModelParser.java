@@ -242,7 +242,7 @@ public class ApiModelParser {
 
 		for (ClassDoc classDoc : classes) {
 
-			AnnotationParser p = new AnnotationParser(classDoc);
+			AnnotationParser p = new AnnotationParser(classDoc, this.options);
 			String xmlAccessorType = p.getAnnotationValue("javax.xml.bind.annotation.XmlAccessorType", "value");
 
 			Set<String> customizedFieldNames = new HashSet<String>();
@@ -279,7 +279,7 @@ public class ApiModelParser {
 						}
 
 						// ignore fields that are for a different json view
-						ClassDoc[] jsonViews = ParserHelper.getJsonViews(field);
+						ClassDoc[] jsonViews = ParserHelper.getJsonViews(field, this.options);
 						if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
 							excludeFields.add(field.name());
 							continue;
@@ -339,7 +339,7 @@ public class ApiModelParser {
 							}
 
 							// ignore methods that are for a different json view
-							ClassDoc[] jsonViews = ParserHelper.getJsonViews(method);
+							ClassDoc[] jsonViews = ParserHelper.getJsonViews(method, this.options);
 							if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
 								excludeMethod = true;
 							}
@@ -437,36 +437,37 @@ public class ApiModelParser {
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem, boolean useCommentText) {
 		// method
-		String description = ParserHelper.getTagValue(docItem, this.options.getFieldDescriptionTags());
+		String description = ParserHelper.getTagValue(docItem, this.options.getFieldDescriptionTags(), this.options);
 		if (description == null && useCommentText) {
 			description = docItem.commentText();
 		}
 		if (description == null || description.trim().length() == 0) {
 			return null;
 		}
-		return description.trim();
+
+		return this.options.replaceVars(description.trim());
 	}
 
 	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMinTags());
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMinTags(), this.options);
 		if (val != null && val.trim().length() > 0) {
-			return val.trim();
+			return this.options.replaceVars(val.trim());
 		}
 		return null;
 	}
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMaxTags());
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMaxTags(), this.options);
 		if (val != null && val.trim().length() > 0) {
-			return val.trim();
+			return this.options.replaceVars(val.trim());
 		}
 		return null;
 	}
 
 	private String getFieldDefaultValue(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldDefaultTags());
+		String val = ParserHelper.getTagValue(docItem, this.options.getFieldDefaultTags(), this.options);
 		if (val != null && val.trim().length() > 0) {
-			return val.trim();
+			return this.options.replaceVars(val.trim());
 		}
 		return null;
 	}

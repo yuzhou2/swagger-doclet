@@ -118,7 +118,7 @@ public class ApiMethodParser {
 		this.parentMethod = null;
 		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
-		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
+		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class ApiMethodParser {
 		this.parentMethod = parentMethod;
 		this.classes = classes;
 		this.classDefaultErrorType = classDefaultErrorType;
-		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags());
+		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class ApiMethodParser {
 	 * @return The method with appropriate data set
 	 */
 	public Method parse() {
-		String methodPath = firstNonNull(parsePath(this.methodDoc), "");
+		String methodPath = firstNonNull(parsePath(this.methodDoc, this.options), "");
 		if (this.httpMethod == null && methodPath.isEmpty()) {
 			return null;
 		}
@@ -184,7 +184,7 @@ public class ApiMethodParser {
 		String returnTypeName = this.translator.typeName(returnType).value();
 		Type modelType = returnType;
 
-		ClassDoc[] viewClasses = ParserHelper.getJsonViews(this.methodDoc);
+		ClassDoc[] viewClasses = ParserHelper.getJsonViews(this.methodDoc, this.options);
 
 		// now see if it is a collection if so the return type will be array and the
 		// containerOf will be added to the model
@@ -207,7 +207,7 @@ public class ApiMethodParser {
 
 			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 			// but typically return a different object in its entity (such as for a 201 created response)
-			String customReturnTypeName = ParserHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags());
+			String customReturnTypeName = ParserHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags(), this.options);
 			NameToType nameToType = readCustomReturnType(customReturnTypeName);
 			if (nameToType != null) {
 				returnTypeName = nameToType.returnTypeName;
@@ -249,14 +249,16 @@ public class ApiMethodParser {
 		notes = notes.replace(summary, "");
 
 		// look for custom notes/summary tags to use instead
-		String customNotes = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationNotesTags());
+		String customNotes = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationNotesTags(), this.options);
 		if (customNotes != null) {
 			notes = customNotes;
 		}
-		String customSummary = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationSummaryTags());
+		String customSummary = ParserHelper.getTagValue(this.methodDoc, this.options.getOperationSummaryTags(), this.options);
 		if (customSummary != null) {
 			summary = customSummary;
 		}
+		summary = this.options.replaceVars(summary);
+		notes = this.options.replaceVars(notes);
 
 		// Auth support
 		OperationAuthorizations authorizations = generateAuthorizations();
@@ -264,8 +266,8 @@ public class ApiMethodParser {
 		// ************************************
 		// Produces & consumes
 		// ************************************
-		List<String> consumes = ParserHelper.getConsumes(this.methodDoc);
-		List<String> produces = ParserHelper.getProduces(this.methodDoc);
+		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
+		List<String> produces = ParserHelper.getProduces(this.methodDoc, this.options);
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
@@ -295,7 +297,7 @@ public class ApiMethodParser {
 		} else {
 
 			// otherwise if method has scope tags then add those to indicate method requires scope
-			List<String> scopeValues = ParserHelper.getTagValues(this.methodDoc, this.options.getOperationScopeTags());
+			List<String> scopeValues = ParserHelper.getTagValues(this.methodDoc, this.options.getOperationScopeTags(), this.options);
 			if (scopeValues != null) {
 				List<Oauth2Scope> oauth2Scopes = new ArrayList<Oauth2Scope>();
 				for (String scopeVal : scopeValues) {
@@ -312,7 +314,7 @@ public class ApiMethodParser {
 			// if not scopes see if its auth and whether we need to add default scope to it
 			if (scopeValues == null || scopeValues.isEmpty()) {
 				// b) if method has an auth tag that starts with one of the known values that indicates whether auth required.
-				String authSpec = ParserHelper.getTagValue(this.methodDoc, this.options.getAuthOperationTags());
+				String authSpec = ParserHelper.getTagValue(this.methodDoc, this.options.getAuthOperationTags(), this.options);
 				if (authSpec != null) {
 
 					boolean unauthFound = false;
@@ -412,28 +414,31 @@ public class ApiMethodParser {
 		Set<String> rawParamNames = ParserHelper.getParamNames(this.methodDoc);
 
 		// read required and optional params
-		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getOptionalParamsTags());
-		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getRequiredParamsTags());
+		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getOptionalParamsTags(), this.options);
+		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getRequiredParamsTags(), this.options);
 
 		// read exclude params
-		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getExcludeParamsTags());
+		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getExcludeParamsTags(), this.options);
 
 		// read csv params
-		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getCsvParamsTags());
+		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getCsvParamsTags(), this.options);
 
 		// read min and max values of params
-		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMinValueTags());
-		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMaxValueTags());
+		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMinValueTags(),
+				this.options);
+		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMaxValueTags(),
+				this.options);
 
 		// read default values of params
 		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames,
-				this.options.getParamsDefaultValueTags());
+				this.options.getParamsDefaultValueTags(), this.options);
 
 		// read override names of params
-		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsNameTags());
+		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsNameTags(),
+				this.options);
 
 		// read whether the method consumes multipart
-		List<String> consumes = ParserHelper.getConsumes(this.methodDoc);
+		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
 		boolean consumesMultipart = consumes != null && consumes.contains(MediaType.MULTIPART_FORM_DATA);
 
 		for (Parameter parameter : this.methodDoc.parameters()) {
@@ -480,7 +485,7 @@ public class ApiMethodParser {
 
 			// look for a custom input type for body params
 			if ("body".equals(paramCategory)) {
-				String customParamType = ParserHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags());
+				String customParamType = ParserHelper.getTagValue(this.methodDoc, this.options.getInputTypeTags(), this.options);
 				paramType = readCustomParamType(customParamType, paramType);
 			}
 
@@ -528,7 +533,7 @@ public class ApiMethodParser {
 
 				// get a default value, prioritize the jaxrs annotation
 				// otherwise look for the javadoc tag
-				defaultVal = ParserHelper.getDefaultValue(parameter);
+				defaultVal = ParserHelper.getDefaultValue(parameter, this.options);
 				if (defaultVal == null) {
 					defaultVal = paramDefaultVals.get(paramName);
 				}
@@ -558,8 +563,8 @@ public class ApiMethodParser {
 
 				// if enum and default value check it matches the enum values
 				if (allowableValues != null && defaultVal != null && !allowableValues.contains(defaultVal)) {
-					throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: " + paramName
-							+ " it should be one of: " + allowableValues);
+					throw new IllegalStateException("Invalid value: " + defaultVal + " for the default value of the method: " + this.methodDoc.name()
+							+ " parameter: " + paramName + " it should be one of: " + allowableValues);
 				}
 
 				// set collection related fields
@@ -586,10 +591,14 @@ public class ApiMethodParser {
 			Boolean required = getRequired(paramCategory, paramName, typeName, optionalParams, requiredParams);
 
 			// get the parameter name to use for the documentation
-			String renderedParamName = ParserHelper.paramNameOf(parameter, paramNames, this.options.getParameterNameAnnotations());
+			String renderedParamName = ParserHelper.paramNameOf(parameter, paramNames, this.options.getParameterNameAnnotations(), this.options);
 
-			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, commentForParameter(
-					this.methodDoc, parameter), itemsRef, itemsType, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+			// get description
+			String description = this.options.replaceVars(commentForParameter(this.methodDoc, parameter));
+
+			// build parameter
+			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef,
+					itemsType, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 			parameters.add(param);
 		}
@@ -673,7 +682,7 @@ public class ApiMethodParser {
 		if (customTypeName != null && customTypeName.trim().length() > 0) {
 			customTypeName = customTypeName.trim();
 
-			// split it into container and container of, if its in the form XXX<Y>
+			// split it into container and container of, if its in the form X<Y>
 			Matcher matcher = GENERIC_RESPONSE_PATTERN.matcher(customTypeName);
 			if (matcher.find()) {
 				String collectionType = matcher.group(1);

@@ -263,6 +263,15 @@ These are the options that you may want to use to add additional functionality o
 	</pre></code>
 	</td></tr>
 	
+	
+	
+	<tr><td>-variablesPropertiesFile</td><td>Path to a properties file that holds variable replacements which can be referenced in java doc. For example if a method description contains ${userFieldNamesDesc} and this properties file had a property set like this:<br>
+
+	
+<pre><code>userFieldNamesDesc=The user field names is a csv of fields you can request for a user.</code></pre>
+	
+Then the variable ${userFieldNamesDesc} would be replaced by the value from the properties file anywhere in the javadoc it was referenced.</td></tr>
+	
 	<tr><td>-disableCopySwaggerUi or -skipUiFiles</td><td>If set then this does not copy the Swagger UI to the output dir. This can be useful to speed up the doclet and reduce the size of the generated artifact if you either do not use the Swagger UI or host or package it separately.</td></tr>
 	
 	<tr><td>-swaggerUiPath</td><td>If copying of the Swagger UI is enabled this is the path to the zip file or dir that includes the ui. If not provided then the default Swagger UI embedded in the doclet plugin will be used. If the legacy swaggerUiZipPath option is provided then this will be set to that value.</td></tr>

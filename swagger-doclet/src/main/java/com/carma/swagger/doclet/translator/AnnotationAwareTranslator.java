@@ -158,11 +158,12 @@ public class AnnotationAwareTranslator implements Translator {
 	}
 
 	private OptionalName nameFor(String annotation, String property, ProgramElementDoc doc) {
-		AnnotationParser element = new AnnotationParser(doc);
+		AnnotationParser element = new AnnotationParser(doc, this.options);
 		if (element.isAnnotatedBy(this.ignore)) {
 			return ignored();
 		}
-		return presentOrMissing(element.getAnnotationValue(annotation, property));
+		String name = element.getAnnotationValue(annotation, property);
+		return presentOrMissing(name);
 	}
 
 }

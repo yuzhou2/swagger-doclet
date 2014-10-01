@@ -82,6 +82,8 @@ public class ServiceDoclet {
 		options.put("-authOperationScopes", 2);
 		options.put("-operationScopeTags", 2);
 
+		options.put("-variablesPropertiesFile", 2);
+
 		options.put("-swaggerUiZipPath", 2); // kept for backward compatibility
 		options.put("-swaggerUiPath", 2);
 		// supports turning off copy of swagger ui, useful for tests and also for
