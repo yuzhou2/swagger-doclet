@@ -211,7 +211,7 @@ public class DocletOptions {
 	}
 
 	private File outputDirectory;
-	private String docBasePath = "http://localhost:8080";
+	private String docBasePath = null;
 	private String apiBasePath = "http://localhost:8080";
 	private String swaggerUiPath = null;
 	private String apiVersion = "0";
