@@ -32,6 +32,8 @@ import com.sun.javadoc.RootDoc;
 public class JaxRsAnnotationParser {
 
 	private static final String SWAGGER_VERSION = "1.2";
+	// swagger 1.1 spec see https://groups.google.com/forum/#!topic/swagger-swaggersocket/mHdR9u0utH4
+	// diffs between 1.1 and 1.2 see https://github.com/wordnik/swagger-spec/wiki/1.2-transition
 	private static final String SWAGGER_UI_VERSION = "2.0.24";
 
 	private final DocletOptions options;
@@ -168,7 +170,7 @@ public class JaxRsAnnotationParser {
 			}
 		}
 
-		// write out json for api
+		// write out json for the resource listing
 		ResourceListing listing = new ResourceListing(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getDocBasePath(), resources,
 				this.options.getApiAuthorizations(), this.options.getApiInfo());
 		File docFile = new File(outputDirectory, "service.json");
