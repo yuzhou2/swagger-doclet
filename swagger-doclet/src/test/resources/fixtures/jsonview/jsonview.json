@@ -18,6 +18,19 @@
             ]
         },
         {
+            "path": "/person/getAll2",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getAll2",
+                    "type": "array",
+                    "items" : {
+                    	"$ref": "Person-Person.SimplePersonView"
+                    }
+                }
+            ]
+        },
+        {
             "path": "/person/{name}",
             "operations": [
                 {
@@ -77,6 +90,24 @@
                 {
                     "method": "GET",
                     "nickname": "getPerson4",
+                    "type": "Person-Person.DetailedPersonView3",
+                    "parameters": [
+                        {
+                            "paramType": "path",
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                        }
+                     ]
+                }
+            ]
+        },
+        {
+            "path": "/person/{name}/5",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getPerson5",
                     "type": "Person-Person.DetailedPersonView3",
                     "parameters": [
                         {

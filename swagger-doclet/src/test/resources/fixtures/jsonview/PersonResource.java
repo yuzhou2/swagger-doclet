@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import fixtures.jsonview.Person.DetailedPersonView;
 import fixtures.jsonview.Person.DetailedPersonView2;
@@ -35,6 +36,22 @@ public class PersonResource {
 		Collection<Person> res = new ArrayList<Person>();
 		res.add(person);
 		return res;
+	}
+
+	/**
+	 * @responseType java.util.Collection<fixtures.jsonview.Person>
+	 */
+	@Path("/getAll2")
+	@GET
+	@com.fasterxml.jackson.annotation.JsonView(SimplePersonView.class)
+	public Response getAll2() {
+		Person person = new Person();
+		person.setName("conor");
+		person.setAddress("conor-address");
+		person.setAge(35);
+		Collection<Person> res = new ArrayList<Person>();
+		res.add(person);
+		return Response.ok(res).build();
 	}
 
 	@Path("/{name}")
@@ -79,6 +96,20 @@ public class PersonResource {
 		person.setAddress(name + "-address");
 		person.setAge(35);
 		return person;
+	}
+
+	/**
+	 * @responseType fixtures.jsonview.Person
+	 */
+	@Path("/{name}/5")
+	@GET
+	@com.fasterxml.jackson.annotation.JsonView(DetailedPersonView3.class)
+	public Response getPerson5(@PathParam(value = "name") String name) {
+		Person person = new Person();
+		person.setName(name);
+		person.setAddress(name + "-address");
+		person.setAge(35);
+		return Response.ok(person).build();
 	}
 
 }

@@ -208,7 +208,7 @@ public class ApiMethodParser {
 			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
 			// but typically return a different object in its entity (such as for a 201 created response)
 			String customReturnTypeName = ParserHelper.getTagValue(this.methodDoc, this.options.getResponseTypeTags(), this.options);
-			NameToType nameToType = readCustomReturnType(customReturnTypeName);
+			NameToType nameToType = readCustomReturnType(customReturnTypeName, viewClasses);
 			if (nameToType != null) {
 				returnTypeName = nameToType.returnTypeName;
 				returnType = nameToType.returnType;
@@ -220,6 +220,8 @@ public class ApiMethodParser {
 				} else if (nameToType.containerOfPrimitive != null) {
 					// its a primitive collection
 					returnTypeItemsType = nameToType.containerOfPrimitive;
+				} else {
+					modelType = returnType;
 				}
 			} else {
 				// if its not a container then adjust the return type name for any views
@@ -678,7 +680,7 @@ public class ApiMethodParser {
 		String returnTypeName;
 	}
 
-	NameToType readCustomReturnType(String customTypeName) {
+	NameToType readCustomReturnType(String customTypeName, ClassDoc[] viewClasses) {
 		if (customTypeName != null && customTypeName.trim().length() > 0) {
 			customTypeName = customTypeName.trim();
 
@@ -717,7 +719,7 @@ public class ApiMethodParser {
 				raiseCustomTypeNotFoundError(customTypeName);
 			} else {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
-				String translated = this.translator.typeName(customType).value();
+				String translated = this.translator.typeName(customType, viewClasses).value();
 				if (translated != null) {
 					NameToType res = new NameToType();
 					res.returnTypeName = translated;
