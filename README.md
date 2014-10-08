@@ -16,7 +16,20 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 + As the JSON resource listing  is generated offline from source code it means that you do not need to add any runtime dependencies to your project and avoid potential headaches with different jar versions and jaxrs implementations. This also avoids increasing the size of your artifacts. 
 + The offline approach also allows you to post process the JSON if you wish. 
 + You also do not need to add any Swagger specific annotations to your source code as you can fine tune the generated documentation using javadoc tags.
-  
+
+## Versions
+
+The latest production version is 1.0
+The latest snapshot version is 1.0.1-SNAPSHOT.
+
+The fixes/features in the 1.0.1-SNAPSHOT version are as follows:
+
++ custom response type not being added to model (issue 21)
++ support api level descriptions (issue 19)
++ @XmlAttribute name is not being used for model field names (issue 18)
++ support variables in the javadoc which we can replace with values from a properties file (issue 14)
++ Support relative basePath w/ port (issue 20)
++ @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (issue 17)
 
 ## Usage
 
