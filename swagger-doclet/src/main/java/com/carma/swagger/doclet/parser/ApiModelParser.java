@@ -247,190 +247,147 @@ public class ApiModelParser {
 
 			Set<String> customizedFieldNames = new HashSet<String>();
 
-			// add fields
+			// process fields
 			Set<String> excludeFields = new HashSet<String>();
-			if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
-				FieldDoc[] fieldDocs = classDoc.fields();
 
-				if (fieldDocs != null) {
-					for (FieldDoc field : fieldDocs) {
+			Set<String> fieldNames = new HashSet<String>();
+			FieldDoc[] fieldDocs = classDoc.fields(false);
 
-						// ignore static or transient fields or _ prefixed ones
-						if (field.isStatic() || field.isTransient() || field.name().charAt(0) == '_') {
-							continue;
-						}
+			if (fieldDocs != null) {
+				for (FieldDoc field : fieldDocs) {
+					fieldNames.add(field.name());
 
-						String name = this.translator.fieldName(field).value();
+					String translatedName = this.translator.fieldName(field).value();
 
-						// ignore fields that have no name which will be the case for fields annotated with one of the
-						// ignore annotations like JsonIgnore or XmlTransient
-						if (name == null) {
-							excludeFields.add(field.name());
-							continue;
-						}
-
-						rawToTranslatedFields.put(field.name(), name);
-						if (!field.name().equals(name)) {
+					if (excludeField(field, translatedName)) {
+						excludeFields.add(field.name());
+					} else {
+						rawToTranslatedFields.put(field.name(), translatedName);
+						if (!field.name().equals(translatedName)) {
 							customizedFieldNames.add(field.name());
 						}
+						if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
+							if (!elements.containsKey(translatedName)) {
 
-						// ignore deprecated fields
-						if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field)) {
-							excludeFields.add(field.name());
-							continue;
-						}
+								Type fieldType = getModelType(field.type(), nested);
 
-						// ignore fields we are to explicitly exclude
-						if (ParserHelper.hasTag(field, this.options.getExcludeFieldTags())) {
-							excludeFields.add(field.name());
-							continue;
-						}
+								String description = getFieldDescription(field, true);
+								String min = getFieldMin(field);
+								String max = getFieldMax(field);
+								Boolean required = getFieldRequired(field);
+								String defaultValue = getFieldDefaultValue(field);
 
-						// ignore fields that are for a different json view
-						ClassDoc[] jsonViews = ParserHelper.getJsonViews(field, this.options);
-						if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
-							excludeFields.add(field.name());
-							continue;
-						}
+								String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
+										: null;
 
-						if (!elements.containsKey(name)) {
-
-							Type fieldType = getModelType(field.type(), nested);
-
-							String description = getFieldDescription(field, true);
-							String min = getFieldMin(field);
-							String max = getFieldMax(field);
-							Boolean required = getFieldRequired(field);
-							String defaultValue = getFieldDefaultValue(field);
-
-							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
-									: null;
-
-							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min, max,
-									defaultValue, required));
+								elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min,
+										max, defaultValue, required));
+							}
 						}
 					}
 				}
 			}
 
-			// add methods
 			if (!"javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
 				MethodDoc[] methodDocs = classDoc.methods();
+				Set<String> excludeMethodNames = new HashSet<String>();
+
 				if (methodDocs != null) {
+					// loop through methods to find ones that should be excluded such as via @XmlTransient or other means
+					// we do this first as the order of processing the methods varies per runtime env and
+					// we want to make sure we group together setters and getters
 					for (MethodDoc method : methodDocs) {
 
-						// ignore static methods and private methods
-						if (method.isStatic() || method.isPrivate() || method.name().charAt(0) == '_') {
-							continue;
-						}
-
-						// we tie getters and their corresponding methods together via this rawFieldName
-						String rawFieldName = nameTranslator.methodName(method).value();
-						boolean isFieldMethod = rawFieldName != null && (elements.containsKey(rawFieldName) || excludeFields.contains(rawFieldName));
-
-						boolean isFieldGetter = isFieldMethod && method.name().startsWith("get");
-						boolean isFieldSetter = isFieldMethod && method.name().startsWith("set");
-
 						String translatedNameViaMethod = this.translator.methodName(method).value();
+						String rawFieldName = nameTranslator.methodName(method).value();
 
-						if (translatedNameViaMethod == null) {
+						if (excludeMethod(method, translatedNameViaMethod)) {
+							// exclude this method explicitly
+							excludeMethodNames.add(method.name());
 
-							// this is an ignored field via @JsonIgnore or @XmlTransient
-							if (isFieldGetter || isFieldSetter) {
+							// process getter/setters
+							if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
+
+								// add to the set field names to be excluded so we can later exclude
+								// its corresponding opposite set/get method
 								elements.remove(rawFieldName);
 								excludeFields.add(rawFieldName);
-							}
-							continue;
 
+							}
 						} else {
-
-							boolean excludeMethod = false;
-
-							// ignore deprecated methods
-							excludeMethod = this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(method);
-
-							// ignore methods we are to explicitly exclude
-							if (ParserHelper.hasTag(method, this.options.getExcludeFieldTags())) {
-								excludeMethod = true;
-							}
-
-							// ignore methods that are for a different json view
-							ClassDoc[] jsonViews = ParserHelper.getJsonViews(method, this.options);
-							if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
-								excludeMethod = true;
-							}
-
-							if (isFieldGetter || isFieldSetter) {
-
-								// skip if the field has already been excluded
-								if (excludeFields.contains(rawFieldName)) {
-									continue;
-								}
-
-								// skip if this method is to be excluded but also remove the field from the elements
-								// so it doesnt appear in the model
-								if (excludeMethod) {
-									elements.remove(rawFieldName);
-									excludeFields.add(rawFieldName);
-									continue;
-								}
-
-								// see if the field name should be overwritten via annotations on the getter/setter
-								// note if the field has its own customizing annotation then that takes precedence
+							// see if the field name should be overwritten via annotations on the getter/setter
+							// note if the field has its own customizing annotation then that takes precedence
+							if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
 								String nameViaField = rawToTranslatedFields.get(rawFieldName);
 								if (!customizedFieldNames.contains(rawFieldName) && !translatedNameViaMethod.equals(nameViaField)) {
 									rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
 									customizedFieldNames.add(rawFieldName);
 								}
+							}
+						}
+					}
 
-								TypeRef typeRef = elements.get(rawFieldName);
+					// now process again so we can handle the remaining methods
+					for (MethodDoc method : methodDocs) {
+						// skip ones we have already found as not to be included
+						if (excludeMethodNames.contains(method.name())) {
+							continue;
+						}
 
-								// the field was already found e.g. class had a field and this is the getter
-								// check if there are tags on the getter we can use to fill in description, min and max
-								if (typeRef.description == null) {
-									typeRef.description = getFieldDescription(method, isFieldGetter);
-								}
-								if (typeRef.min == null) {
-									typeRef.min = getFieldMin(method);
-								}
-								if (typeRef.max == null) {
-									typeRef.max = getFieldMax(method);
-								}
-								if (typeRef.defaultValue == null) {
-									typeRef.defaultValue = getFieldDefaultValue(method);
-								}
-								if (typeRef.required == null) {
-									typeRef.required = getFieldRequired(method);
-								}
-								if (this.composite && typeRef.paramCategory == null) {
-									typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
-								}
+						String translatedNameViaMethod = this.translator.methodName(method).value();
+						String rawFieldName = nameTranslator.methodName(method).value();
 
-								typeRef.sourceDesc = " method: " + method.name();
+						// special behaviour if its a getter/setter
+						if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
 
-							} else {
-
-								// skip if this method is to be excluded
-								if (excludeMethod) {
-									continue;
-								}
-
-								// this is a getter or other method where there wasn't a specific field
-								String description = getFieldDescription(method, true);
-								String min = getFieldMin(method);
-								String max = getFieldMax(method);
-								String defaultValue = getFieldDefaultValue(method);
-								Boolean required = getFieldRequired(method);
-
-								Type returnType = getModelType(method.returnType(), nested);
-
-								String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
-
-								elements.put(translatedNameViaMethod, new TypeRef(rawFieldName, paramCategory, " method: " + method.name(), returnType,
-										description, min, max, defaultValue, required));
+							// check if the field it references should be excluded via previous processing
+							if (excludeFields.contains(rawFieldName)) {
+								continue;
 							}
 
+							boolean isFieldGetter = method.name().startsWith("get");
+
+							TypeRef typeRef = elements.get(rawFieldName);
+
+							// the field was already found e.g. class had a field and this is the getter
+							// check if there are tags on the getter we can use to fill in description, min and max
+							if (typeRef.description == null) {
+								typeRef.description = getFieldDescription(method, isFieldGetter);
+							}
+							if (typeRef.min == null) {
+								typeRef.min = getFieldMin(method);
+							}
+							if (typeRef.max == null) {
+								typeRef.max = getFieldMax(method);
+							}
+							if (typeRef.defaultValue == null) {
+								typeRef.defaultValue = getFieldDefaultValue(method);
+							}
+							if (typeRef.required == null) {
+								typeRef.required = getFieldRequired(method);
+							}
+							if (this.composite && typeRef.paramCategory == null) {
+								typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
+							}
+
+							typeRef.sourceDesc = " method: " + method.name();
+
+						} else {
+							// this is a getter or other method where there wasn't a specific field
+							String description = getFieldDescription(method, true);
+							String min = getFieldMin(method);
+							String max = getFieldMax(method);
+							String defaultValue = getFieldDefaultValue(method);
+							Boolean required = getFieldRequired(method);
+
+							Type returnType = getModelType(method.returnType(), nested);
+
+							String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
+
+							elements.put(translatedNameViaMethod, new TypeRef(rawFieldName, paramCategory, " method: " + method.name(), returnType,
+									description, min, max, defaultValue, required));
 						}
+
 					}
 				}
 			}
@@ -449,6 +406,71 @@ public class ApiModelParser {
 		}
 
 		return res;
+	}
+
+	private boolean excludeField(FieldDoc field, String translatedName) {
+
+		// ignore static or transient fields or _ prefixed ones
+		if (field.isStatic() || field.isTransient() || field.name().charAt(0) == '_') {
+			return true;
+		}
+
+		// ignore fields that have no name which will be the case for fields annotated with one of the
+		// ignore annotations like JsonIgnore or XmlTransient
+		if (translatedName == null) {
+			return true;
+		}
+
+		// ignore deprecated fields
+		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field)) {
+			return true;
+		}
+
+		// ignore fields we are to explicitly exclude
+		if (ParserHelper.hasTag(field, this.options.getExcludeFieldTags())) {
+			return true;
+		}
+
+		// ignore fields that are for a different json view
+		ClassDoc[] jsonViews = ParserHelper.getJsonViews(field, this.options);
+		if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean excludeMethod(MethodDoc method, String translatedNameViaMethod) {
+
+		// ignore static methods and private methods
+		if (method.isStatic() || method.isPrivate() || method.name().charAt(0) == '_') {
+			return true;
+		}
+
+		// check for ignored fields
+		if (translatedNameViaMethod == null) {
+			// this is a method that is to be ignored via @JsonIgnore or @XmlTransient
+			return true;
+		}
+
+		// ignore deprecated methods
+		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(method)) {
+			return true;
+		}
+
+		// ignore methods we are to explicitly exclude
+		if (ParserHelper.hasTag(method, this.options.getExcludeFieldTags())) {
+			return true;
+		}
+
+		// ignore methods that are for a different json view
+		ClassDoc[] jsonViews = ParserHelper.getJsonViews(method, this.options);
+		if (!ParserHelper.isItemPartOfView(this.viewClasses, jsonViews)) {
+			return true;
+		}
+
+		return false;
+
 	}
 
 	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem, boolean useCommentText) {

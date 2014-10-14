@@ -27,7 +27,8 @@ public class Issue17cTest {
 	@Before
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
-		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
+		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setApiVersion("1").setDocBasePath("/sps/apidocs")
+				.setApiBasePath("/sps").setSortResourcesByPath(true);
 	}
 
 	@Test

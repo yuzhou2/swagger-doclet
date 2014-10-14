@@ -526,12 +526,39 @@ public class DocletOptions {
 		return this.docBasePath;
 	}
 
+	/**
+	 * This sets the docBasePath
+	 * @param docBasePath the docBasePath to set
+	 */
+	public DocletOptions setDocBasePath(String docBasePath) {
+		this.docBasePath = docBasePath;
+		return this;
+	}
+
 	public String getApiBasePath() {
 		return this.apiBasePath;
 	}
 
+	/**
+	 * This sets the apiBasePath
+	 * @param apiBasePath the apiBasePath to set
+	 */
+	public DocletOptions setApiBasePath(String apiBasePath) {
+		this.apiBasePath = apiBasePath;
+		return this;
+	}
+
 	public String getApiVersion() {
 		return this.apiVersion;
+	}
+
+	/**
+	 * This sets the apiVersion
+	 * @param apiVersion the apiVersion to set
+	 */
+	public DocletOptions setApiVersion(String apiVersion) {
+		this.apiVersion = apiVersion;
+		return this;
 	}
 
 	/**
