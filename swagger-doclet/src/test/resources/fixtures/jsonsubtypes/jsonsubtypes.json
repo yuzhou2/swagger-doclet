@@ -1,0 +1,150 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/jsonSubTypesResource",
+    "apis": [
+        {
+            "path": "/jsonSubTypesResource/animal1",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getAnimal1",
+                    "type": "Animal1"
+                }
+            ]
+        },
+        {
+            "path": "/jsonSubTypesResource/animal2",
+            "operations": [
+            	{
+                    "method": "POST",
+                    "nickname": "postAnimal2",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "animal",
+                            "type": "Animal2",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/jsonSubTypesResource/animal3",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getAnimal3",
+                    "type": "array",
+                    "items": {
+                    	"$ref": "Animal3"
+                    }
+                }
+            ]
+        }
+    ],
+    "models": {
+    	"Animal1": {
+            "id": "Animal1",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required" : ["type"],
+            "subTypes" : ["Cat1", "Dog1"],
+            "discriminator" : "type"
+        },
+        "Cat1": {
+            "id": "Cat1",
+            "properties": {
+                "favoriteToy": {
+                    "type": "string"
+                }
+            }
+        },
+        "Dog1": {
+            "id": "Dog1",
+            "properties": {
+                "breed": {
+                    "type": "string"
+                },
+                "leashColor": {
+                    "type": "string"
+                }
+            }
+        },
+        "Animal2": {
+            "id": "Animal2",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required" : ["type"],
+            "subTypes" : ["Cat2", "Dog2"],
+            "discriminator" : "type"
+        },
+        "Cat2": {
+            "id": "Cat2",
+            "properties": {
+                "favoriteToy": {
+                    "type": "string"
+                }
+            }
+        },
+        "Dog2": {
+            "id": "Dog2",
+            "properties": {
+                "breed": {
+                    "type": "string"
+                },
+                "leashColor": {
+                    "type": "string"
+                }
+            }
+        },
+        "Animal3": {
+            "id": "Animal3",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required" : ["type"],
+            "subTypes" : ["Cat3", "Dog3"],
+            "discriminator" : "type"
+        },
+        "Cat3": {
+            "id": "Cat3",
+            "properties": {
+                "favoriteToy": {
+                    "type": "string"
+                }
+            }
+        },
+        "Dog3": {
+            "id": "Dog3",
+            "properties": {
+                "breed": {
+                    "type": "string"
+                },
+                "leashColor": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,5 +1,8 @@
 package com.carma.swagger.doclet.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.carma.swagger.doclet.DocletOptions;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationValue;
@@ -47,11 +50,25 @@ public class AnnotationParser {
 		if (annotation == null) {
 			return null;
 		}
+		return getAnnotationValue(annotation, key);
+	}
+
+	private String getAnnotationValue(AnnotationDesc annotation, String key) {
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
 			if (evp.element().name().equals(key)) {
 				String val = evp.value().value().toString();
 				val = val.trim();
 				return this.options.replaceVars(val);
+			}
+		}
+		return null;
+	}
+
+	private ClassDoc getAnnotationClassDocValue(AnnotationDesc annotation, String key) {
+		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
+			if (evp.element().name().equals(key)) {
+				ClassDoc val = (ClassDoc) evp.value().value();
+				return val;
 			}
 		}
 		return null;
@@ -112,6 +129,40 @@ public class AnnotationParser {
 					}
 					return res;
 				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * This gets a list of string values from an annotations field that is itself an array of annotations
+	 * @param qualifiedAnnotationType The fqn of the annotation
+	 * @param key The key of the annotation field that is the array of annotations
+	 * @param subKey The key inside each of the annotations in the array that we want to get the value of
+	 * @return A list of string of values
+	 */
+	public List<ClassDoc> getAnnotationArrayTypes(String qualifiedAnnotationType, String key, String subKey) {
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		if (annotation == null) {
+			return null;
+		}
+		// we expect a single item which is an array of sub annotations
+		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
+			if (evp.element().name().equals(key)) {
+				Object val = evp.value().value();
+				AnnotationValue[] vals = (AnnotationValue[]) val;
+				List<ClassDoc> res = new ArrayList<ClassDoc>();
+				for (AnnotationValue annotationVal : vals) {
+					AnnotationDesc subAnnotation = (AnnotationDesc) annotationVal.value();
+					ClassDoc classDoc = getAnnotationClassDocValue(subAnnotation, "value");
+					if (classDoc != null) {
+						res.add(classDoc);
+					}
+				}
+				if (res.isEmpty()) {
+					return null;
+				}
+				return res;
 			}
 		}
 		return null;

@@ -455,7 +455,7 @@ public class ApiMethodParser {
 			// see if its a special composite type e.g. @BeanParam
 			if ("composite".equals(paramCategory)) {
 
-				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart);
+				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart, true);
 				Set<Model> models = modelParser.parse();
 				String rootModelId = modelParser.getRootModelId();
 				for (Model model : models) {

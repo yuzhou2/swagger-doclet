@@ -138,6 +138,11 @@ public class DocletOptions {
 			} else if (option[0].equals("-formParameterTypes")) {
 				parsedOptions.formParameterTypes.addAll(asList(copyOfRange(option, 1, option.length)));
 
+			} else if (option[0].equals("-discriminatorAnnotations")) {
+				parsedOptions.discriminatorAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-subTypesAnnotations")) {
+				parsedOptions.subTypesAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+
 			} else if (option[0].equals("-compositeParamAnnotations")) {
 				parsedOptions.compositeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-compositeParamTypes")) {
@@ -230,6 +235,9 @@ public class DocletOptions {
 
 	private List<String> compositeParamAnnotations;
 	private List<String> compositeParamTypes;
+
+	private List<String> discriminatorAnnotations;
+	private List<String> subTypesAnnotations;
 
 	private List<String> excludeParamAnnotations;
 	private List<String> excludeClassTags;
@@ -363,6 +371,12 @@ public class DocletOptions {
 		this.compositeParamAnnotations = new ArrayList<String>();
 		this.compositeParamAnnotations.add("javax.ws.rs.BeanParam");
 		this.compositeParamTypes = new ArrayList<String>();
+
+		this.discriminatorAnnotations = new ArrayList<String>();
+		this.discriminatorAnnotations.add("com.fasterxml.jackson.annotation.JsonTypeInfo");
+
+		this.subTypesAnnotations = new ArrayList<String>();
+		this.subTypesAnnotations.add("com.fasterxml.jackson.annotation.JsonSubTypes");
 
 		this.excludeResourcePrefixes = new ArrayList<String>();
 
@@ -681,6 +695,22 @@ public class DocletOptions {
 	public DocletOptions setExcludeResourcePrefixes(List<String> excludeResourcePrefixes) {
 		this.excludeResourcePrefixes = excludeResourcePrefixes;
 		return this;
+	}
+
+	/**
+	 * This gets the discriminatorAnnotations
+	 * @return the discriminatorAnnotations
+	 */
+	public List<String> getDiscriminatorAnnotations() {
+		return this.discriminatorAnnotations;
+	}
+
+	/**
+	 * This gets the subTypesAnnotations
+	 * @return the subTypesAnnotations
+	 */
+	public List<String> getSubTypesAnnotations() {
+		return this.subTypesAnnotations;
 	}
 
 	/**

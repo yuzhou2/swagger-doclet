@@ -66,7 +66,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0</version>
+        						<version>1.0.1</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -480,6 +480,10 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-compositeParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote a parameter class as being a composite parameter class. The default list contains javax.ws.rs.BeanParam.</td></tr>
 	
 	<tr><td>-compositeParamTypes</td><td>This adds additional classes to the list of parameter type classes that are used to denote a parameter class as being a composite parameter class. The default list is empty.</td></tr>
+	
+	<tr><td>-discriminatorAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote the name of a model's discriminator property. If the model does not have a property with this name specified then it will be automatically be added as a string type model property. The default list contains com.fasterxml.jackson.annotation.JsonTypeInfo.</td></tr>
+	
+	<tr><td>-subTypesAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote sub types of a model class. The default list contains com.fasterxml.jackson.annotation.JsonSubTypes.</td></tr>
 	
 </table>
 
