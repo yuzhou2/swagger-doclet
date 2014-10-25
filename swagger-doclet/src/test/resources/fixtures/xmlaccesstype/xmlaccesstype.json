@@ -1,0 +1,45 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/xmlaccesstype",
+    "apis": [
+        {
+            "path": "/xmlaccesstype/fieldaccess",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postFieldAccess",
+                    "type": "FieldAccessPojo",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "FieldAccessPojo",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "FieldAccessPojo": {
+            "id": "FieldAccessPojo",
+            "properties": {
+                "value1": {
+                    "type": "string"
+                },
+                "value2": {
+                    "type": "string"
+                },
+                "value3": {
+                    "type": "string"
+                },
+                "value4": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
