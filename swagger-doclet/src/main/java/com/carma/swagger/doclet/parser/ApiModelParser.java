@@ -320,8 +320,6 @@ public class ApiModelParser {
 		// due to annotations like XMLElement
 		Map<String, String> rawToTranslatedFields = new HashMap<String, String>();
 
-		NameBasedTranslator nameTranslator = new NameBasedTranslator(this.options);
-
 		for (ClassDoc classDoc : classes) {
 
 			AnnotationParser p = new AnnotationParser(classDoc, this.options);
@@ -329,151 +327,17 @@ public class ApiModelParser {
 
 			Set<String> customizedFieldNames = new HashSet<String>();
 
-			// process fields
 			Set<String> excludeFields = new HashSet<String>();
 
 			Set<String> fieldNames = new HashSet<String>();
 			FieldDoc[] fieldDocs = classDoc.fields(false);
 
-			if (fieldDocs != null) {
-				for (FieldDoc field : fieldDocs) {
-					fieldNames.add(field.name());
+			// process fields
+			processFields(nested, xmlAccessorType, fieldDocs, fieldNames, excludeFields, rawToTranslatedFields, customizedFieldNames, elements);
 
-					String translatedName = this.translator.fieldName(field).value();
-
-					if (excludeField(field, translatedName)) {
-						excludeFields.add(field.name());
-					} else {
-						rawToTranslatedFields.put(field.name(), translatedName);
-						if (!field.name().equals(translatedName)) {
-							customizedFieldNames.add(field.name());
-						}
-						if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
-							if (!elements.containsKey(translatedName)) {
-
-								Type fieldType = getModelType(field.type(), nested);
-
-								String description = getFieldDescription(field, true);
-								String min = getFieldMin(field);
-								String max = getFieldMax(field);
-								Boolean required = getFieldRequired(field);
-								String defaultValue = getFieldDefaultValue(field);
-
-								String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
-										: null;
-
-								elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min,
-										max, defaultValue, required));
-							}
-						}
-					}
-				}
-			}
-
-			if (!"javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
-				MethodDoc[] methodDocs = classDoc.methods();
-				Set<String> excludeMethodNames = new HashSet<String>();
-
-				if (methodDocs != null) {
-					// loop through methods to find ones that should be excluded such as via @XmlTransient or other means
-					// we do this first as the order of processing the methods varies per runtime env and
-					// we want to make sure we group together setters and getters
-					for (MethodDoc method : methodDocs) {
-
-						String translatedNameViaMethod = this.translator.methodName(method).value();
-						String rawFieldName = nameTranslator.methodName(method).value();
-
-						if (excludeMethod(method, translatedNameViaMethod)) {
-							// exclude this method explicitly
-							excludeMethodNames.add(method.name());
-
-							// process getter/setters
-							if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
-
-								// add to the set field names to be excluded so we can later exclude
-								// its corresponding opposite set/get method
-								elements.remove(rawFieldName);
-								excludeFields.add(rawFieldName);
-
-							}
-						} else {
-							// see if the field name should be overwritten via annotations on the getter/setter
-							// note if the field has its own customizing annotation then that takes precedence
-							if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
-								String nameViaField = rawToTranslatedFields.get(rawFieldName);
-								if (!customizedFieldNames.contains(rawFieldName) && !translatedNameViaMethod.equals(nameViaField)) {
-									rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
-									customizedFieldNames.add(rawFieldName);
-								}
-							}
-						}
-					}
-
-					// now process again so we can handle the remaining methods
-					for (MethodDoc method : methodDocs) {
-						// skip ones we have already found as not to be included
-						if (excludeMethodNames.contains(method.name())) {
-							continue;
-						}
-
-						String translatedNameViaMethod = this.translator.methodName(method).value();
-						String rawFieldName = nameTranslator.methodName(method).value();
-
-						// special behaviour if its a getter/setter
-						if (rawFieldName != null && fieldNames.contains(rawFieldName)) {
-
-							// check if the field it references should be excluded via previous processing
-							if (excludeFields.contains(rawFieldName)) {
-								continue;
-							}
-
-							boolean isFieldGetter = method.name().startsWith("get");
-
-							TypeRef typeRef = elements.get(rawFieldName);
-
-							// the field was already found e.g. class had a field and this is the getter
-							// check if there are tags on the getter we can use to fill in description, min and max
-							if (typeRef.description == null) {
-								typeRef.description = getFieldDescription(method, isFieldGetter);
-							}
-							if (typeRef.min == null) {
-								typeRef.min = getFieldMin(method);
-							}
-							if (typeRef.max == null) {
-								typeRef.max = getFieldMax(method);
-							}
-							if (typeRef.defaultValue == null) {
-								typeRef.defaultValue = getFieldDefaultValue(method);
-							}
-							if (typeRef.required == null) {
-								typeRef.required = getFieldRequired(method);
-							}
-							if (this.composite && typeRef.paramCategory == null) {
-								typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
-							}
-
-							typeRef.sourceDesc = " method: " + method.name();
-
-						} else {
-							// this is a getter or other method where there wasn't a specific field
-							String description = getFieldDescription(method, true);
-							String min = getFieldMin(method);
-							String max = getFieldMax(method);
-							String defaultValue = getFieldDefaultValue(method);
-							Boolean required = getFieldRequired(method);
-
-							Type returnType = getModelType(method.returnType(), nested);
-
-							String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
-
-							elements.put(translatedNameViaMethod, new TypeRef(rawFieldName, paramCategory, " method: " + method.name(), returnType,
-									description, min, max, defaultValue, required));
-						}
-
-					}
-				}
-			}
-
+			// process methods
+			MethodDoc[] methodDocs = classDoc.methods();
+			processMethods(nested, xmlAccessorType, methodDocs, excludeFields, rawToTranslatedFields, customizedFieldNames, elements);
 		}
 
 		// finally switch the element keys to use the translated field names
@@ -488,6 +352,144 @@ public class ApiModelParser {
 		}
 
 		return res;
+	}
+
+	private void processFields(boolean nested, String xmlAccessorType, FieldDoc[] fieldDocs, Set<String> fieldNames, Set<String> excludeFields,
+			Map<String, String> rawToTranslatedFields, Set<String> customizedFieldNames, Map<String, TypeRef> elements) {
+		if (fieldDocs != null) {
+			for (FieldDoc field : fieldDocs) {
+				fieldNames.add(field.name());
+
+				String translatedName = this.translator.fieldName(field).value();
+
+				if (excludeField(field, translatedName)) {
+					excludeFields.add(field.name());
+				} else {
+					rawToTranslatedFields.put(field.name(), translatedName);
+					if (!field.name().equals(translatedName)) {
+						customizedFieldNames.add(field.name());
+					}
+					if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
+						if (!elements.containsKey(translatedName)) {
+
+							Type fieldType = getModelType(field.type(), nested);
+
+							String description = getFieldDescription(field, true);
+							String min = getFieldMin(field);
+							String max = getFieldMax(field);
+							Boolean required = getFieldRequired(field);
+							String defaultValue = getFieldDefaultValue(field);
+
+							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
+									: null;
+
+							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min, max,
+									defaultValue, required));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void processMethods(boolean nested, String xmlAccessorType, MethodDoc[] methodDocs, Set<String> excludeFields,
+			Map<String, String> rawToTranslatedFields, Set<String> customizedFieldNames, Map<String, TypeRef> elements) {
+
+		if (!"javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
+
+			NameBasedTranslator nameTranslator = new NameBasedTranslator(this.options);
+
+			if (methodDocs != null) {
+				// loop through methods to find ones that should be excluded such as via @XmlTransient or other means
+				// we do this first as the order of processing the methods varies per runtime env and
+				// we want to make sure we group together setters and getters
+				for (MethodDoc method : methodDocs) {
+
+					String translatedNameViaMethod = this.translator.methodName(method).value();
+					String rawFieldName = nameTranslator.methodName(method).value();
+					Type returnType = getModelType(method.returnType(), nested);
+
+					// see if this is a getter or setter and either the field or previously processed getter/setter has been excluded
+					// if so don't include this method
+					if (rawFieldName != null && excludeFields.contains(rawFieldName)) {
+						elements.remove(rawFieldName);
+						continue;
+					}
+
+					// see if this method is to be directly excluded
+					if (excludeMethod(method, translatedNameViaMethod)) {
+						if (rawFieldName != null) {
+							elements.remove(rawFieldName);
+							excludeFields.add(rawFieldName);
+						}
+						continue;
+					}
+
+					boolean isFieldGetter = rawFieldName != null && method.name().startsWith("get");
+
+					String description = getFieldDescription(method, isFieldGetter);
+					String min = getFieldMin(method);
+					String max = getFieldMax(method);
+					String defaultValue = getFieldDefaultValue(method);
+					Boolean required = getFieldRequired(method);
+
+					// process getters/setters in a way that can override the field details
+					if (rawFieldName != null) {
+
+						// look for custom field names to use for getters/setters
+						String translatedFieldName = rawToTranslatedFields.get(rawFieldName);
+						if (!customizedFieldNames.contains(rawFieldName) && !translatedNameViaMethod.equals(translatedFieldName)) {
+							rawToTranslatedFields.put(rawFieldName, translatedNameViaMethod);
+							customizedFieldNames.add(rawFieldName);
+						}
+
+						TypeRef typeRef = elements.get(rawFieldName);
+						if (typeRef == null) {
+							// its a getter/setter but without a corresponding field
+							typeRef = new TypeRef(rawFieldName, null, " method: " + method.name(), returnType, description, min, max, defaultValue, required);
+							elements.put(rawFieldName, typeRef);
+						}
+
+						if (isFieldGetter) {
+							// return type may not have been set if there is no corresponding field or it may be different
+							// to the fields type
+							if (typeRef.type != returnType) {
+								typeRef.type = returnType;
+							}
+						}
+
+						// set other field values if not previously set
+						if (typeRef.description == null) {
+							typeRef.description = description;
+						}
+						if (typeRef.min == null) {
+							typeRef.min = min;
+						}
+						if (typeRef.max == null) {
+							typeRef.max = max;
+						}
+						if (typeRef.defaultValue == null) {
+							typeRef.defaultValue = defaultValue;
+						}
+						if (typeRef.required == null) {
+							typeRef.required = required;
+						}
+
+						if (typeRef.type != null && this.composite && typeRef.paramCategory == null) {
+							typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
+						}
+
+					} else {
+						// its a non getter/setter
+						String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
+						elements.put(translatedNameViaMethod, new TypeRef(null, paramCategory, " method: " + method.name(), returnType, description, min, max,
+								defaultValue, required));
+					}
+
+				}
+
+			}
+		}
 	}
 
 	private boolean excludeField(FieldDoc field, String translatedName) {
