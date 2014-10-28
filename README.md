@@ -26,9 +26,11 @@ The fixes/features in the 1.0.2 version were as follows:
 + Joda time classes are not handled meaning deep models are generated for them that the UI can't handle (Issue 24)
 + Getters that return a different type to their field are not supported (portion of Issue 17)
 + Getters/Setters without a corresponding field and which use a custom name are not supported (portion of Issue 17)
++ Boolean getters that use the is* naming convention can result in duplicate fields (portion of Issue 17)
 + Add option to disable use of @XmlAccessorType (portion of Issue 25)
 + For @XmlAccessorType Support Public Member, None and allow jaxb annotated fields/members to override the default Field and Property behaviour (portion of Issue 25)
 + Support Json Subtypes (Issue 22)
++ Support project wide naming conventions like lowercase underscore separated for model fields (portion of Issue 17) 
 
 The fixes/features in the 1.0.1 version were as follows:
 
