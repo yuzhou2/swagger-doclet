@@ -339,6 +339,7 @@ public class DocletOptions {
 		// types which are mapped to strings
 		this.stringTypePrefixes = new ArrayList<String>();
 		this.stringTypePrefixes.add("com.sun.jersey.core.header.");
+		this.stringTypePrefixes.add("org.joda.time.");
 
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();

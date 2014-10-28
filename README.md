@@ -479,7 +479,7 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-paramsNameTags</td><td>This adds additional tags to the list of javadoc tags used for setting custom names for parameters. These supercede both the default parameter name from the method signature as well as any annotations used for the parameter name. The default list contains paramsName and overrideParamsName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. which means that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type.</td></tr>
+	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. and org.joda.time. which means a) that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type and that b) Joda Time date classes like DateTime and LocalDate are given a type of string.</td></tr>
 	
 	<tr><td>-compositeParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote a parameter class as being a composite parameter class. The default list contains javax.ws.rs.BeanParam.</td></tr>
 	

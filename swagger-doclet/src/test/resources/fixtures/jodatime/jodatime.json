@@ -1,0 +1,50 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/jodaTime",
+    "apis": [
+        {
+            "path": "/jodaTime",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "get",
+                    "type": "Data"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "post",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+    	"Data": {
+            "id": "Data",
+            "properties": {
+                "dateTimeField": {
+                    "type": "string"
+                },
+                "dateTimeField2": {
+                    "type": "string"
+                },
+                "localDate": {
+                    "type": "string"
+                },
+                "localTime": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
