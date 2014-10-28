@@ -104,7 +104,7 @@ public class DocletOptions {
 				parsedOptions.parseModels = false;
 			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
 				parsedOptions.modelFieldsRequiredByDefault = true;
-			} else if (options[0].equals("-modelFieldsNamingConvention")) {
+			} else if (option[0].equals("-modelFieldsNamingConvention")) {
 				parsedOptions.modelFieldsNamingConvention = NamingConvention.forValue(option[1], NamingConvention.DEFAULT_NAME);
 			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
 				parsedOptions.includeSwaggerUi = false;

@@ -144,11 +144,14 @@ public class ApiModelParser {
 		boolean isJavaxType = qName.startsWith("javax.");
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		boolean isClass = qName.equals("java.lang.Class");
+		boolean isCollection = ParserHelper.isCollection(qName);
+		boolean isMap = ParserHelper.isMap(qName);
 		boolean isWildcard = qName.equals("?");
 
 		ClassDoc classDoc = type.asClassDoc();
 
-		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || classDoc == null || classDoc.isEnum() || alreadyStoredType(type)) {
+		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isCollection || isMap || classDoc == null || classDoc.isEnum()
+				|| alreadyStoredType(type)) {
 			return;
 		}
 
