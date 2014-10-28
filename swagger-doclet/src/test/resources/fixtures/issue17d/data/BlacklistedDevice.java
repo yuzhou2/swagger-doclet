@@ -19,6 +19,7 @@ public class BlacklistedDevice {
 	private BlacklistedDeviceId id;
 	private String reason;
 	private Date timestamp;
+	private boolean batteryActive;
 
 	public BlacklistedDevice() {
 		this.id = new BlacklistedDeviceId();
@@ -72,6 +73,15 @@ public class BlacklistedDevice {
 
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	@XmlElement(name = "battery_active")
+	public boolean isBatteryActive() {
+		return this.batteryActive;
+	}
+
+	public void setBatteryActive(boolean batteryActive) {
+		this.batteryActive = batteryActive;
 	}
 
 	@SuppressWarnings({ "serial" })

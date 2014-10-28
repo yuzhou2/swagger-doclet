@@ -159,6 +159,9 @@
             },
             "reason":{
                "type":"string"
+            },
+            "battery_active":{
+            	"type":"boolean"
             }
          }
       }

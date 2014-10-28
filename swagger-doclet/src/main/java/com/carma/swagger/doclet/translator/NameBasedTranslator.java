@@ -92,6 +92,13 @@ public class NameBasedTranslator implements Translator {
 		if ((method.name().startsWith("get") || method.name().startsWith("set")) && method.name().length() > 3) {
 			name = method.name().substring(3);
 			name = name.substring(0, 1).toLowerCase() + (name.length() > 1 ? name.substring(1) : "");
+		} else if (method.name().startsWith("is") && method.name().length() > 2) {
+			// verify return type is boolean
+			String[] typeFormat = ParserHelper.typeOf(method.returnType(), this.options);
+			if ("boolean".equals(typeFormat[0])) {
+				name = method.name().substring(2);
+				name = name.substring(0, 1).toLowerCase() + (name.length() > 1 ? name.substring(1) : "");
+			}
 		}
 		return presentOrMissing(name);
 	}
