@@ -1,0 +1,31 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/lower",
+    "apis": [
+        {
+            "path": "/lower",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "get",
+                    "type": "Data"
+                }
+            ]
+        }
+    ],
+    "models": {
+    	 "Data": {
+            "id": "Data",
+            "properties": {
+                "firstfield": {
+                    "type": "string"
+                },
+                "secondfield": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import com.carma.swagger.doclet.model.ApiAuthorizations;
 import com.carma.swagger.doclet.model.ApiInfo;
+import com.carma.swagger.doclet.parser.NamingConvention;
 import com.carma.swagger.doclet.parser.ParserHelper;
 import com.carma.swagger.doclet.parser.VariableReplacer;
 import com.carma.swagger.doclet.translator.AnnotationAwareTranslator;
@@ -103,6 +104,8 @@ public class DocletOptions {
 				parsedOptions.parseModels = false;
 			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
 				parsedOptions.modelFieldsRequiredByDefault = true;
+			} else if (options[0].equals("-modelFieldsNamingConvention")) {
+				parsedOptions.modelFieldsNamingConvention = NamingConvention.forValue(option[1], NamingConvention.DEFAULT_NAME);
 			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
 				parsedOptions.includeSwaggerUi = false;
 			} else if (option[0].equals("-disableSortApisByPath")) {
@@ -294,6 +297,8 @@ public class DocletOptions {
 
 	private boolean parseModels = true;
 	private boolean modelFieldsRequiredByDefault = false;
+	private NamingConvention modelFieldsNamingConvention = NamingConvention.DEFAULT_NAME;
+
 	private boolean sortResourcesByPath = false;
 	private boolean sortResourcesByPriority = false;
 	private boolean sortApisByPath = true;
@@ -827,6 +832,24 @@ public class DocletOptions {
 	 */
 	public DocletOptions setModelFieldsRequiredByDefault(boolean modelFieldsRequiredByDefault) {
 		this.modelFieldsRequiredByDefault = modelFieldsRequiredByDefault;
+		return this;
+	}
+
+	/**
+	 * This gets the modelFieldsNamingConvention
+	 * @return the modelFieldsNamingConvention
+	 */
+	public NamingConvention getModelFieldsNamingConvention() {
+		return this.modelFieldsNamingConvention;
+	}
+
+	/**
+	 * This sets the modelFieldsNamingConvention
+	 * @param modelFieldsNamingConvention the modelFieldsNamingConvention to set
+	 * @return this
+	 */
+	public DocletOptions setModelFieldsNamingConvention(NamingConvention modelFieldsNamingConvention) {
+		this.modelFieldsNamingConvention = modelFieldsNamingConvention;
 		return this;
 	}
 

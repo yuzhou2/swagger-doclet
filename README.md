@@ -398,6 +398,8 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	
 	<tr><td>-modelFieldsRequiredByDefault</td><td>This is whether model fields are required by default e.g. if a model field has neither @optional or @required on it. If you do not set this then model fields are NOT required by default. If you set this option then they ARE required by default.</td></tr>
 	
+	<tr><td>-modelFieldsNamingConvention</td><td>This is an optional naming convention that can be used for the naming of fields of models. If not specified then the fields of models will have the same name as the java field name unless it has one of the annotations that can override the name such as @XmlAttribute, @XmlElement or @JsonProperty. There are 3 types of naming conventions that can be used instead: lower case, upper case, and lower case with underscore separating words. For each of these they can be used either always or only when there is no name customising annotation/tag (such as @XmlAttribute). The supported values for this field are: LOWER_UNDERSCORE, UPPERCASE, LOWERCASE which always take effect or their equivalents which only apply when there is not customised name for the field are: LOWER_UNDERSCORE_UNLESS_OVERRIDDEN, UPPERCASE_UNLESS_OVERRIDDEN, LOWERCASE_UNLESS_OVERRIDDEN, </td></tr>
+	
 </table>
 
 ### Additional Options

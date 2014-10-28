@@ -343,12 +343,46 @@ public class ApiModelParser {
 		// finally switch the element keys to use the translated field names
 		Map<String, TypeRef> res = new HashMap<String, TypeRef>();
 		for (Map.Entry<String, TypeRef> entry : elements.entrySet()) {
-			String translatedName = rawToTranslatedFields.get(entry.getKey());
+			String rawName = entry.getKey();
+			String translatedName = rawToTranslatedFields.get(rawName);
+			boolean overridden = translatedName != null && !translatedName.equals(rawName);
+			String nameToUse = overridden ? translatedName : rawName;
+
+			// see if we should override using naming conventions
+			if (this.options.getModelFieldsNamingConvention() != null) {
+				switch (this.options.getModelFieldsNamingConvention()) {
+					case DEFAULT_NAME:
+						// do nothing as the naming is ok as is
+						break;
+					case LOWERCASE:
+						nameToUse = rawName.toLowerCase();
+						break;
+					case LOWERCASE_UNLESS_OVERRIDDEN:
+						nameToUse = overridden ? translatedName : rawName.toLowerCase();
+						break;
+					case LOWER_UNDERSCORE:
+						nameToUse = NamingConvention.toLowerUnderscore(rawName);
+						break;
+					case LOWER_UNDERSCORE_UNLESS_OVERRIDDEN:
+						nameToUse = overridden ? translatedName : NamingConvention.toLowerUnderscore(rawName);
+						break;
+					case UPPERCASE:
+						nameToUse = rawName.toUpperCase();
+						break;
+					case UPPERCASE_UNLESS_OVERRIDDEN:
+						nameToUse = overridden ? translatedName : rawName.toUpperCase();
+						break;
+					default:
+						break;
+
+				}
+			}
+
 			TypeRef typeRef = entry.getValue();
 			if (this.composite && typeRef.paramCategory == null) {
 				typeRef.paramCategory = "body";
 			}
-			res.put(translatedName == null ? entry.getKey() : translatedName, typeRef);
+			res.put(nameToUse, typeRef);
 		}
 
 		return res;
