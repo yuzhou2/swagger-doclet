@@ -21,6 +21,60 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/xmlaccesstype/noneaccess",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postNoneAccess",
+                    "type": "NoneAccessPojo",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "NoneAccessPojo",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/xmlaccesstype/propertyaccess",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postPropertyAccess",
+                    "type": "PropertyAccessPojo",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "PropertyAccessPojo",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/xmlaccesstype/publicaccess",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postPublicAccess",
+                    "type": "PublicAccessPojo",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "PublicAccessPojo",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -37,6 +91,66 @@
                     "type": "string"
                 },
                 "value4": {
+                    "type": "string"
+                },
+                "value9": {
+                    "type": "string"
+                }
+            }
+        },
+        "NoneAccessPojo": {
+            "id": "NoneAccessPojo",
+            "properties": {
+            	"value10": {
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
+                },
+                "value11": {
+                    "type": "string"
+                },
+                "value9a": {
+                    "type": "string"
+                },
+                "value8": {
+                    "type": "string"
+                },
+                "value6": {
+                    "type": "string"
+                },
+                "value7a": {
+                    "type": "string"
+                }
+            }
+        },
+        "PropertyAccessPojo": {
+            "id": "PropertyAccessPojo",
+            "properties": {
+                "value8": {
+                    "type": "string"
+                },
+                "value9": {
+                    "type": "string"
+                }
+            }
+        },
+        "PublicAccessPojo": {
+            "id": "PublicAccessPojo",
+            "properties": {
+            	"value7": {
+                    "type": "string"
+                },
+                "value8": {
+                    "type": "string"
+                },
+                "value9": {
+                    "type": "string"
+                },
+                "value10": {
+                    "type": "string"
+                },
+                "value11": {
                     "type": "string"
                 }
             }

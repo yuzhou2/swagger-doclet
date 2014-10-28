@@ -46,7 +46,7 @@ public class AnnotationParser {
 	 * @return The value of the given named attribute of the given annotation
 	 */
 	public String getAnnotationValue(String qualifiedAnnotationType, String key) {
-		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
@@ -81,7 +81,7 @@ public class AnnotationParser {
 	 * @return The values or null if none were found
 	 */
 	public ClassDoc[] getAnnotationClassDocValues(String qualifiedAnnotationType, String key) {
-		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
@@ -110,7 +110,7 @@ public class AnnotationParser {
 	 * @return The values or null if none were found
 	 */
 	public String[] getAnnotationValues(String qualifiedAnnotationType, String key) {
-		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
@@ -142,7 +142,7 @@ public class AnnotationParser {
 	 * @return A list of string of values
 	 */
 	public List<ClassDoc> getAnnotationArrayTypes(String qualifiedAnnotationType, String key, String subKey) {
-		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType);
+		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
@@ -174,14 +174,28 @@ public class AnnotationParser {
 	 * @return True if this is annotated by the given annotation
 	 */
 	public boolean isAnnotatedBy(String qualifiedAnnotationType) {
-		return getAnnotation(qualifiedAnnotationType) != null;
+		return getAnnotation(qualifiedAnnotationType, false) != null;
 	}
 
-	private AnnotationDesc getAnnotation(String qualifiedAnnotationType) {
+	/**
+	 * This gets whether this is annotated by an annotation that starts with the given prefix
+	 * @param qualifiedAnnotationTypePrefix The annotation type prefix to check for
+	 * @return True if this is annotated by an annotation that starts with the given prefix
+	 */
+	public boolean isAnnotatedByPrefix(String qualifiedAnnotationTypePrefix) {
+		return getAnnotation(qualifiedAnnotationTypePrefix, true) != null;
+	}
+
+	private AnnotationDesc getAnnotation(String qualifiedAnnotationType, boolean startsWith) {
 		AnnotationDesc found = null;
 		for (AnnotationDesc annotation : this.annotations) {
 			try {
-				if (annotation.annotationType().qualifiedTypeName().equals(qualifiedAnnotationType)) {
+				if (startsWith) {
+					if (annotation.annotationType().qualifiedTypeName().indexOf(qualifiedAnnotationType) > -1) {
+						found = annotation;
+						break;
+					}
+				} else if (annotation.annotationType().qualifiedTypeName().equals(qualifiedAnnotationType)) {
 					found = annotation;
 					break;
 				}

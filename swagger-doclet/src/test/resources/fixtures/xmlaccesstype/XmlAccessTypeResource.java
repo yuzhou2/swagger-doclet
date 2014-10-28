@@ -18,4 +18,22 @@ public class XmlAccessTypeResource {
 		return data;
 	}
 
+	@POST
+	@Path("/noneaccess")
+	public NoneAccessPojo postNoneAccess(NoneAccessPojo data) {
+		return data;
+	}
+
+	@POST
+	@Path("/propertyaccess")
+	public PropertyAccessPojo postPropertyAccess(PropertyAccessPojo data) {
+		return data;
+	}
+
+	@POST
+	@Path("/publicaccess")
+	public PublicAccessPojo postPublicAccess(PublicAccessPojo data) {
+		return data;
+	}
+
 }

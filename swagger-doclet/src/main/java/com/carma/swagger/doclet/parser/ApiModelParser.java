@@ -406,7 +406,7 @@ public class ApiModelParser {
 					if (!field.name().equals(translatedName)) {
 						customizedFieldNames.add(field.name());
 					}
-					if (!"javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
+					if (checkFieldXmlAccess(xmlAccessorType, field)) {
 						if (!elements.containsKey(translatedName)) {
 
 							Type fieldType = getModelType(field.type(), nested);
@@ -432,15 +432,15 @@ public class ApiModelParser {
 	private void processMethods(boolean nested, String xmlAccessorType, MethodDoc[] methodDocs, Set<String> excludeFields,
 			Map<String, String> rawToTranslatedFields, Set<String> customizedFieldNames, Map<String, TypeRef> elements) {
 
-		if (!"javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
+		NameBasedTranslator nameTranslator = new NameBasedTranslator(this.options);
 
-			NameBasedTranslator nameTranslator = new NameBasedTranslator(this.options);
+		if (methodDocs != null) {
+			// loop through methods to find ones that should be excluded such as via @XmlTransient or other means
+			// we do this first as the order of processing the methods varies per runtime env and
+			// we want to make sure we group together setters and getters
+			for (MethodDoc method : methodDocs) {
 
-			if (methodDocs != null) {
-				// loop through methods to find ones that should be excluded such as via @XmlTransient or other means
-				// we do this first as the order of processing the methods varies per runtime env and
-				// we want to make sure we group together setters and getters
-				for (MethodDoc method : methodDocs) {
+				if (checkMethodXmlAccess(xmlAccessorType, method)) {
 
 					String translatedNameViaMethod = this.translator.methodName(method).value();
 					String rawFieldName = nameTranslator.methodName(method).value();
@@ -522,11 +522,62 @@ public class ApiModelParser {
 						elements.put(translatedNameViaMethod, new TypeRef(null, paramCategory, " method: " + method.name(), returnType, description, min, max,
 								defaultValue, required));
 					}
-
 				}
-
 			}
+
 		}
+	}
+
+	private boolean checkFieldXmlAccess(String xmlAccessorType, FieldDoc field) {
+		// if xml access type checking is disabled then do nothing
+		if (this.options.isModelFieldsXmlAccessTypeEnabled()) {
+
+			AnnotationParser annotationParser = new AnnotationParser(field, this.options);
+			boolean hasJaxbAnnotation = annotationParser.isAnnotatedByPrefix("javax.xml.bind.annotation.");
+
+			// if none access then only include if the field has a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.NONE".equals(xmlAccessorType)) {
+				return hasJaxbAnnotation;
+			}
+
+			// if property return false unless annotated by a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.PROPERTY".equals(xmlAccessorType)) {
+				return hasJaxbAnnotation;
+			}
+
+			// if public then return true if field is public or if annotated by a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
+				return field.isPublic() || hasJaxbAnnotation;
+			}
+
+		}
+		return true;
+	}
+
+	private boolean checkMethodXmlAccess(String xmlAccessorType, MethodDoc method) {
+		// if xml access type checking is disabled then do nothing
+		if (this.options.isModelFieldsXmlAccessTypeEnabled()) {
+
+			AnnotationParser annotationParser = new AnnotationParser(method, this.options);
+			boolean hasJaxbAnnotation = annotationParser.isAnnotatedByPrefix("javax.xml.bind.annotation.");
+
+			// if none access then only include if the method has a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.NONE".equals(xmlAccessorType)) {
+				return hasJaxbAnnotation;
+			}
+
+			// if field return false unless annotated by a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.FIELD".equals(xmlAccessorType)) {
+				return hasJaxbAnnotation;
+			}
+
+			// if public then return true if field is public or if annotated by a jaxb annotation
+			if ("javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
+				return method.isPublic() || hasJaxbAnnotation;
+			}
+
+		}
+		return true;
 	}
 
 	private boolean excludeField(FieldDoc field, String translatedName) {
