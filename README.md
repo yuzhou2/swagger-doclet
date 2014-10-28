@@ -19,7 +19,16 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 ## Versions
 
-The latest production version is 1.0.1
+The latest production version is 1.0.2
+
+The fixes/features in the 1.0.2 version were as follows:
+
++ Joda time classes are not handled meaning deep models are generated for them that the UI can't handle (Issue 24)
++ Getters that return a different type to their field are not supported (portion of Issue 17)
++ Getters/Setters without a corresponding field and which use a custom name are not supported (portion of Issue 17)
++ Add option to disable use of @XmlAccessorType (portion of Issue 25)
++ For @XmlAccessorType Support Public Member, None and allow jaxb annotated fields/members to override the default Field and Property behaviour (portion of Issue 25)
++ Support Json Subtypes (Issue 22)
 
 The fixes/features in the 1.0.1 version were as follows:
 
@@ -30,7 +39,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.0.2-SNAPSHOT.
+The latest snapshot version is 1.0.3-SNAPSHOT.
 
 ## Usage
 
