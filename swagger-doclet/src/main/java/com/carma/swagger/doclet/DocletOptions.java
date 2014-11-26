@@ -57,7 +57,15 @@ public class DocletOptions {
 	 * @return The parse options
 	 */
 	public static DocletOptions parse(String[][] options) {
+
 		DocletOptions parsedOptions = new DocletOptions();
+
+		// Object mapper settings
+		String serializationFeaturesCsv = null;
+		String deserializationFeaturesCsv = null;
+		String defaultTyping = null;
+		String serializationInclusion = null;
+
 		for (String[] option : options) {
 			if (option[0].equals("-d")) {
 				parsedOptions.outputDirectory = new File(option[1]);
@@ -215,8 +223,17 @@ public class DocletOptions {
 				parsedOptions.authOperationScopes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-operationScopeTags")) {
 				parsedOptions.operationScopeTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-serializationFeatures")) {
+				serializationFeaturesCsv = option[1];
+			} else if (option[0].equals("-deserializationFeatures")) {
+				deserializationFeaturesCsv = option[1];
+			} else if (option[0].equals("-defaultTyping")) {
+				defaultTyping = option[1];
+			} else if (option[0].equals("-serializationInclusion")) {
+				serializationInclusion = option[1];
 			}
 		}
+		parsedOptions.recorder = new ObjectMapperRecorder(serializationFeaturesCsv, deserializationFeaturesCsv, defaultTyping, serializationInclusion);
 		return parsedOptions;
 	}
 
@@ -310,7 +327,7 @@ public class DocletOptions {
 
 	private ApiInfo apiInfo;
 
-	private Recorder recorder = new ObjectMapperRecorder();
+	private Recorder recorder;
 	private Translator translator;
 
 	/**

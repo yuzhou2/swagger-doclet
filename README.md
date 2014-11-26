@@ -413,6 +413,14 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	
 	<tr><td>-modelFieldsNamingConvention</td><td>This is an optional naming convention that can be used for the naming of fields of models. If not specified then the fields of models will have the same name as the java field name unless it has one of the annotations that can override the name such as @XmlAttribute, @XmlElement or @JsonProperty. There are 3 types of naming conventions that can be used instead: lower case, upper case, and lower case with underscore separating words. For each of these they can be used either always or only when there is no name customising annotation/tag (such as @XmlAttribute). The supported values for this field are: LOWER_UNDERSCORE, UPPERCASE, LOWERCASE which always take effect or their equivalents which only apply when there is not customised name for the field are: LOWER_UNDERSCORE_UNLESS_OVERRIDDEN, UPPERCASE_UNLESS_OVERRIDDEN, LOWERCASE_UNLESS_OVERRIDDEN, </td></tr>
 	
+	<tr><td>-serializationInclusion</td><td>By default this will be NON_NULL, but you can change this to any of the other supported values ALWAYS, NON_DEFAULT, NON_EMPTY. See com.fasterxml.jackson.annotation.JsonInclude$Include for more details.</td></tr>
+	
+	<tr><td>-defaultTyping</td><td>This is not enabled by default. You can choose to set it to one of the following values: JAVA_LANG_OBJECT, OBJECT_AND_NON_CONCRETE, NON_CONCRETE_AND_ARRAYS, NON_FINAL. See com.fasterxml.jackson.databind.ObjectMapper$DefaultTyping for futher details.</td></tr>
+	
+	<tr><td>-serializationFeatures</td><td>The default value for this is INDENT_OUTPUT:true. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.SerializationFeature for futher details.</td></tr>
+
+	<tr><td>-deserializationFeatures</td><td>There is no default value for this. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.DeserializationFeature for futher details.</td></tr>	
+	
 </table>
 
 ### Additional Options

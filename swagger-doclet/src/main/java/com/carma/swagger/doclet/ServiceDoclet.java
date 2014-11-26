@@ -83,6 +83,12 @@ public class ServiceDoclet {
 		options.put("-authOperationScopes", 2);
 		options.put("-operationScopeTags", 2);
 
+		// options for configuring the generated json
+		options.put("-serializationFeatures", 2);
+		options.put("-deserializationFeatures", 2);
+		options.put("-defaultTyping", 2);
+		options.put("-serializationInclusion", 2);
+
 		options.put("-variablesPropertiesFile", 2);
 
 		options.put("-swaggerUiZipPath", 2); // kept for backward compatibility
