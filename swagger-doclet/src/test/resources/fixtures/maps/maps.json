@@ -1,0 +1,46 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/maps",
+    "apis": [
+        {
+            "path": "/maps/a",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getA",
+                    "type": "ModelA"
+                }
+            ]
+        },
+        {
+            "path": "/maps/b",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getB",
+                    "type": "ModelB"
+                }
+            ]
+        }
+    ],
+    "models": {
+    	"ModelA": {
+            "id": "ModelA",
+            "properties": {
+                "data": {
+                    "type": "Map"
+                }
+            }
+        },
+        "ModelB": {
+            "id": "ModelB",
+            "properties": {
+                "data": {
+                    "type": "Map"
+                }
+            }
+        }
+    }
+}
