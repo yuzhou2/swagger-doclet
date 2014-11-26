@@ -53,4 +53,8 @@ public class Data extends DataParent {
 		return null;
 	}
 
+	public String getValue(int i) {
+		return null;
+	}
+
 }

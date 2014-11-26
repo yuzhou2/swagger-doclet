@@ -422,7 +422,6 @@ public class ApiModelParser {
 							String min = getFieldMin(field);
 							String max = getFieldMax(field);
 							Boolean required = getFieldRequired(field);
-							Boolean optional = required == null ? null : !required;
 
 							String defaultValue = getFieldDefaultValue(field);
 
@@ -471,7 +470,8 @@ public class ApiModelParser {
 						continue;
 					}
 
-					boolean isFieldGetter = rawFieldName != null && method.name().startsWith("get");
+					boolean isFieldGetter = rawFieldName != null && method.name().startsWith("get")
+							&& (method.parameters() == null || method.parameters().length == 0);
 
 					String description = getFieldDescription(method, isFieldGetter);
 					String min = getFieldMin(method);
@@ -481,6 +481,11 @@ public class ApiModelParser {
 
 					// process getters/setters in a way that can override the field details
 					if (rawFieldName != null) {
+
+						// see if get method with parameter, if so then we exclude
+						if (method.name().startsWith("get") && method.parameters() != null && method.parameters().length > 0) {
+							continue;
+						}
 
 						// look for custom field names to use for getters/setters
 						String translatedFieldName = rawToTranslatedFields.get(rawFieldName);
