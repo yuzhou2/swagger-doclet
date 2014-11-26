@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -413,35 +414,60 @@ public class ApiMethodParser {
 		// parameters
 		List<ApiParameter> parameters = new LinkedList<ApiParameter>();
 
-		Set<String> rawParamNames = ParserHelper.getParamNames(this.methodDoc);
-
-		// read required and optional params
-		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getOptionalParamsTags(), this.options);
-		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getRequiredParamsTags(), this.options);
-
-		// read exclude params
-		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getExcludeParamsTags(), this.options);
-
-		// read csv params
-		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, rawParamNames, this.options.getCsvParamsTags(), this.options);
-
-		// read min and max values of params
-		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMinValueTags(),
-				this.options);
-		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsMaxValueTags(),
-				this.options);
-
-		// read default values of params
-		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames,
-				this.options.getParamsDefaultValueTags(), this.options);
-
-		// read override names of params
-		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, rawParamNames, this.options.getParamsNameTags(),
-				this.options);
-
 		// read whether the method consumes multipart
 		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
 		boolean consumesMultipart = consumes != null && consumes.contains(MediaType.MULTIPART_FORM_DATA);
+
+		// get raw parameter names from method signature
+		Set<String> rawParamNames = ParserHelper.getParamNames(this.methodDoc);
+
+		// get full list including any beanparam parameter names
+		Set<String> allParamNames = new HashSet<String>(rawParamNames);
+		for (Parameter parameter : this.methodDoc.parameters()) {
+			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
+			// see if its a special composite type e.g. @BeanParam
+			if ("composite".equals(paramCategory)) {
+				Type paramType = parameter.type();
+				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart, true);
+				Set<Model> models = modelParser.parse();
+				String rootModelId = modelParser.getRootModelId();
+				for (Model model : models) {
+					if (model.getId().equals(rootModelId)) {
+						Map<String, Property> modelProps = model.getProperties();
+						for (Map.Entry<String, Property> entry : modelProps.entrySet()) {
+							Property property = entry.getValue();
+							String rawFieldName = property.getRawFieldName();
+							allParamNames.add(rawFieldName);
+						}
+					}
+				}
+			}
+
+		}
+
+		// read required and optional params
+		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getOptionalParamsTags(), this.options);
+		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getRequiredParamsTags(), this.options);
+
+		// read exclude params
+		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getExcludeParamsTags(), this.options);
+
+		// read csv params
+		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getCsvParamsTags(), this.options);
+
+		// read min and max values of params
+		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
+				this.options);
+		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
+				this.options);
+
+		// read default values of params
+		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames,
+				this.options.getParamsDefaultValueTags(), this.options);
+
+		// read override names of params
+		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsNameTags(),
+				this.options);
 
 		for (Parameter parameter : this.methodDoc.parameters()) {
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
@@ -460,14 +486,25 @@ public class ApiMethodParser {
 				String rootModelId = modelParser.getRootModelId();
 				for (Model model : models) {
 					if (model.getId().equals(rootModelId)) {
+						List<String> requiredFields = model.getRequiredFields();
+						List<String> optionalFields = model.getOptionalFields();
 						Map<String, Property> modelProps = model.getProperties();
 						for (Map.Entry<String, Property> entry : modelProps.entrySet()) {
 							Property property = entry.getValue();
 							String renderedParamName = entry.getKey();
-							String fawFieldName = property.getRawFieldName();
+							String rawFieldName = property.getRawFieldName();
 
-							Boolean allowMultiple = getAllowMultiple(paramCategory, fawFieldName, csvParams);
-							Boolean required = getRequired(paramCategory, fawFieldName, property.getType(), optionalParams, requiredParams);
+							Boolean allowMultiple = getAllowMultiple(paramCategory, rawFieldName, csvParams);
+
+							// see if there is a required javadoc tag directly on the bean param field, if so use that
+							Boolean required = null;
+							if (requiredFields != null && requiredFields.contains(renderedParamName)) {
+								required = Boolean.TRUE;
+							} else if (optionalFields != null && optionalFields.contains(renderedParamName)) {
+								required = Boolean.FALSE;
+							} else {
+								required = getRequired(paramCategory, rawFieldName, property.getType(), optionalParams, requiredParams);
+							}
 
 							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 							String itemsType = property.getItems() == null ? null : property.getItems().getType();

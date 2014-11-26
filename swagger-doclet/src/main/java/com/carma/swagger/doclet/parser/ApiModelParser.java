@@ -197,7 +197,8 @@ public class ApiModelParser {
 			String modelId = nested ? this.translator.typeName(type).value() : this.translator.typeName(type, this.viewClasses).value();
 
 			List<String> requiredFields = null;
-			// build list of required fields
+			List<String> optionalFields = null;
+			// build list of required and optional fields
 			for (Map.Entry<String, TypeRef> fieldEntry : types.entrySet()) {
 				String fieldName = fieldEntry.getKey();
 				TypeRef fieldDesc = fieldEntry.getValue();
@@ -207,6 +208,12 @@ public class ApiModelParser {
 						requiredFields = new ArrayList<String>();
 					}
 					requiredFields.add(fieldName);
+				}
+				if (required != null && !required.booleanValue()) {
+					if (optionalFields == null) {
+						optionalFields = new ArrayList<String>();
+					}
+					optionalFields.add(fieldName);
 				}
 			}
 
@@ -251,7 +258,7 @@ public class ApiModelParser {
 				}
 			}
 
-			this.models.add(new Model(modelId, elements, requiredFields, subTypes, discriminator));
+			this.models.add(new Model(modelId, elements, requiredFields, optionalFields, subTypes, discriminator));
 			parseNestedModels(types.values());
 		}
 	}
@@ -415,6 +422,8 @@ public class ApiModelParser {
 							String min = getFieldMin(field);
 							String max = getFieldMax(field);
 							Boolean required = getFieldRequired(field);
+							Boolean optional = required == null ? null : !required;
+
 							String defaultValue = getFieldDefaultValue(field);
 
 							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)

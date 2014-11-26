@@ -26,7 +26,8 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "string"
+                            "type": "string",
+                            "required": true
                         }
                     ],
                     "produces": [
@@ -40,14 +41,15 @@
             "path": "/beanparam/2",
             "operations": [
                 {
-                    "method": "GET",
-                    "nickname": "getMixedParams",
+                    "method": "POST",
+                    "nickname": "postMixedParams",
                     "type": "string",
                     "parameters": [
                     	{
                             "paramType": "query",
                             "name": "p3",
-                            "type": "string"
+                            "type": "string",
+                            "required": true
                         },
                         {
                             "paramType": "path",

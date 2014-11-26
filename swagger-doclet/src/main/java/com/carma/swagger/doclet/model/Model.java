@@ -3,6 +3,7 @@ package com.carma.swagger.doclet.model;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -14,6 +15,7 @@ public class Model {
 	private String id;
 	private Map<String, Property> properties;
 	private List<String> requiredFields;
+	private List<String> optionalFields;
 	private List<String> subTypes;
 	private String discriminator;
 
@@ -29,14 +31,17 @@ public class Model {
 	 * @param id
 	 * @param properties
 	 * @param requiredFields
+	 * @param optionalFields
 	 * @param subTypes
 	 * @param discriminator
 	 */
-	public Model(String id, Map<String, Property> properties, List<String> requiredFields, List<String> subTypes, String discriminator) {
+	public Model(String id, Map<String, Property> properties, List<String> requiredFields, List<String> optionalFields, List<String> subTypes,
+			String discriminator) {
 		super();
 		this.id = id;
 		this.properties = properties;
 		this.requiredFields = requiredFields;
+		this.optionalFields = optionalFields;
 		this.subTypes = subTypes;
 		this.discriminator = discriminator;
 	}
@@ -88,6 +93,23 @@ public class Model {
 	 */
 	public void setRequiredFields(List<String> requiredFields) {
 		this.requiredFields = requiredFields;
+	}
+
+	/**
+	 * This gets the optionalFields
+	 * @return the optionalFields
+	 */
+	@JsonIgnore
+	public List<String> getOptionalFields() {
+		return this.optionalFields;
+	}
+
+	/**
+	 * This sets the optionalFields
+	 * @param optionalFields the optionalFields to set
+	 */
+	public void setOptionalFields(List<String> optionalFields) {
+		this.optionalFields = optionalFields;
 	}
 
 	/**

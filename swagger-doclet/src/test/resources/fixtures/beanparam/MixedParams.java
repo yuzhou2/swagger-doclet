@@ -44,6 +44,7 @@ public class MixedParams {
 	/**
 	 * This sets the param3
 	 * @param param3 the param3 to set
+	 * @required
 	 */
 	@QueryParam("p3")
 	public void setParam3(String param3) {

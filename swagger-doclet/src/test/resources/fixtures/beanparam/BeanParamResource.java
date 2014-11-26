@@ -2,6 +2,7 @@ package fixtures.beanparam;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -14,6 +15,9 @@ import javax.ws.rs.core.MediaType;
 @Path("beanparam")
 public class BeanParamResource {
 
+	/**
+	 * @requiredParams param1
+	 */
 	@SuppressWarnings("javadoc")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -26,10 +30,10 @@ public class BeanParamResource {
 	}
 
 	@SuppressWarnings("javadoc")
-	@GET
+	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/2")
-	public String getMixedParams(@BeanParam MixedParams bean) {
+	public String postMixedParams(@BeanParam MixedParams bean) {
 		String p1 = bean == null ? null : bean.getParam1();
 		String p2 = bean == null ? null : "" + bean.getParam2();
 		String p3 = bean == null ? null : bean.getParam3();
