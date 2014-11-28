@@ -45,6 +45,8 @@ The latest snapshot version is 1.0.3-SNAPSHOT.
 
 ## Usage
 
+### Maven
+
 To use the Swagger Doclet in your Maven project, add the following to your POM file.
 
 ```
@@ -94,6 +96,45 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
 </xml>
 
 ```
+
+### Gradle
+
+Here is an example build.gradle file that will generate the swagger JSON files in the build/reports/rest-api-docs directory:
+
+```
+
+ apply plugin: 'java'
+
+ configurations {
+   doclet
+ }
+
+ repositories {
+    mavenLocal()
+    mavenCentral()
+ } 
+
+dependencies {
+    doclet(
+        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.3-SNAPSHOT'],
+        [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
+    ) 
+}
+
+ task generateRestApiDocs(type: Javadoc) {
+   source = sourceSets.main.allJava
+   destinationDir = reporting.file("rest-api-docs")
+   options.classpath = configurations.doclet.files.asType(List)
+   options.docletpath = configurations.doclet.files.asType(List)
+   options.doclet = "com.carma.swagger.doclet.ServiceDoclet"
+   options.addStringOption("apiVersion", "1")
+   options.addStringOption("docBasePath", "/sps/apidocs")
+   options.addStringOption("apiBasePath", "/sps")
+   options.addBooleanOption("skipUiFiles", true)
+}
+```
+
+### Usage Notes
 The settings that you use for the doc base path and the api base path will vary depending on both the version of swagger that is used and the name used for your top level resource listing. Please refer to the Doclet Options section of this document for a detailed description of these. 
 
 The doclet will generate a service.json file which is the swagger spec resource listing and will also generate a series of resource json files. To use the swagger ui with the generated json files you can either use the swagger ui that is embedded with this doclet (currently 2.0.24) or use your own which is recommended for most people as it allows you to tweak the look and feel.
@@ -112,7 +153,7 @@ window.swaggerUi = new SwaggerUi({
       url: "apidocs/service.json"
 ```
 
-Note: If you are using a snapshot version then these are deployed in the sonatype snapshots repository so you will need to include this either in your settings.xml or pom.xml.
+Note: If you are using a snapshot version then these are deployed in the sonatype snapshots repository so you will either need to checkout the snapshot version and run mvn install on it or you will need to include the Sonatype Nexus Snapshots repository. For Maven you can put the following in either in your settings.xml or pom.xml.
 
 ```
 <repositories>
