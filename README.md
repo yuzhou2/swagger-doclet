@@ -19,10 +19,21 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 ## Versions
 
-The latest production version is 1.0.2
+The latest production version is 1.0.3
+
+The fixes/features in the 1.0.3 version were as follows:
+
++ json view with nested jsonview annotated fields can cause duplicate model exception (Issue 35)
++ Shipped swagger zip has nested directory (Issue 34)
++ Ignore getters with parameter (Issue 33)
++ Unable to set param as required when wrapped in @BeanParam (Issue 32)
++ Support gradle (Issue 27)
++ Support configuring json serialization/deserialization (Issue 26)
 
 The fixes/features in the 1.0.2 version were as follows:
 
++ Request body pojos not working with XmlAccessType.FIELD (Issue 25)
++ @QueryParams are rendered as BODY type params when inside of a @BeanParam (Issue 31)
 + Joda time classes are not handled meaning deep models are generated for them that the UI can't handle (Issue 24)
 + Getters that return a different type to their field are not supported (portion of Issue 17)
 + Getters/Setters without a corresponding field and which use a custom name are not supported (portion of Issue 17)
@@ -41,7 +52,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.0.3-SNAPSHOT.
+The latest snapshot version is 1.0.4-SNAPSHOT.
 
 ## Usage
 
@@ -79,7 +90,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0.1</version>
+        						<version>1.0.3</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -116,7 +127,7 @@ Here is an example build.gradle file that will generate the swagger JSON files i
 
 dependencies {
     doclet(
-        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.3-SNAPSHOT'],
+        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.3'],
         [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
     ) 
 }
