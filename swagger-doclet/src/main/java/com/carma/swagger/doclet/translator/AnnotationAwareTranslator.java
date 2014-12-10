@@ -82,7 +82,7 @@ public class AnnotationAwareTranslator implements Translator {
 	public OptionalName typeName(Type type, ClassDoc[] views) {
 		OptionalName name = typeName(type);
 
-		if (views != null && views.length > 0 && name != null && name.isPresent()) {
+		if (views != null && views.length > 0 && name != null && name.isPresent() && !ParserHelper.isPrimitive(type, this.options)) {
 			StringBuilder nameWithViews = new StringBuilder(name.value()).append("-");
 			for (ClassDoc view : views) {
 				nameWithViews.append(view.name());

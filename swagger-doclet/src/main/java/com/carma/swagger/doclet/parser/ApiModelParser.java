@@ -194,7 +194,7 @@ public class ApiModelParser {
 		Map<String, Property> elements = findReferencedElements(classDoc, types, nested);
 		if (!elements.isEmpty()) {
 
-			String modelId = nested ? this.translator.typeName(type).value() : this.translator.typeName(type, this.viewClasses).value();
+			String modelId = this.translator.typeName(type, this.viewClasses).value();
 
 			List<String> requiredFields = null;
 			List<String> optionalFields = null;
@@ -282,9 +282,10 @@ public class ApiModelParser {
 		String max;
 		String defaultValue;
 		Boolean required;
+		boolean hasView;
 
 		TypeRef(String rawName, String paramCategory, String sourceDesc, Type type, String description, String min, String max, String defaultValue,
-				Boolean required) {
+				Boolean required, boolean hasView) {
 			super();
 			this.rawName = rawName;
 			this.paramCategory = paramCategory;
@@ -295,6 +296,7 @@ public class ApiModelParser {
 			this.max = max;
 			this.defaultValue = defaultValue;
 			this.required = required;
+			this.hasView = hasView;
 		}
 	}
 
@@ -422,6 +424,7 @@ public class ApiModelParser {
 							String min = getFieldMin(field);
 							String max = getFieldMax(field);
 							Boolean required = getFieldRequired(field);
+							boolean hasView = ParserHelper.hasJsonViews(field, this.options);
 
 							String defaultValue = getFieldDefaultValue(field);
 
@@ -429,7 +432,7 @@ public class ApiModelParser {
 									: null;
 
 							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, min, max,
-									defaultValue, required));
+									defaultValue, required, hasView));
 						}
 					}
 				}
@@ -478,6 +481,7 @@ public class ApiModelParser {
 					String max = getFieldMax(method);
 					String defaultValue = getFieldDefaultValue(method);
 					Boolean required = getFieldRequired(method);
+					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
 
 					// process getters/setters in a way that can override the field details
 					if (rawFieldName != null) {
@@ -497,7 +501,8 @@ public class ApiModelParser {
 						TypeRef typeRef = elements.get(rawFieldName);
 						if (typeRef == null) {
 							// its a getter/setter but without a corresponding field
-							typeRef = new TypeRef(rawFieldName, null, " method: " + method.name(), returnType, description, min, max, defaultValue, required);
+							typeRef = new TypeRef(rawFieldName, null, " method: " + method.name(), returnType, description, min, max, defaultValue, required,
+									false);
 							elements.put(rawFieldName, typeRef);
 						}
 
@@ -526,6 +531,10 @@ public class ApiModelParser {
 							typeRef.required = required;
 						}
 
+						if (!typeRef.hasView && hasView) {
+							typeRef.hasView = true;
+						}
+
 						if (typeRef.type != null && this.composite && typeRef.paramCategory == null) {
 							typeRef.paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, typeRef.type, this.options);
 						}
@@ -534,7 +543,7 @@ public class ApiModelParser {
 						// its a non getter/setter
 						String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
 						elements.put(translatedNameViaMethod, new TypeRef(null, paramCategory, " method: " + method.name(), returnType, description, min, max,
-								defaultValue, required));
+								defaultValue, required, hasView));
 					}
 				}
 			}
@@ -715,7 +724,12 @@ public class ApiModelParser {
 			Type type = typeRef.type;
 			ClassDoc typeClassDoc = type.asClassDoc();
 
+			// change type name based on parent view
 			OptionalName propertyTypeFormat = this.translator.typeName(type);
+			if (typeRef.hasView && this.viewClasses != null) {
+				propertyTypeFormat = this.translator.typeName(type, this.viewClasses);
+			}
+
 			String propertyType = propertyTypeFormat.value();
 
 			// set enum values

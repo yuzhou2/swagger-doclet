@@ -651,6 +651,16 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether the given method/field has a json view on it
+	 * @param doc The method/field to check
+	 * @param options The doclet options
+	 * @return True if the given method/field has a json view
+	 */
+	public static boolean hasJsonViews(com.sun.javadoc.ProgramElementDoc doc, DocletOptions options) {
+		return getJsonViews(doc, options) != null;
+	}
+
+	/**
 	 * This checks if an item view e.g optional json view that can be on a getter/field match any of the
 	 * given operation views, that is it can be the same or extend/implement one of the operation views.
 	 * @param operationViews The operation views that indicate which views apply to the operation.
