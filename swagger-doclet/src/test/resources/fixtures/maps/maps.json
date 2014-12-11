@@ -23,6 +23,46 @@
                     "type": "ModelB"
                 }
             ]
+        },
+        {
+            "path": "/maps/c",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getC",
+                    "type": "ModelC"
+                }
+            ]
+        },
+        {
+            "path": "/maps/d",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getD",
+                    "type": "ModelD"
+                }
+            ]
+        },
+        {
+            "path": "/maps/e",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getE",
+                    "type": "Map"
+                }
+            ]
+        },
+        {
+            "path": "/maps/f",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getF",
+                    "type": "Map"
+                }
+            ]
         }
     ],
     "models": {
@@ -38,6 +78,25 @@
             "id": "ModelB",
             "properties": {
                 "data": {
+                    "type": "Map"
+                }
+            }
+        },
+        "ModelC": {
+            "id": "ModelC",
+            "properties": {
+                "data": {
+                    "type": "Map"
+                }
+            }
+        },
+        "ModelD": {
+            "id": "ModelD",
+            "properties": {
+                "data": {
+                    "type": "Map"
+                },
+                "data2": {
                     "type": "Map"
                 }
             }
