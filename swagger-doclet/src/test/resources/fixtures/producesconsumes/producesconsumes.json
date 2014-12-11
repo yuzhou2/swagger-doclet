@@ -13,6 +13,9 @@
                     "type": "Data",
                     "produces": [
                     	"application/json", "application/xml"
+                    ],
+                    "consumes": [
+                    	"text/plain"
                     ]
                 },
                 {
@@ -32,6 +35,25 @@
                     ],
                     "produces": [
                     	"application/json", "application/xml"
+                    ]
+                },
+                {
+                    "method": "POST",
+                    "nickname": "postData2",
+                    "type": "Data",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : true
+                        }
+                    ],
+                    "consumes": [
+                    	"text/plain"
+                    ],
+                    "produces": [
+                    	"text/plain"
                     ]
                 }
             ]

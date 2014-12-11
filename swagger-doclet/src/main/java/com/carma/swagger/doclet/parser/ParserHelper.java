@@ -724,7 +724,12 @@ public class ParserHelper {
 	 * @return The list or null if none were found
 	 */
 	public static List<String> getConsumes(MethodDoc methodDoc, DocletOptions options) {
-		return listValues(methodDoc, JAX_RS_CONSUMES, "value", options);
+		List<String> methodLevel = listValues(methodDoc, JAX_RS_CONSUMES, "value", options);
+		if (methodLevel == null) {
+			// look for class level
+			return listValues(methodDoc.containingClass(), JAX_RS_CONSUMES, "value", options);
+		}
+		return methodLevel;
 	}
 
 	/**
@@ -734,7 +739,12 @@ public class ParserHelper {
 	 * @return The list or null if none were found
 	 */
 	public static List<String> getProduces(MethodDoc methodDoc, DocletOptions options) {
-		return listValues(methodDoc, JAX_RS_PRODUCES, "value", options);
+		List<String> methodLevel = listValues(methodDoc, JAX_RS_PRODUCES, "value", options);
+		if (methodLevel == null) {
+			// look for class level
+			return listValues(methodDoc.containingClass(), JAX_RS_PRODUCES, "value", options);
+		}
+		return methodLevel;
 	}
 
 	/**

@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType;
  * @author conor.roche
  */
 @Path("/producesconsumes")
+@Produces(MediaType.TEXT_PLAIN)
+@Consumes(MediaType.TEXT_PLAIN)
 @SuppressWarnings("javadoc")
 public class ProducesConsumesResource {
 
@@ -27,6 +29,11 @@ public class ProducesConsumesResource {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public Data postData(Data data) {
 		return data;
+	}
+
+	@POST
+	public Data postData2(Data data) {
+		return new Data("test2");
 	}
 
 }
