@@ -136,7 +136,7 @@ public class AnnotationAwareTranslator implements Translator {
 			return null;
 		}
 
-		OptionalName name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc());
+		OptionalName name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc(), false);
 		this.typeNameCache.put(type, name);
 		return name;
 	}
@@ -146,7 +146,7 @@ public class AnnotationAwareTranslator implements Translator {
 	 * @see com.carma.swagger.doclet.translator.Translator#fieldName(com.sun.javadoc.FieldDoc)
 	 */
 	public OptionalName fieldName(FieldDoc field) {
-		return nameFor(this.element, this.elementProperty, field);
+		return nameFor(this.element, this.elementProperty, field, true);
 	}
 
 	/**
@@ -154,12 +154,12 @@ public class AnnotationAwareTranslator implements Translator {
 	 * @see com.carma.swagger.doclet.translator.Translator#methodName(com.sun.javadoc.MethodDoc)
 	 */
 	public OptionalName methodName(MethodDoc method) {
-		return nameFor(this.element, this.elementProperty, method);
+		return nameFor(this.element, this.elementProperty, method, true);
 	}
 
-	private OptionalName nameFor(String annotation, String property, ProgramElementDoc doc) {
+	private OptionalName nameFor(String annotation, String property, ProgramElementDoc doc, boolean processIgnore) {
 		AnnotationParser element = new AnnotationParser(doc, this.options);
-		if (element.isAnnotatedBy(this.ignore)) {
+		if (processIgnore && element.isAnnotatedBy(this.ignore)) {
 			return ignored();
 		}
 		String name = element.getAnnotationValue(annotation, property);

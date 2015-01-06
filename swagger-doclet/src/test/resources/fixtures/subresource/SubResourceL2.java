@@ -1,6 +1,7 @@
 package fixtures.subresource;
 
 import javax.ws.rs.POST;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * The SubResourceL2 represents the l2 sub resource
@@ -8,6 +9,7 @@ import javax.ws.rs.POST;
  * @author conor.roche
  */
 @SuppressWarnings("javadoc")
+@XmlTransient
 public class SubResourceL2 {
 
 	@POST

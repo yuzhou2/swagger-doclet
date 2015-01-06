@@ -3,8 +3,10 @@ package fixtures.subresource;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.xml.bind.annotation.XmlTransient;
 
 @SuppressWarnings("javadoc")
+@XmlTransient
 public class SubResource {
 
 	@GET
