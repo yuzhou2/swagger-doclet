@@ -802,17 +802,6 @@ public class ApiModelParser {
 	private void parseNestedModels(Collection<TypeRef> types) {
 		for (TypeRef type : types) {
 			parseModel(type.type, true);
-
-			// parse paramaterized types
-			ParameterizedType pt = type.type.asParameterizedType();
-			if (pt != null) {
-				Type[] typeArgs = pt.typeArguments();
-				if (typeArgs != null) {
-					for (Type paramType : typeArgs) {
-						parseModel(paramType, true);
-					}
-				}
-			}
 		}
 	}
 
@@ -861,11 +850,20 @@ public class ApiModelParser {
 		return type;
 	}
 
-	private boolean alreadyStoredType(final Type type) {
+	private boolean alreadyStoredType(Type type) {
+
+		// if a collection then the type to check is the param type
+		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
+		if (containerOf != null) {
+			type = containerOf;
+		}
+
+		final Type typeToCheck = type;
+
 		return filter(this.models, new Predicate<Model>() {
 
 			public boolean apply(Model model) {
-				return model.getId().equals(ApiModelParser.this.translator.typeName(type).value());
+				return model.getId().equals(ApiModelParser.this.translator.typeName(typeToCheck).value());
 			}
 		}).size() > 0;
 	}
