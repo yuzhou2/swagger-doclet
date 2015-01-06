@@ -17,4 +17,9 @@ public class MainResource {
 		return new SubResource();
 	}
 
+	@Path("{id}/subb")
+	public Class<SubResourceB> getSubResourceB(@PathParam("id") String fooId) {
+		return null;
+	}
+
 }

@@ -21,6 +21,7 @@ import com.carma.swagger.doclet.model.Operation;
 import com.google.common.base.Function;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
@@ -149,6 +150,9 @@ public class CrossClassApiParser {
 							CrossClassApiParser subResourceParser = new CrossClassApiParser(this.options, subResourceClassDoc, shrunkClasses,
 									this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
 							subResourceParser.parse(declarations);
+						} else {
+							System.err.println("Failed to lookup sub resource class doc: " + method.returnType() + " looked up type is: "
+									+ lookUpClassDoc(method.returnType()));
 						}
 						continue;
 					}
@@ -273,7 +277,18 @@ public class CrossClassApiParser {
 
 	private ClassDoc lookUpClassDoc(Type type) {
 		for (ClassDoc subResourceClassDoc : this.classes) {
-			if (subResourceClassDoc.qualifiedTypeName().equals(type.qualifiedTypeName())) {
+			String typeName = type.qualifiedTypeName();
+
+			// look for Class<X> way of referencing sub resources
+			ParameterizedType pt = type.asParameterizedType();
+			if (pt != null && typeName.equals("java.lang.Class")) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null && typeArgs.length == 1) {
+					typeName = typeArgs[0].qualifiedTypeName();
+				}
+			}
+
+			if (subResourceClassDoc.qualifiedTypeName().equals(typeName)) {
 				return subResourceClassDoc;
 			}
 		}

@@ -60,6 +60,63 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/a/{id}/subb",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "y",
+                    "type": "integer",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/a/{id}/subb/1",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "x",
+                    "type": "SubData",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/a/{id}/subb/sub2b",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "z",
+                    "type": "SubSubData",
+                    "parameters": [
+
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
