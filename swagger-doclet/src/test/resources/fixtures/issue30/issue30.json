@@ -14,7 +14,10 @@
         "paramType" : "body",
         "name" : "comment",
         "required" : true
-      } ]
+      } ],
+      "produces": [
+                    	"application/json"
+      ]
     } ]
   } ],
   "models" : {

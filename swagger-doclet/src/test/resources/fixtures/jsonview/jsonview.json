@@ -13,7 +13,10 @@
                     "type": "array",
                     "items" : {
                     	"$ref": "Person-Person.SimplePersonView"
-                    }
+                    },
+                    "produces": [
+                    	"application/json"
+                     ]
                 }
             ]
         },
@@ -26,7 +29,10 @@
                     "type": "array",
                     "items" : {
                     	"$ref": "Person-Person.SimplePersonView"
-                    }
+                    },
+                    "produces": [
+                    	"application/json"
+                     ]
                 }
             ]
         },
@@ -44,6 +50,9 @@
                             "type": "string",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
                      ]
                 }
             ]
@@ -62,6 +71,9 @@
                             "type": "string",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
                      ]
                 }
             ]
@@ -80,6 +92,9 @@
                             "type": "string",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
                      ]
                 }
             ]
@@ -98,6 +113,9 @@
                             "type": "string",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
                      ]
                 }
             ]
@@ -116,6 +134,9 @@
                             "type": "string",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
                      ]
                 }
             ]

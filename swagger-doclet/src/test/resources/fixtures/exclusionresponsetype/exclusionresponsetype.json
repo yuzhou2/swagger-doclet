@@ -19,6 +19,12 @@
                             "format": "int64",
                             "required": true
                         }
+                     ],
+                     "produces": [
+                    	"application/json"
+                     ],
+                     "consumes": [
+                    	"application/json"
                      ]
                 }
             ]
