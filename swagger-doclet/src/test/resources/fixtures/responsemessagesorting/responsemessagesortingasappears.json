@@ -2,44 +2,20 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/responsemessages",
+    "resourcePath": "/responsemessagesorting",
     "apis": [
         {
-            "path": "/responsemessages",
+            "path": "/responsemessagesorting",
             "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "swagger11",
-                    "type": "void",
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "not found",
-                            "responseModel" : "Response2"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "swagger12",
-                    "type": "void",
-                    "responseMessages": [
-                        {
-                            "code": 200,
-                            "message": "ok"
-                        },
-                        {
-                            "code": 404,
-                            "message": "not found",
-                            "responseModel" : "Response1"
-                        }
-                    ]
-                },
                 {
                     "method": "GET",
                     "nickname": "carma",
                     "type": "void",
                     "responseMessages": [
+                    	{
+                            "code": 302,
+                            "message": "redirect"
+                        },
                         {
                             "code": 200,
                             "message": "ok"
@@ -65,14 +41,6 @@
         }
     ],
     "models": {
-        "Response2": {
-            "id": "Response2",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
         "Response1": {
             "id": "Response1",
             "properties": {

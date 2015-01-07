@@ -17,6 +17,7 @@ import com.carma.swagger.doclet.model.ApiAuthorizations;
 import com.carma.swagger.doclet.model.ApiInfo;
 import com.carma.swagger.doclet.parser.NamingConvention;
 import com.carma.swagger.doclet.parser.ParserHelper;
+import com.carma.swagger.doclet.parser.ResponseMessageSortMode;
 import com.carma.swagger.doclet.parser.VariableReplacer;
 import com.carma.swagger.doclet.translator.AnnotationAwareTranslator;
 import com.carma.swagger.doclet.translator.FirstNotNullTranslator;
@@ -106,6 +107,8 @@ public class DocletOptions {
 				parsedOptions.apiVersion = option[1];
 			} else if (option[0].equals("-swaggerUiZipPath") || option[0].equals("-swaggerUiPath")) {
 				parsedOptions.swaggerUiPath = option[1];
+			} else if (option[0].equals("-responseMessageSortMode")) {
+				parsedOptions.responseMessageSortMode = ResponseMessageSortMode.valueOf(option[1]);
 			} else if (option[0].equals("-excludeParamAnnotations")) {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
@@ -323,6 +326,8 @@ public class DocletOptions {
 	private boolean sortResourcesByPriority = false;
 	private boolean sortApisByPath = true;
 
+	private ResponseMessageSortMode responseMessageSortMode;
+
 	private ApiAuthorizations apiAuthorizations;
 
 	private ApiInfo apiInfo;
@@ -528,6 +533,8 @@ public class DocletOptions {
 
 		this.resourceDescriptionTags = new ArrayList<String>();
 		this.resourceDescriptionTags.add("resourceDescription");
+
+		this.responseMessageSortMode = ResponseMessageSortMode.CODE_ASC;
 
 		FirstNotNullTranslator fnnTranslator =
 
@@ -1217,6 +1224,24 @@ public class DocletOptions {
 	 */
 	public DocletOptions setExcludeDeprecatedParams(boolean excludeDeprecatedParams) {
 		this.excludeDeprecatedParams = excludeDeprecatedParams;
+		return this;
+	}
+
+	/**
+	 * This gets the responseMessageSortMode
+	 * @return the responseMessageSortMode
+	 */
+	public ResponseMessageSortMode getResponseMessageSortMode() {
+		return this.responseMessageSortMode;
+	}
+
+	/**
+	 * This sets the responseMessageSortMode
+	 * @param responseMessageSortMode the responseMessageSortMode to set
+	 * @return this
+	 */
+	public DocletOptions setResponseMessageSortMode(ResponseMessageSortMode responseMessageSortMode) {
+		this.responseMessageSortMode = responseMessageSortMode;
 		return this;
 	}
 

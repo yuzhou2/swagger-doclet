@@ -195,6 +195,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	@responseMessage 404 not found<br><br>
 	@responseMessage 404 not found `fixtures.responsemessages.Response1<br><br>
 	NOTE: The optional response model class is added after a backtick as in the example above.
+	NOTE 2: By default the response messages are ordered in ascending order of response code so success codes come before error codes. You can change this using the responseMessageSortMode doclet option described below.
 	</td><td>operations</td><td>@status, @errorResponse, @successResponse, @errorCode, @successCode</td></tr>
 	<tr><td>@responseType</td><td><p>If you want the documented response model class to be different to the one in the java method signature you can use this to override it. This is useful to replace the Jax Rs response class with a particular entity type that may be returned. For example:</p>
 	<p>
@@ -404,7 +405,7 @@ These are the options that you may want to use to add additional functionality o
 	</pre></code>
 	</td></tr>
 	
-	<tr><td>-apiInfoFile</td><td>The path to the json include file that contains the Info that should be included in the generated json. For example for Carma we use: 
+	<tr><td>-apiInfoFile</td><td>The path to the json include file that contains the Info that should be included in the generated json. NOTE wrap this in single qoutes to escape spaces. For example for Carma we use: 
 	<p></p>
 	<p>-apiInfoFile ${project.build.directory}/swagger/includes/apiinfo.json</p>
 	
@@ -485,6 +486,16 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context</td></tr>
 	
 	<tr><td>-responseMessageTags</td><td>This adds additional tags to the set of javadoc tags used for response messages. The default set contains responseMessage, status, errorResponse, errorCode, successResponse, successCode. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	
+	
+	<tr><td>-responseMessageSortMode</td><td>This controls how response messages are sorted. This can be one of: 
+	<ul>
+	<li>CODE_ASC this is the default, it means in ascending order of the HTTP status code so success codes would come before error codes</li>
+	<li>CODE_DESC means in descending order of the HTTP status code so error codes would come before success codes</li>
+	<li>AS_APPEARS same order as they appear in the javadoc</li>
+	</ul>
+	</td></tr>
 	
 	<tr><td>-excludeOperationTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operations. The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

@@ -7,6 +7,8 @@ import static com.google.common.collect.Collections2.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -357,13 +359,15 @@ public class ApiMethodParser {
 
 		List<String> responseMessageTags = new ArrayList<String>(this.options.getResponseMessageTags());
 
-		for (String tagName : responseMessageTags) {
-			for (Tag tagValue : this.methodDoc.tags(tagName)) {
+		Tag[] tags = this.methodDoc.tags();
+		for (Tag tag : tags) {
+
+			if (responseMessageTags.contains(tag.name().substring(1))) {
 				boolean matched = false;
 
 				if (!matched) {
 					for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
-						Matcher matcher = pattern.matcher(tagValue.text());
+						Matcher matcher = pattern.matcher(tag.text());
 						if (matcher.find()) {
 
 							int statusCode = Integer.parseInt(matcher.group(1).trim());
@@ -404,9 +408,37 @@ public class ApiMethodParser {
 					}
 
 				}
+			}
+		}
+
+		// sort the response messages as required
+		if (!responseMessages.isEmpty() && this.options.getResponseMessageSortMode() != null) {
+			switch (this.options.getResponseMessageSortMode()) {
+				case CODE_ASC:
+					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
+
+						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
+							return Integer.valueOf(o1.getCode()).compareTo(Integer.valueOf(o2.getCode()));
+						}
+					});
+					break;
+				case CODE_DESC:
+					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
+
+						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
+							return Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode()));
+						}
+					});
+					break;
+				case AS_APPEARS:
+					// noop
+					break;
+				default:
+					throw new UnsupportedOperationException("Unknown ResponseMessageSortMode: " + this.options.getResponseMessageSortMode());
 
 			}
 		}
+
 		return responseMessages;
 	}
 

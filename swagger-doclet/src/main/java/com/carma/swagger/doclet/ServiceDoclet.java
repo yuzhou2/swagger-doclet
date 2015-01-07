@@ -90,6 +90,7 @@ public class ServiceDoclet {
 		options.put("-serializationInclusion", 2);
 
 		options.put("-variablesPropertiesFile", 2);
+		options.put("-responseMessageSortMode", 2);
 
 		options.put("-swaggerUiZipPath", 2); // kept for backward compatibility
 		options.put("-swaggerUiPath", 2);

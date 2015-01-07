@@ -2,6 +2,7 @@ package com.carma.swagger.doclet.model;
 
 import com.google.common.base.Objects;
 
+@SuppressWarnings("javadoc")
 public class ApiResponseMessage {
 
 	private int code;

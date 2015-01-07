@@ -1,0 +1,61 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/responsemessagesorting",
+    "apis": [
+        {
+            "path": "/responsemessagesorting",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "carma",
+                    "type": "void",
+                    "responseMessages": [
+                    	{
+                            "code": 401,
+                            "message": "not authA",
+                            "responseModel" : "Response3"
+                        },
+                        {
+                            "code": 401,
+                            "message": "not authB",
+                            "responseModel" : "Response3"
+                        },
+                        {
+                            "code": 401,
+                            "message": "not_authC|If user not authenticated",
+                            "responseModel" : "Response1"
+                        },
+                        {
+                            "code": 302,
+                            "message": "redirect"
+                        },
+                        {
+                            "code": 200,
+                            "message": "ok"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Response1": {
+            "id": "Response1",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Response3": {
+            "id": "Response3",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
