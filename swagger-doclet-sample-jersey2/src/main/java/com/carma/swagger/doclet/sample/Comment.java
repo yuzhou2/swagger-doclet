@@ -1,0 +1,28 @@
+package com.carma.swagger.doclet.sample;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+@SuppressWarnings("javadoc")
+public class Comment {
+
+	public interface CommentView {
+		// noop
+	}
+
+	public interface UserView extends User.UserView {
+		// noop
+	}
+
+	public interface CommentThreadView extends CommentThread.CommentThreadView {
+		// noop
+	}
+
+	@JsonView(Comment.CommentView.class)
+	protected String text;
+
+	@JsonView(Comment.UserView.class)
+	protected User user;
+
+	@JsonView(Comment.CommentThreadView.class)
+	protected CommentThread commentThread;
+}
