@@ -1,31 +1,24 @@
 package com.carma.swagger.doclet.sample;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.ws.rs.core.Application;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * The JaxRsApplication represents
  * @version $Id$
  * @author conor.roche
  */
-public class JaxRsApplication extends Application {
+public class JaxRsApplication extends ResourceConfig {
 
-	private final Set<Class<?>> classes;
-
-	/**
-	 * This creates a JaxRsApplication
-	 */
+	@SuppressWarnings("javadoc")
 	public JaxRsApplication() {
-		HashSet<Class<?>> c = new HashSet<Class<?>>();
-		c.add(BeanParamResource.class);
-		this.classes = Collections.unmodifiableSet(c);
-	}
 
-	@Override
-	public Set<Class<?>> getClasses() {
-		return this.classes;
+		super(
+		// register resources
+				SimpleResource.class, BeanParamResource.class, JsonViewResource.class,
+				// register Jackson ObjectMapper resolver
+				MyObjectMapperProvider.class, JacksonFeature.class);
+
+		com.fasterxml.jackson.databind.AnnotationIntrospector x;
 	}
 }

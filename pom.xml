@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.carma</groupId>
@@ -11,6 +12,16 @@
 	<description>
         A JavaDoc Doclet that can be used to generate a Swagger resource listing suitable for feeding to swagger-ui.
     </description>
+
+	<properties>
+		<dropwizard.version>0.6.2</dropwizard.version>
+		<orig.jackson.version>1.9.13</orig.jackson.version>
+		<jackson.version>2.1.4</jackson.version>
+		<guava.version>14.0.1</guava.version>
+		<jersey.version>1.17.1</jersey.version>
+		<jersey2.version>2.14</jersey2.version>
+		<resteasy.version>2.3.3.Final</resteasy.version>
+	</properties>
 
 	<modules>
 		<module>swagger-doclet</module>
@@ -34,13 +45,13 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
- 
+
 	<scm>
 		<connection>scm:git:git@github.com:Carma-Public/swagger-jaxrs-doclet.git</connection>
 		<developerConnection>scm:git:git@github.com:Carma-Public/swagger-jaxrs-doclet.git</developerConnection>
 		<url>https://github.com/Carma-Public/swagger-jaxrs-doclet</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<issueManagement>
 		<system>github</system>
@@ -59,7 +70,7 @@
 			<url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<profiles>
 		<profile>
 			<id>release</id>
@@ -113,15 +124,7 @@
 		</profile>
 	</profiles>
 
-	<properties>
-		<dropwizard.version>0.6.2</dropwizard.version>
-		<orig.jackson.version>1.9.13</orig.jackson.version>
-		<jackson.version>2.1.4</jackson.version>
-		<guava.version>14.0.1</guava.version>
-		<jersey.version>1.17.1</jersey.version>
-		<jersey2.version>2.9</jersey2.version>
-		<resteasy.version>2.3.3.Final</resteasy.version>
-	</properties>
+
 
 	<dependencies>
 
@@ -166,15 +169,22 @@
 			<version>${jersey2.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
+			<version>${jersey2.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- JPA -->
 		<dependency>
-    		<groupId>org.hibernate.javax.persistence</groupId>
-    		<artifactId>hibernate-jpa-2.0-api</artifactId>
-    		<version>1.0.1.Final</version>
-    		<scope>test</scope>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
+			<version>1.0.1.Final</version>
+			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- resteasy -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -258,7 +268,7 @@
 					<useReleaseProfile>false</useReleaseProfile>
 					<releaseProfiles>release</releaseProfiles>
 					<goals>deploy nexus-staging:release</goals>
-					<scmCommentPrefix>mvn release [ci skip]</scmCommentPrefix>  
+					<scmCommentPrefix>mvn release [ci skip]</scmCommentPrefix>
 				</configuration>
 			</plugin>
 			<plugin>
