@@ -1,6 +1,6 @@
 # Swagger Doclet 
 
-[![Build Status](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet.svg?branch=master)](https://travis-ci.org/Carma-Public/swagger-jaxrs-doclet)
+[![Build Status](https://travis-ci.org/teamcarma/swagger-jaxrs-doclet.svg?branch=master)](https://travis-ci.org/teamcarma/swagger-jaxrs-doclet)
 
 This is a JavaDoc Doclet that can be used to generate a JSON Swagger resource listing suitable for feeding to the Swagger UI. It generates the resource listing from the source code of java JAXRS resources and entities.
 
