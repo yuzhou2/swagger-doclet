@@ -22,13 +22,17 @@ import com.carma.swagger.doclet.Recorder;
 import com.carma.swagger.doclet.ServiceDoclet;
 import com.carma.swagger.doclet.model.Api;
 import com.carma.swagger.doclet.model.ApiDeclaration;
+import com.carma.swagger.doclet.model.HttpMethod;
 import com.carma.swagger.doclet.model.ResourceListing;
 import com.carma.swagger.doclet.model.ResourceListingAPI;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.Type;
 
+@SuppressWarnings("javadoc")
 public class JaxRsAnnotationParser {
 
 	private static final String SWAGGER_VERSION = "1.2";
@@ -81,11 +85,42 @@ public class JaxRsAnnotationParser {
 
 			List<ApiDeclaration> declarations = null;
 
+			// build up set of subresources
+			// do simple parsing to find sub resource classes
+			// these are ones referenced in the return types of methods
+			// which have a path but no http method
+			Map<Type, ClassDoc> subResourceClasses = new HashMap<Type, ClassDoc>();
+			for (ClassDoc classDoc : docletClasses) {
+				ClassDoc currentClassDoc = classDoc;
+				while (currentClassDoc != null) {
+
+					for (MethodDoc method : currentClassDoc.methods()) {
+						if (ParserHelper.parsePath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
+							ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), docletClasses);
+							if (subResourceClassDoc != null) {
+								subResourceClasses.put(method.returnType(), subResourceClassDoc);
+							} else {
+								System.err.println("Failed to lookup sub resource class doc: " + method.returnType() + " looked up type is: "
+										+ ParserHelper.lookUpClassDoc(method.returnType(), docletClasses));
+							}
+
+						}
+					}
+
+					currentClassDoc = currentClassDoc.superclass();
+
+					// ignore parent object class
+					if (!ParserHelper.hasAncestor(currentClassDoc)) {
+						break;
+					}
+				}
+			}
+
 			// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
 			Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
 			for (ClassDoc classDoc : docletClasses) {
-				CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, SWAGGER_VERSION, this.options.getApiVersion(),
-						this.options.getApiBasePath());
+				CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, subResourceClasses, SWAGGER_VERSION,
+						this.options.getApiVersion(), this.options.getApiBasePath());
 				classParser.parse(resourceToDeclaration);
 			}
 			Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();

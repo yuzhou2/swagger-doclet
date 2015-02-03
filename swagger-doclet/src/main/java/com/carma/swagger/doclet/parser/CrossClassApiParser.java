@@ -42,21 +42,25 @@ public class CrossClassApiParser {
 	private final String basePath;
 
 	private final Method parentMethod;
+	private final Map<Type, ClassDoc> subResourceClasses;
 
 	/**
 	 * This creates a CrossClassApiParser for top level parsing
 	 * @param options The options for parsing
 	 * @param classDoc The class doc
 	 * @param classes The doclet classes
+	 * @param subResourceClasses
 	 * @param swaggerVersion Swagger version
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
 	 */
-	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, String swaggerVersion, String apiVersion, String basePath) {
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
+			String swaggerVersion, String apiVersion, String basePath) {
 		super();
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
+		this.subResourceClasses = subResourceClasses;
 		this.rootPath = firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
@@ -69,18 +73,20 @@ public class CrossClassApiParser {
 	 * @param options The options for parsing
 	 * @param classDoc The class doc
 	 * @param classes The doclet classes
+	 * @param subResourceClasses
 	 * @param swaggerVersion Swagger version
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
 	 * @param parentMethod The parent method that "owns" this sub resource
 	 * @param parentResourcePath The parent resource path
 	 */
-	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, String swaggerVersion, String apiVersion,
-			String basePath, Method parentMethod, String parentResourcePath) {
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
+			String swaggerVersion, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
 		super();
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
+		this.subResourceClasses = subResourceClasses;
 		this.rootPath = parentResourcePath + firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
@@ -120,8 +126,7 @@ public class CrossClassApiParser {
 			String classResourceDescription = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
 
 			// check if its a sub resource
-			// TODO: be more deterministic e.g. build map of sub resource types that are explicitly referenced
-			boolean isSubResourceClass = (getRootPath() == null || getRootPath().isEmpty()) && !currentClassDoc.isAbstract();
+			boolean isSubResourceClass = this.subResourceClasses != null && this.subResourceClasses.values().contains(currentClassDoc);
 
 			// dont process a subresource outside the context of its parent method
 			if (isSubResourceClass && this.parentMethod == null) {
@@ -148,7 +153,7 @@ public class CrossClassApiParser {
 							shrunkClasses.remove(currentClassDoc);
 							// recursively parse the sub-resource class
 							CrossClassApiParser subResourceParser = new CrossClassApiParser(this.options, subResourceClassDoc, shrunkClasses,
-									this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
+									this.subResourceClasses, this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
 							subResourceParser.parse(declarations);
 						} else {
 							System.err.println("Failed to lookup sub resource class doc: " + method.returnType() + " looked up type is: "

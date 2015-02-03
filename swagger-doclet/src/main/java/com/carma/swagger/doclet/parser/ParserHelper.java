@@ -79,6 +79,32 @@ public class ParserHelper {
 	};
 
 	/**
+	 * This looks up a class doc with the given type from the given collection of classes
+	 * @param type The type to find the class doc for
+	 * @param classes The collection of classes to look in
+	 * @return The class doc or null if none was found
+	 */
+	public static ClassDoc lookUpClassDoc(Type type, Collection<ClassDoc> classes) {
+		for (ClassDoc subResourceClassDoc : classes) {
+			String typeName = type.qualifiedTypeName();
+
+			// look for Class<X> way of referencing sub resources
+			ParameterizedType pt = type.asParameterizedType();
+			if (pt != null && typeName.equals("java.lang.Class")) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null && typeArgs.length == 1) {
+					typeName = typeArgs[0].qualifiedTypeName();
+				}
+			}
+
+			if (subResourceClassDoc.qualifiedTypeName().equals(typeName)) {
+				return subResourceClassDoc;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This gets the allowable values from an enum class doc or null if the classdoc does not
 	 * represent an enum
 	 * @param typeClassDoc the class doc of the enum class to get the allowable values of

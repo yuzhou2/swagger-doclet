@@ -1,0 +1,18 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/foo",
+    "apis": [
+        {
+            "path": "/foo/bar/post",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "bar",
+                    "type": "void"
+                }
+            ]
+        }
+    ]
+}
