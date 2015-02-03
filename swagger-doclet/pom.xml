@@ -63,7 +63,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.6</version>
+                <version>2.3</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <filters>
@@ -76,6 +76,7 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <minimizeJar>true</minimizeJar>
                 </configuration>
                 <executions>
                     <execution>
@@ -87,7 +88,6 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
-                            <minimizeJar>true</minimizeJar>
                         </configuration>
                     </execution>
                 </executions>
