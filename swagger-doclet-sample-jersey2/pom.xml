@@ -72,6 +72,7 @@
 									<mainClass>com.carma.swagger.doclet.sample.App</mainClass>
 								</transformer>
 							</transformers>
+							<minimizeJar>true</minimizeJar>
 						</configuration>
 					</execution>
 				</executions>

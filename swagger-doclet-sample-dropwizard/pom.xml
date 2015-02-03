@@ -114,6 +114,7 @@
                                     <mainClass>com.carma.swagger.doclet.sample.SampleService</mainClass>
                                 </transformer>
                             </transformers>
+                            <minimizeJar>true</minimizeJar>
                         </configuration>
                     </execution>
                 </executions>
