@@ -1,0 +1,43 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/measurements",
+    "apis": [
+        {
+            "path": "/measurements/query",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "fetchMeasurements",
+                    "type": "MeasurementsResult",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "query",
+                            "required": true,
+                            "type": "MeasurementsQuery"
+                        }
+                     ],
+                     "produces": [
+                    	"application/json"
+                     ],
+                     "consumes": [
+                    	"application/json"
+                     ]
+                }
+            ]
+        }
+    ]
+    ,
+    "models": {
+    	"MeasurementsQuery": {
+            "id": "MeasurementsQuery",
+            "properties": {
+                "extractor": {
+                    "type": "AggregationGroupExtractor"
+                }
+            }
+        }
+    }
+}

@@ -418,9 +418,11 @@ public class ParserHelper {
 	public static Type getVarType(TypeVariable var, Map<String, Type> varsToTypes) {
 		Type res = null;
 		if (var != null && varsToTypes != null) {
+			Set<Type> processedTypes = new HashSet<Type>();
 			Type type = varsToTypes.get(var.qualifiedTypeName());
-			while (type != null) {
+			while (type != null && !processedTypes.contains(type)) {
 				res = type;
+				processedTypes.add(type);
 				type = varsToTypes.get(type.qualifiedTypeName());
 			}
 		}
