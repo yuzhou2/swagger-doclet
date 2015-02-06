@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * The DocletOptions represents the supported options for this doclet.
  * @version $Id$
  */
+@SuppressWarnings("javadoc")
 public class DocletOptions {
 
 	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {
@@ -107,6 +108,8 @@ public class DocletOptions {
 				parsedOptions.apiVersion = option[1];
 			} else if (option[0].equals("-swaggerUiZipPath") || option[0].equals("-swaggerUiPath")) {
 				parsedOptions.swaggerUiPath = option[1];
+			} else if (option[0].equals("-resourceRootPath")) {
+				parsedOptions.resourceRootPath = option[1];
 			} else if (option[0].equals("-responseMessageSortMode")) {
 				parsedOptions.responseMessageSortMode = ResponseMessageSortMode.valueOf(option[1]);
 			} else if (option[0].equals("-excludeParamAnnotations")) {
@@ -245,6 +248,8 @@ public class DocletOptions {
 	private String apiBasePath = "http://localhost:8080";
 	private String swaggerUiPath = null;
 	private String apiVersion = "0";
+
+	private String resourceRootPath = "/root";
 
 	private boolean includeSwaggerUi = true;
 
@@ -579,6 +584,23 @@ public class DocletOptions {
 	 */
 	public DocletOptions setDocBasePath(String docBasePath) {
 		this.docBasePath = docBasePath;
+		return this;
+	}
+
+	/**
+	 * This gets the resourceRootPath
+	 * @return the resourceRootPath
+	 */
+	public String getResourceRootPath() {
+		return this.resourceRootPath;
+	}
+
+	/**
+	 * This sets the resourceRootPath
+	 * @param resourceRootPath the resourceRootPath to set
+	 */
+	public DocletOptions setResourceRootPath(String resourceRootPath) {
+		this.resourceRootPath = resourceRootPath;
 		return this;
 	}
 

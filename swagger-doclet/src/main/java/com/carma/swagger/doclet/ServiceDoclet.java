@@ -7,6 +7,7 @@ import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.RootDoc;
 
+@SuppressWarnings("javadoc")
 public class ServiceDoclet {
 
 	/**
@@ -37,6 +38,7 @@ public class ServiceDoclet {
 		options.put("-docBasePath", 2);
 		options.put("-apiBasePath", 2);
 		options.put("-apiVersion", 2);
+		options.put("-resourceRootPath", 2);
 
 		options.put("-genericWrapperTypes", 2);
 

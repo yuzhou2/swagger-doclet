@@ -165,6 +165,7 @@ public class ParserHelper {
 		AnnotationParser p = new AnnotationParser(doc, options);
 		String path = p.getAnnotationValue(JAX_RS_PATH, "value");
 		if (path != null) {
+			path = path.trim();
 			if (path.endsWith("/")) {
 				path = path.substring(0, path.length() - 1);
 			}

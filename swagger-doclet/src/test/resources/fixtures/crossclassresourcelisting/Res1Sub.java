@@ -14,6 +14,7 @@ public class Res1Sub {
 	 * @resourcePath a
 	 * @priority 1
 	 */
+	@SuppressWarnings("javadoc")
 	@GET
 	@Path("/w")
 	public SubData getW() {

@@ -192,10 +192,15 @@ public class JaxRsAnnotationParser {
 	}
 
 	private void writeApis(Collection<ApiDeclaration> apis) throws IOException {
+
 		List<ResourceListingAPI> resources = new LinkedList<ResourceListingAPI>();
 		File outputDirectory = this.options.getOutputDirectory();
 		Recorder recorder = this.options.getRecorder();
 		for (ApiDeclaration api : apis) {
+			// empty resource paths map to the root
+			if (api.getResourcePath() == null || api.getResourcePath().isEmpty() || api.getResourcePath().equals("/")) {
+				api.setResourcePath(this.options.getResourceRootPath());
+			}
 			String resourcePath = api.getResourcePath();
 			if (!Strings.isNullOrEmpty(resourcePath)) {
 				String resourceName = resourcePath.replaceFirst("/", "").replaceAll("/", "_").replaceAll("[\\{\\}]", "");

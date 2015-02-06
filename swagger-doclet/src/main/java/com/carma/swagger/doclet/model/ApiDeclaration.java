@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@SuppressWarnings("javadoc")
 @JsonPropertyOrder({ "apiVersion", "swaggerVersion", "basePath", "resourcePath", "apis", "models" })
 public class ApiDeclaration {
 
@@ -49,6 +50,14 @@ public class ApiDeclaration {
 
 	public String getResourcePath() {
 		return this.resourcePath;
+	}
+
+	/**
+	 * This sets the resourcePath
+	 * @param resourcePath the resourcePath to set
+	 */
+	public void setResourcePath(String resourcePath) {
+		this.resourcePath = resourcePath;
 	}
 
 	/**
