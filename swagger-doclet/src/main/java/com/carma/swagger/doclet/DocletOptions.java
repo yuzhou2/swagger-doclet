@@ -71,6 +71,7 @@ public class DocletOptions {
 		for (String[] option : options) {
 			if (option[0].equals("-d")) {
 				parsedOptions.outputDirectory = new File(option[1]);
+				parsedOptions.outputDirectory.mkdirs();
 				checkArgument(parsedOptions.outputDirectory.isDirectory(), "Path after -d is expected to be a directory!");
 			} else if (option[0].equals("-apiAuthorizationsFile")) {
 				parsedOptions.apiAuthorizations = loadModelFromJson("-apiAuthorizationsFile", option[1], ApiAuthorizations.class);
