@@ -71,8 +71,12 @@ public class DocletOptions {
 		for (String[] option : options) {
 			if (option[0].equals("-d")) {
 				parsedOptions.outputDirectory = new File(option[1]);
-				parsedOptions.outputDirectory.mkdirs();
-				checkArgument(parsedOptions.outputDirectory.isDirectory(), "Path after -d is expected to be a directory!");
+				if (!parsedOptions.outputDirectory.exists()) {
+					boolean created = parsedOptions.outputDirectory.mkdirs();
+					if (!created) {
+						throw new IllegalArgumentException("Path after -d is expected to be a directory!");
+					}
+				}
 			} else if (option[0].equals("-apiAuthorizationsFile")) {
 				parsedOptions.apiAuthorizations = loadModelFromJson("-apiAuthorizationsFile", option[1], ApiAuthorizations.class);
 			} else if (option[0].equals("-apiInfoFile")) {
@@ -372,6 +376,8 @@ public class DocletOptions {
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();
 		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
+		this.genericWrapperTypes.add("com.google.common.base.Optional");
+		this.genericWrapperTypes.add("jersey.repackaged.com.google.common.base.Optional");
 
 		// annotations and types which are mapped to File data type,
 		// NOTE these only apply for multipart resources

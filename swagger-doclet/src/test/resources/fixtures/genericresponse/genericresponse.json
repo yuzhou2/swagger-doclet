@@ -19,6 +19,31 @@
                 },
                 {
                     "method": "GET",
+                    "nickname": "getOptional",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "name",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "method": "GET",
+                    "nickname": "getOptional2",
+                    "type": "Response",
+					"parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "name",
+                            "type": "integer",
+                            "format" : "int32"
+                        }
+                    ]
+                },
+                {
+                    "method": "GET",
                     "nickname": "getIntMap",
                     "type": "Map"
                 },

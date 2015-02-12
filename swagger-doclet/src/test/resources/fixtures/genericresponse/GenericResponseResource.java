@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.JResponse;
@@ -26,6 +27,16 @@ public class GenericResponseResource {
 	@GET
 	public JResponse<String> getJResponse() {
 		return new JResponse<String>(200, null, "");
+	}
+
+	@GET
+	public Response getOptional(@QueryParam("name") com.google.common.base.Optional<String> name) {
+		return null;
+	}
+
+	@GET
+	public Response getOptional2(@QueryParam("name") jersey.repackaged.com.google.common.base.Optional<Integer> name) {
+		return null;
 	}
 
 	@GET

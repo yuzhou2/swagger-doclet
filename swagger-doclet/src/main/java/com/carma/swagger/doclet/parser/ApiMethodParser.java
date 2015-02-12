@@ -37,6 +37,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
@@ -506,7 +507,7 @@ public class ApiMethodParser {
 				continue;
 			}
 
-			Type paramType = parameter.type();
+			Type paramType = getParamType(parameter.type());
 			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
 			String paramName = parameter.name();
 
@@ -724,6 +725,22 @@ public class ApiMethodParser {
 	 */
 	public Set<Model> models() {
 		return this.models;
+	}
+
+	private Type getParamType(Type type) {
+		if (type != null) {
+			ParameterizedType pt = type.asParameterizedType();
+			if (pt != null) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null && typeArgs.length > 0) {
+					// if its a generic wrapper type then return the wrapped type
+					if (this.options.getGenericWrapperTypes().contains(type.qualifiedTypeName())) {
+						return typeArgs[0];
+					}
+				}
+			}
+		}
+		return type;
 	}
 
 	private Type readCustomParamType(String customTypeName, Type defaultType) {
