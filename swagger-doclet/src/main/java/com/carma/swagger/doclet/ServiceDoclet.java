@@ -17,8 +17,26 @@ public class ServiceDoclet {
 	 * @return true on success.
 	 */
 	public static boolean start(RootDoc doc) {
-		DocletOptions options = DocletOptions.parse(doc.options());
+		String[][] additionalParams = doc.options();
+		sanitizeAdditionalParams(additionalParams);
+		DocletOptions options = DocletOptions.parse(additionalParams);
 		return new JaxRsAnnotationParser(options, doc).run();
+	}
+
+	private static void sanitizeAdditionalParams(String[][] additionalParams) {
+		// if given paths as uris e.g. with file: prefix then we
+		// convert to unix style path
+		for (String[] nvp : additionalParams) {
+			if (nvp.length > 1) {
+				String val = nvp[1];
+				if (val.startsWith("file:")) {
+					String replacedPath = val.replace("file:", "");
+					replacedPath = replacedPath.replace("//", "/");
+					replacedPath = replacedPath.replace("%20", " ");
+					nvp[1] = replacedPath;
+				}
+			}
+		}
 	}
 
 	/**
