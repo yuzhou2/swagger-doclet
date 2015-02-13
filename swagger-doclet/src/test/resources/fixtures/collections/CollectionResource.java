@@ -61,8 +61,26 @@ public class CollectionResource {
 	}
 
 	@POST
-	@Path("/strings")
-	public void setStrings(List<String> items) {
+	@Path("/listofstrings")
+	public void setListOfStrings(List<String> items) {
+		// noop
+	}
+
+	@POST
+	@Path("/setofstrings")
+	public void setSetOfStrings(Set<String> items) {
+		// noop
+	}
+
+	@POST
+	@Path("/collectionofstrings")
+	public void setCollectionOfStrings(Collection<String> items) {
+		// noop
+	}
+
+	@POST
+	@Path("/listofitems")
+	public void setListOfItems(List<CollectionItem> items) {
 		// noop
 	}
 

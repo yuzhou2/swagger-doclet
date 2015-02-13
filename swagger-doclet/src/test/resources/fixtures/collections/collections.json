@@ -15,32 +15,11 @@
             ]
         },
         {
-        	"path": "/collections/items",
+        	"path": "/collections/collectionofstrings",
             "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getItems",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "collectionItem"
-                    }
-                }
-            ]
-        },
-        {
-        	"path": "/collections/strings",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getStrings",
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                {
+               {
                     "method": "POST",
-                    "nickname": "setStrings",
+                    "nickname": "setCollectionOfStrings",
                     "type": "void",
                     "parameters": [
                         {
@@ -55,9 +34,107 @@
                     ]
                 }
             ]
+        },
+        {
+        	"path": "/collections/items",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getItems",
+                    "type": "array",
+                    "items": {
+                    	"$ref": "collectionItem"
+                    }
+                }
+            ]
+        },
+        {
+        	"path": "/collections/listofitems",
+            "operations": [
+               {
+                    "method": "POST",
+                    "nickname": "setListOfItems",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "items",
+                            "type": "array",
+                            "items": {
+                    			"$ref": "collectionItem"
+                    		},
+                    		"required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+        	"path": "/collections/listofstrings",
+            "operations": [
+               {
+                    "method": "POST",
+                    "nickname": "setListOfStrings",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "items",
+                            "type": "array",
+                            "items": {
+                    			"type": "string"
+                    		},
+                    		"required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+        	"path": "/collections/setofstrings",
+            "operations": [
+               {
+                    "method": "POST",
+                    "nickname": "setSetOfStrings",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "items",
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                    			"type": "string"
+                    		},
+                    		"required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+        	"path": "/collections/strings",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getStrings",
+                    "type": "array",
+                    "items": {
+                    	"type": "string"
+                    }
+                }
+            ]
         }
     ], 
     "models": {
+    	"collectionItem": {
+            "id": "collectionItem",
+            "properties": {
+            	"name" : {
+            		"type": "string"
+            	}
+            }
+        },
     	"collectionHolder": {
             "id": "collectionHolder",
             "properties": {
@@ -99,14 +176,6 @@
                     	"$ref": "collectionItem"
                     }
                 }
-            }
-        },
-        "collectionItem": {
-            "id": "collectionItem",
-            "properties": {
-            	"name" : {
-            		"type": "string"
-            	}
             }
         }
     }
