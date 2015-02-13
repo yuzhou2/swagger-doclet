@@ -1,11 +1,9 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +14,6 @@ import java.util.Set;
 
 import com.carma.swagger.doclet.DocletOptions;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
@@ -53,6 +50,11 @@ public class ParserHelper {
 	}
 
 	private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
+	private static final Set<String> JAX_RS_PREFIXES = new HashSet<String>();
+	static {
+		JAX_RS_PREFIXES.add(JAX_RS_ANNOTATION_PACKAGE);
+	}
+
 	private static final String JAX_RS_PATH = "javax.ws.rs.Path";
 
 	private static final String JAX_RS_CONSUMES = "javax.ws.rs.Consumes";
@@ -475,11 +477,8 @@ public class ParserHelper {
 	 * @return True if the parameter is a File data type
 	 */
 	public static boolean isFileParameterDataType(Parameter parameter, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(parameter, options);
-		for (String fileAnnotation : options.getFileParameterAnnotations()) {
-			if (p.isAnnotatedBy(fileAnnotation)) {
-				return true;
-			}
+		if (hasAnnotation(parameter, options.getFileParameterAnnotations(), options)) {
+			return true;
 		}
 		String qName = ParserHelper.getQualifiedTypeName(parameter.type());
 		for (String fileType : options.getFileParameterTypes()) {
@@ -498,11 +497,8 @@ public class ParserHelper {
 	 * @return True if the parameter is a File data type
 	 */
 	private static boolean isFileParameterDataType(ProgramElementDoc paramMember, Type type, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(paramMember, options);
-		for (String fileAnnotation : options.getFileParameterAnnotations()) {
-			if (p.isAnnotatedBy(fileAnnotation)) {
-				return true;
-			}
+		if (hasAnnotation(paramMember, options.getFileParameterAnnotations(), options)) {
+			return true;
 		}
 		String qName = ParserHelper.getQualifiedTypeName(type);
 		for (String fileType : options.getFileParameterTypes()) {
@@ -860,6 +856,92 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets params of the given method that have either any of the matching javadoc tags or annotations
+	 * @param method The method
+	 * @param params The pre-read params of the method, if null they will be read from the given method
+	 * @param javadocTags Csv javadoc tags to look at
+	 * @param annotations Annotations to look at
+	 * @param options The doclet options
+	 * @return A set of param names for the params that have either any of the matching javadoc tags or annotations
+	 */
+	public static Set<String> getMatchingParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> javadocTags,
+			Collection<String> annotations, DocletOptions options) {
+
+		Set<String> res = new HashSet<String>();
+
+		// find params based on javadoc tags
+		List<String> javaDocParams = getCsvParams(method, params, javadocTags, options);
+		res.addAll(javaDocParams);
+
+		// add on params that have one of the param annotations
+		Set<String> annotationParams = getParametersWithAnnotation(method.parameters(), annotations);
+		res.addAll(annotationParams);
+
+		return res;
+	}
+
+	/**
+	 * This gets the names of parameters that have any of the given annotations on them
+	 * @param params The parameters
+	 * @param annotations The annotations to look for
+	 * @return A set of param names with the given annotations
+	 */
+	public static Set<String> getParametersWithAnnotation(Parameter[] params, Collection<String> annotations) {
+		Set<String> res = new HashSet<String>();
+		for (Parameter p : params) {
+			for (AnnotationDesc annotation : p.annotations()) {
+				String qName = annotation.annotationType().qualifiedTypeName();
+				if (annotations.contains(qName)) {
+					res.add(p.name());
+				}
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * This gets the values of parameters from either javadoc tags or annotations
+	 * @param method The method
+	 * @param params The pre-read params of the method, if null they will be read from the given method
+	 * @param matchTags The names of the javadoc tags to look for
+	 * @param annotations The annotations to look for
+	 * @param options The doclet options (used for var replacement)
+	 * @param valueKeys The attribute names to look for on the annotations as the value
+	 * @return A set of param names with the given annotations
+	 */
+	public static Map<String, String> getParameterValues(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
+			Collection<String> annotations, DocletOptions options, String... valueKeys) {
+		Map<String, String> res = new HashMap<String, String>();
+		// first add values from javadoc tags
+		Map<String, String> javadocVals = getMethodParamNameValuePairs(method, params, matchTags, options);
+		res.putAll(javadocVals);
+		// add values from annotations
+		Map<String, String> annotationVals = getParameterValuesWithAnnotation(method.parameters(), annotations, options, valueKeys);
+		res.putAll(annotationVals);
+		return res;
+	}
+
+	/**
+	 * This gets the values of annotations of parameters that have any of the given annotations on them
+	 * @param params The parameters
+	 * @param annotations The annotations to look for
+	 * @param options The doclet options (used for var replacement)
+	 * @param valueKeys The attribute names to look for on the annotations as the value
+	 * @return A set of param names with the given annotations
+	 */
+	public static Map<String, String> getParameterValuesWithAnnotation(Parameter[] params, Collection<String> annotations, DocletOptions options,
+			String... valueKeys) {
+		Map<String, String> res = new HashMap<String, String>();
+		for (Parameter p : params) {
+			String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);
+			if (value != null) {
+				res.put(p.name(), value);
+			}
+		}
+		return res;
+	}
+
+	/**
 	 * This gets a map of parameter name to value from a javadoc tag on a method.
 	 * This validates that the names of the parameters in each NVP is an actual method parameter
 	 * @param method The method
@@ -870,6 +952,12 @@ public class ParserHelper {
 	 */
 	public static Map<String, String> getMethodParamNameValuePairs(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
 			DocletOptions options) {
+
+		if (params == null) {
+			params = getParamNames(method);
+		}
+
+		// add name to value pairs from any matching javadoc tag on the method
 		String value = getTagValue(method, matchTags, options);
 		if (value != null) {
 			String[] parts = value.split("\\s+");
@@ -884,10 +972,7 @@ public class ParserHelper {
 									+ parts.length
 									+ " whitespace seperated parts when it was expected to have name value pairs for each parameter, e.g. the number of parts should have been even.");
 				}
-				if (params == null) {
-					params = getParamNames(method);
-				}
-				Map<String, String> res = new HashMap<String, String>(parts.length / 2);
+				Map<String, String> res = new HashMap<String, String>();
 				for (int i = 0; i < parts.length; i += 2) {
 					String name = parts[i];
 					if (!params.contains(name)) {
@@ -900,6 +985,7 @@ public class ParserHelper {
 				return res;
 			}
 		}
+
 		return Collections.emptyMap();
 	}
 
@@ -956,6 +1042,29 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets the first value on the given item (field or method) that matches either an annotation or a javadoc tag
+	 * @param item The javadoc item
+	 * @param annotations The FQN of the annotations to check
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @param valueKeys The names of the attributes of the annotations to look at
+	 * @return The value or null if none was found
+	 */
+	public static String getAnnotationOrTagValue(com.sun.javadoc.ProgramElementDoc item, Collection<String> annotations, Collection<String> matchTags,
+			DocletOptions options, String... valueKeys) {
+
+		// first check for an annotation value
+		AnnotationParser p = new AnnotationParser(item, options);
+		String annotationVal = p.getAnnotationValue(annotations, valueKeys);
+		if (annotationVal != null) {
+			return annotationVal;
+		}
+
+		// now check for a tag value
+		return getTagValue(item, matchTags, options);
+	}
+
+	/**
 	 * This gets the value of the first tag found from the given collection of tag names
 	 * @param item The item to get the tag value of
 	 * @param matchTags The collection of tag names of the tag to get a value of
@@ -989,15 +1098,16 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This gets whether the given annotations have one of the deprecated ones
-	 * @param annotations The annotations to check
-	 * @return True if the annotations array contains a deprecated one
+	 * This gets whether the given item has one of the given annotations
+	 * @param item The field/method to check
+	 * @param annotations the annotations to check
+	 * @param options The doclet options
+	 * @return True if the item has one of the given annotations
 	 */
-	public static boolean hasDeprecated(AnnotationDesc[] annotations) {
-		if (annotations != null && annotations.length > 0) {
-			List<AnnotationDesc> allAnnotations = Arrays.asList(annotations);
-			Collection<AnnotationDesc> excluded = filter(allAnnotations, new ParserHelper.ExcludedAnnotations(DEPRECATED_ANNOTATIONS));
-			if (!excluded.isEmpty()) {
+	public static boolean hasAnnotation(com.sun.javadoc.ProgramElementDoc item, Collection<String> annotations, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(item, options);
+		for (String annotation : annotations) {
+			if (p.isAnnotatedBy(annotation)) {
 				return true;
 			}
 		}
@@ -1005,16 +1115,72 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether the given parameter has one of the given annotations
+	 * @param item The field/method to check
+	 * @param annotations the annotations to check
+	 * @param options The doclet options
+	 * @return True if the parameter has one of the given annotations
+	 */
+	public static boolean hasAnnotation(Parameter item, Collection<String> annotations, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(item, options);
+		for (String annotation : annotations) {
+			if (p.isAnnotatedBy(annotation)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This gets whether the given parameter has an annotation whose FQN begins with one of the given prefixes
+	 * @param item The field/method to check
+	 * @param prefixes the prefixes to check for
+	 * @param options The doclet options
+	 * @return True if the parameter has an annotation whose FQN begins with one of the given prefixes
+	 */
+	public static boolean hasAnnotationWithPrefix(Parameter item, Collection<String> prefixes, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(item, options);
+		for (String prefix : prefixes) {
+			if (p.isAnnotatedByPrefix(prefix)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This gets whether the given parameter has a JAXRS annotation
+	 * @param item The parameter
+	 * @param options The doclet options
+	 * @return True if the parameter has the given annotation
+	 */
+	public static boolean hasJaxRsAnnotation(Parameter item, DocletOptions options) {
+		return hasAnnotationWithPrefix(item, JAX_RS_PREFIXES, options);
+	}
+
+	/**
 	 * This gets whether the given item is marked as deprecated either via a javadoc tag
 	 * or an annotation
 	 * @param item The item to check
+	 * @param options The doclet options
 	 * @return True if the item is flagged as deprecated
 	 */
-	public static boolean isDeprecated(com.sun.javadoc.ProgramElementDoc item) {
+	public static boolean isDeprecated(com.sun.javadoc.ProgramElementDoc item, DocletOptions options) {
 		if (hasTag(item, DEPRECATED_TAGS)) {
 			return true;
 		}
-		return hasDeprecated(item.annotations());
+		return hasAnnotation(item, DEPRECATED_ANNOTATIONS, options);
+	}
+
+	/**
+	 * This gets whether the given parameter is marked as deprecated either via a javadoc tag
+	 * or an annotation
+	 * @param parameter The parameter to check
+	 * @param options The doclet options
+	 * @return True if the parameter is flagged as deprecated
+	 */
+	public static boolean isDeprecated(com.sun.javadoc.Parameter parameter, DocletOptions options) {
+		return hasAnnotation(parameter, DEPRECATED_ANNOTATIONS, options);
 	}
 
 	/**
@@ -1078,40 +1244,6 @@ public class ParserHelper {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * The ExcludedAnnotations represents a filter that can be used for filtering
-	 * only if the specified annotation classes are present
-	 */
-	public static class ExcludedAnnotations implements Predicate<AnnotationDesc> {
-
-		private final Collection<String> annotationClasses;
-
-		/**
-		 * This creates a ExcludedAnnotations
-		 * @param annotationClasses
-		 */
-		public ExcludedAnnotations(Collection<String> annotationClasses) {
-			this.annotationClasses = annotationClasses;
-		}
-
-		public boolean apply(AnnotationDesc annotationDesc) {
-			String annotationClass = annotationDesc.annotationType().qualifiedTypeName();
-			return this.annotationClasses.contains(annotationClass);
-		}
-	}
-
-	/**
-	 * The JaxRsAnnotations represents a predicate that can be used for filtering
-	 * only if a jaxrs annotation is present
-	 */
-	public static class JaxRsAnnotations implements Predicate<AnnotationDesc> {
-
-		public boolean apply(AnnotationDesc annotationDesc) {
-			String annotationClass = annotationDesc.annotationType().qualifiedTypeName();
-			return annotationClass.startsWith(JAX_RS_ANNOTATION_PACKAGE);
-		}
 	}
 
 }

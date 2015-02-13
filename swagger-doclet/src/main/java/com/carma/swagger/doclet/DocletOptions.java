@@ -224,6 +224,25 @@ public class DocletOptions {
 				parsedOptions.requiredFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-optionalFieldTags")) {
 				parsedOptions.optionalFieldTags.addAll(asList(copyOfRange(option, 1, option.length)));
+
+				// JSR 303
+			} else if (option[0].equals("-paramMinValueAnnotations")) {
+				parsedOptions.paramMinValueAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramMaxValueAnnotations")) {
+				parsedOptions.paramMaxValueAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldMinAnnotations")) {
+				parsedOptions.fieldMinAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-fieldMaxAnnotations")) {
+				parsedOptions.fieldMaxAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-requiredParamAnnotations")) {
+				parsedOptions.requiredParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-optionalParamAnnotations")) {
+				parsedOptions.optionalParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-requiredFieldAnnotations")) {
+				parsedOptions.requiredFieldAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-optionalFieldAnnotations")) {
+				parsedOptions.optionalFieldAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+
 			} else if (option[0].equals("-unauthOperationTags")) {
 				parsedOptions.unauthOperationTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-authOperationTags")) {
@@ -281,7 +300,9 @@ public class DocletOptions {
 	private List<String> excludeParamsTags;
 	private List<String> csvParamsTags;
 	private List<String> paramsMinValueTags;
+	private List<String> paramMinValueAnnotations;
 	private List<String> paramsMaxValueTags;
+	private List<String> paramMaxValueAnnotations;
 	private List<String> paramsDefaultValueTags;
 	private List<String> paramsNameTags;
 	private List<String> resourceTags;
@@ -291,14 +312,20 @@ public class DocletOptions {
 	private List<String> fieldDescriptionTags;
 
 	private List<String> fieldMinTags;
+	private List<String> fieldMinAnnotations;
 	private List<String> fieldMaxTags;
+	private List<String> fieldMaxAnnotations;
 	private List<String> fieldDefaultTags;
 
 	private List<String> requiredParamsTags;
+	private List<String> requiredParamAnnotations;
 	private List<String> optionalParamsTags;
+	private List<String> optionalParamAnnotations;
 
 	private List<String> requiredFieldTags;
+	private List<String> requiredFieldAnnotations;
 	private List<String> optionalFieldTags;
+	private List<String> optionalFieldAnnotations;
 
 	private List<String> unauthOperationTags; // tags that say a method does NOT require authorization
 	private List<String> authOperationTags; // tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
@@ -518,6 +545,36 @@ public class DocletOptions {
 		this.optionalFieldTags = new ArrayList<String>();
 		this.optionalFieldTags.add("optional");
 		this.optionalFieldTags.add("optionalField");
+
+		// JSR 303
+
+		this.paramMinValueAnnotations = new ArrayList<String>();
+		this.paramMinValueAnnotations.add("javax.validation.constraints.Size");
+		this.paramMinValueAnnotations.add("javax.validation.constraints.DecimalMin");
+
+		this.paramMaxValueAnnotations = new ArrayList<String>();
+		this.paramMaxValueAnnotations.add("javax.validation.constraints.Size");
+		this.paramMaxValueAnnotations.add("javax.validation.constraints.DecimalMax");
+
+		this.fieldMinAnnotations = new ArrayList<String>();
+		this.fieldMinAnnotations.add("javax.validation.constraints.Size");
+		this.fieldMinAnnotations.add("javax.validation.constraints.DecimalMin");
+
+		this.fieldMaxAnnotations = new ArrayList<String>();
+		this.fieldMaxAnnotations.add("javax.validation.constraints.Size");
+		this.fieldMaxAnnotations.add("javax.validation.constraints.DecimalMax");
+
+		this.requiredParamAnnotations = new ArrayList<String>();
+		this.requiredParamAnnotations.add("javax.validation.constraints.NotNull");
+
+		this.optionalParamAnnotations = new ArrayList<String>();
+		this.optionalParamAnnotations.add("javax.validation.constraints.Null");
+
+		this.requiredFieldAnnotations = new ArrayList<String>();
+		this.requiredFieldAnnotations.add("javax.validation.constraints.NotNull");
+
+		this.optionalFieldAnnotations = new ArrayList<String>();
+		this.optionalFieldAnnotations.add("javax.validation.constraints.Null");
 
 		this.unauthOperationTags = new ArrayList<String>();
 		this.unauthOperationTags.add("noAuth");
@@ -1054,6 +1111,38 @@ public class DocletOptions {
 	 */
 	public List<String> getOptionalFieldTags() {
 		return this.optionalFieldTags;
+	}
+
+	public List<String> getParamMinValueAnnotations() {
+		return this.paramMinValueAnnotations;
+	}
+
+	public List<String> getParamMaxValueAnnotations() {
+		return this.paramMaxValueAnnotations;
+	}
+
+	public List<String> getFieldMinAnnotations() {
+		return this.fieldMinAnnotations;
+	}
+
+	public List<String> getFieldMaxAnnotations() {
+		return this.fieldMaxAnnotations;
+	}
+
+	public List<String> getRequiredParamAnnotations() {
+		return this.requiredParamAnnotations;
+	}
+
+	public List<String> getOptionalParamAnnotations() {
+		return this.optionalParamAnnotations;
+	}
+
+	public List<String> getRequiredFieldAnnotations() {
+		return this.requiredFieldAnnotations;
+	}
+
+	public List<String> getOptionalFieldAnnotations() {
+		return this.optionalFieldAnnotations;
 	}
 
 	/**

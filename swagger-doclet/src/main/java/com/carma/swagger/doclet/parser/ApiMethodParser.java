@@ -2,7 +2,6 @@ package com.carma.swagger.doclet.parser;
 
 import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.collect.Collections2.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,7 +157,7 @@ public class ApiMethodParser {
 
 		// check if deprecated and exclude if set to do so
 		boolean deprecated = false;
-		if (ParserHelper.isDeprecated(this.methodDoc)) {
+		if (ParserHelper.isDeprecated(this.methodDoc, this.options)) {
 			if (this.options.isExcludeDeprecatedOperations()) {
 				return null;
 			}
@@ -479,8 +478,12 @@ public class ApiMethodParser {
 		}
 
 		// read required and optional params
-		List<String> optionalParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getOptionalParamsTags(), this.options);
-		List<String> requiredParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getRequiredParamsTags(), this.options);
+		Set<String> optionalParams = ParserHelper.getMatchingParams(this.methodDoc, allParamNames, this.options.getOptionalParamsTags(),
+				this.options.getOptionalParamAnnotations(), this.options);
+
+		// add on params that have one of the optional param annotations
+		Set<String> requiredParams = ParserHelper.getMatchingParams(this.methodDoc, allParamNames, this.options.getRequiredParamsTags(),
+				this.options.getRequiredParamAnnotations(), this.options);
 
 		// read exclude params
 		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getExcludeParamsTags(), this.options);
@@ -489,10 +492,10 @@ public class ApiMethodParser {
 		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getCsvParamsTags(), this.options);
 
 		// read min and max values of params
-		Map<String, String> paramMinVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
-				this.options);
-		Map<String, String> paramMaxVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
-				this.options);
+		Map<String, String> paramMinVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
+				this.options.getParamMinValueAnnotations(), this.options, new String[] { "value", "min" });
+		Map<String, String> paramMaxVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
+				this.options.getParamMaxValueAnnotations(), this.options, new String[] { "value", "max" });
 
 		// read default values of params
 		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames,
@@ -693,7 +696,7 @@ public class ApiMethodParser {
 		return allowMultiple;
 	}
 
-	private Boolean getRequired(String paramCategory, String paramName, String typeName, List<String> optionalParams, List<String> requiredParams) {
+	private Boolean getRequired(String paramCategory, String paramName, String typeName, Collection<String> optionalParams, Collection<String> requiredParams) {
 		// set whether the parameter is required or not
 		Boolean required = null;
 		// if its a path param then its required as per swagger spec
@@ -830,8 +833,7 @@ public class ApiMethodParser {
 		List<AnnotationDesc> allAnnotations = Arrays.asList(parameter.annotations());
 
 		// remove any params annotated with exclude param annotations e.g. jaxrs Context
-		Collection<AnnotationDesc> excluded = filter(allAnnotations, new ParserHelper.ExcludedAnnotations(this.options.getExcludeParamAnnotations()));
-		if (!excluded.isEmpty()) {
+		if (ParserHelper.hasAnnotation(parameter, this.options.getExcludeParamAnnotations(), this.options)) {
 			return false;
 		}
 
@@ -841,16 +843,18 @@ public class ApiMethodParser {
 		}
 
 		// remove any deprecated params
-		if (this.options.isExcludeDeprecatedParams() && ParserHelper.hasDeprecated(parameter.annotations())) {
+		if (this.options.isExcludeDeprecatedParams() && ParserHelper.isDeprecated(parameter, this.options)) {
 			return false;
 		}
 
-		Collection<AnnotationDesc> jaxRsAnnotations = filter(allAnnotations, new ParserHelper.JaxRsAnnotations());
-		if (!jaxRsAnnotations.isEmpty()) {
+		// include if it has a jaxrs annotation
+		if (ParserHelper.hasJaxRsAnnotation(parameter, this.options)) {
 			return true;
 		}
 
-		return (allAnnotations.isEmpty() || httpMethod == HttpMethod.POST || httpMethod == HttpMethod.PUT);
+		// include if there are either no annotations or its a put/post/patch
+		// this means for GET/HEAD/OPTIONS we don't include if it has some non jaxrs annotation on it
+		return (allAnnotations.isEmpty() || httpMethod == HttpMethod.POST || httpMethod == HttpMethod.PUT || httpMethod == HttpMethod.PATCH);
 	}
 
 }

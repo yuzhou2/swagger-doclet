@@ -157,7 +157,7 @@ public class ApiModelParser {
 
 		// check if its got an exclude tag
 		// see if deprecated
-		if (this.options.isExcludeDeprecatedModelClasses() && ParserHelper.isDeprecated(classDoc)) {
+		if (this.options.isExcludeDeprecatedModelClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
 			return;
 		}
 
@@ -617,7 +617,7 @@ public class ApiModelParser {
 		}
 
 		// ignore deprecated fields
-		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field)) {
+		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(field, this.options)) {
 			return true;
 		}
 
@@ -649,7 +649,7 @@ public class ApiModelParser {
 		}
 
 		// ignore deprecated methods
-		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(method)) {
+		if (this.options.isExcludeDeprecatedFields() && ParserHelper.isDeprecated(method, this.options)) {
 			return true;
 		}
 
@@ -682,7 +682,8 @@ public class ApiModelParser {
 	}
 
 	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMinTags(), this.options);
+		String val = ParserHelper.getAnnotationOrTagValue(docItem, this.options.getFieldMinAnnotations(), this.options.getFieldMinTags(), this.options,
+				new String[] { "value", "min" });
 		if (val != null && val.trim().length() > 0) {
 			return this.options.replaceVars(val.trim());
 		}
@@ -690,7 +691,8 @@ public class ApiModelParser {
 	}
 
 	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldMaxTags(), this.options);
+		String val = ParserHelper.getAnnotationOrTagValue(docItem, this.options.getFieldMaxAnnotations(), this.options.getFieldMaxTags(), this.options,
+				new String[] { "value", "max" });
 		if (val != null && val.trim().length() > 0) {
 			return this.options.replaceVars(val.trim());
 		}
@@ -706,10 +708,13 @@ public class ApiModelParser {
 	}
 
 	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {
-		if (ParserHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
+
+		if (ParserHelper.hasAnnotation(docItem, this.options.getRequiredFieldAnnotations(), this.options)
+				|| ParserHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
 			return Boolean.TRUE;
 		}
-		if (ParserHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
+		if (ParserHelper.hasAnnotation(docItem, this.options.getOptionalFieldAnnotations(), this.options)
+				|| ParserHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
 			return Boolean.FALSE;
 		}
 		Boolean notSpecified = null;

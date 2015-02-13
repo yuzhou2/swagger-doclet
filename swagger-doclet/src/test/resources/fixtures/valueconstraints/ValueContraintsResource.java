@@ -2,6 +2,7 @@ package fixtures.valueconstraints;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 
@@ -27,7 +28,7 @@ public class ValueContraintsResource {
 	 * @paramsMaxValue p1 15
 	 * @defaultValues p1 10
 	 */
-	@POST
+	@PUT
 	@Path("/1")
 	public void putMinMax(@QueryParam("p1") int p1) {
 		// noop
@@ -38,7 +39,7 @@ public class ValueContraintsResource {
 	 * @paramsMaxValue p1 9 p2 17
 	 * @paramsDefaultValue p1 6.95
 	 */
-	@POST
+	@PUT
 	@Path("/2")
 	public void putMinMaxes(@QueryParam("p1") double p1, @DefaultValue("12") @QueryParam("p2a") long p2) {
 		// noop

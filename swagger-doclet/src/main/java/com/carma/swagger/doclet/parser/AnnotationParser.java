@@ -1,6 +1,7 @@
 package com.carma.swagger.doclet.parser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.carma.swagger.doclet.DocletOptions;
@@ -40,25 +41,46 @@ public class AnnotationParser {
 	}
 
 	/**
+	 * This gets the value of the first annotation with the given FQN and attribute named key
+	 * @param qualifiedAnnotationTypes The FQN of the annotations to get the value of
+	 * @param keys The name of the attribute(s) of the annotation to get the value of
+	 * @return The value of the first annotation with the given FQN and attribute named key or null if none matched
+	 */
+	public String getAnnotationValue(Collection<String> qualifiedAnnotationTypes, String... keys) {
+		for (String qualifiedAnnotationType : qualifiedAnnotationTypes) {
+			AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
+			if (annotation != null) {
+				String value = getAnnotationValue(annotation, keys);
+				if (value != null) {
+					return value;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This gets the value of the annotation with the given FQN and attribute named key
 	 * @param qualifiedAnnotationType The FQN of the annotation to get the value of
-	 * @param key The name of the attribute of the annotation to get the value of
+	 * @param keys The name of the attribute(s) of the annotation to get the value of
 	 * @return The value of the given named attribute of the given annotation
 	 */
-	public String getAnnotationValue(String qualifiedAnnotationType, String key) {
+	public String getAnnotationValue(String qualifiedAnnotationType, String... keys) {
 		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
-		return getAnnotationValue(annotation, key);
+		return getAnnotationValue(annotation, keys);
 	}
 
-	private String getAnnotationValue(AnnotationDesc annotation, String key) {
+	private String getAnnotationValue(AnnotationDesc annotation, String... keys) {
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
-			if (evp.element().name().equals(key)) {
-				String val = evp.value().value().toString();
-				val = val.trim();
-				return this.options.replaceVars(val);
+			for (String key : keys) {
+				if (evp.element().name().equals(key)) {
+					String val = evp.value().value().toString();
+					val = val.trim();
+					return this.options.replaceVars(val);
+				}
 			}
 		}
 		return null;

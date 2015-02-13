@@ -77,6 +77,16 @@ public class ServiceDoclet {
 		options.put("-requiredFieldTags", 2);
 		options.put("-optionalFieldTags", 2);
 
+		// JSR 303
+		options.put("-paramMinValueAnnotations", 2);
+		options.put("-paramMaxValueAnnotations", 2);
+		options.put("-fieldMinAnnotations", 2);
+		options.put("-fieldMaxAnnotations", 2);
+		options.put("-requiredParamAnnotations", 2);
+		options.put("-optionalParamAnnotations", 2);
+		options.put("-requiredFieldAnnotations", 2);
+		options.put("-optionalFieldAnnotations", 2);
+
 		options.put("-apiAuthorizationsFile", 2);
 		options.put("-apiInfoFile", 2);
 		options.put("-unauthOperationTags", 2);

@@ -56,7 +56,7 @@ public class JaxRsAnnotationParser {
 			for (ClassDoc classDoc : this.rootDoc.classes()) {
 
 				// see if deprecated
-				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc)) {
+				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
 					continue;
 				}
 

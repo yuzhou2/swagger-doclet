@@ -36,7 +36,7 @@
             "path": "/valueconstraints/1",
             "operations": [
                 {
-                    "method": "POST",
+                    "method": "PUT",
                     "nickname": "putMinMax",
                     "type": "void",
                     "parameters": [
@@ -58,14 +58,13 @@
             "path": "/valueconstraints/2",
             "operations": [
                 {
-                    "method": "POST",
+                    "method": "PUT",
                     "nickname": "putMinMaxes",
                     "type": "void",
                     "parameters": [
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "string",
                             "type": "number",
                 			"format" : "double",
                 			"minimum": 6.5,
@@ -75,7 +74,6 @@
                         {
                             "paramType": "query",
                             "name": "p2a",
-                            "type": "string",
                             "type": "integer",
                 			"format" : "int64",
                 			"minimum": 10,

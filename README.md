@@ -4,7 +4,7 @@
 
 This is a JavaDoc Doclet that can be used to generate a JSON Swagger resource listing suitable for feeding to the Swagger UI. It generates the resource listing from the source code of java JAXRS resources and entities.
 
-This was forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 and includes various fixes and new features described [below](#newfeatures). 
+This was originally forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 and has moved on considerably from it.
 
 This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/apidoc/ref/index.html) which is a good working example of the Swagger UI being used for a large API.
 
@@ -573,6 +573,22 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-subTypesAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote sub types of a model class. The default list contains com.fasterxml.jackson.annotation.JsonSubTypes.</td></tr>
 	
+	<tr><td>-paramMinValueAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a min value for a parameter. The default list contains javax.validation.constraints.Size and javax.validation.constraints.DecimalMin.</td></tr>
+	
+	<tr><td>-paramMaxValueAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a max value for a parameter. The default list contains javax.validation.constraints.Size and javax.validation.constraints.DecimalMax.</td></tr>
+	
+	<tr><td>-fieldMinAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a min value for a model field. The default list contains javax.validation.constraints.Size and javax.validation.constraints.DecimalMin.</td></tr>
+	
+	<tr><td>-fieldMaxAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a max value for a model field. The default list contains javax.validation.constraints.Size and javax.validation.constraints.DecimalMax.</td></tr>
+	
+	<tr><td>-requiredParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a parameter is required. The default list contains javax.validation.constraints.NotNull.</td></tr>
+	
+	<tr><td>-optionalParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a parameter is optional. The default list contains javax.validation.constraints.Null.</td></tr>
+	
+	<tr><td>-requiredFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is required. The default list contains javax.validation.constraints.NotNull.</td></tr>
+	
+	<tr><td>-optionalFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is optional. The default list contains javax.validation.constraints.Null.</td></tr>
+
 </table>
 
 
@@ -636,93 +652,3 @@ Here is an example pointing to a directory:
 ```
 <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui/</additionalparam>
 ```
-
-<a name="newfeatures"></a>
-## New Features/Fixes
-
-### Fixes & Features Added or Merged from the [original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet)
-
-Issue 76 Support Exclude packages/classes 
-
-Issue 75 Support excluding Swagger UI
-
-Issue 74 supported via cross class resource parser
-
-Issue 73 Support old jackson annotations
-
-Issue 72 (add PUT params to model)  
-
-Issue 71 (return type overriding via doclet tags) 
-
-Issue 70 support parameterized return types and typesToTreatAsOpaque option
-
-Issue 65 Support header params
-
-Issue 64 adding short and char to primitives
-
-Issue 60 various issues such as XmlAccessor apart from the Map value extraction part
-
-Issue 59 resource inheritance
-
-Issue 58 Swagger UI zip path
-
-Issue 55 swagger-ui from a folder instead of zip
-
-Issue 52 Model inheritance
-
-Issue 46 support custom api info
-
-Issue 44 Produces/Consumes
-
-Issue 43 Support Jackson @JsonView filtering on return types
-
-
-
-
-### Additional Features
-
-#### Full 1.2 swagger spec support including: 
-
-Authorizations
-
-Info
-
-New data types and formats
-
-Response Messages
-
-Response Message Model
-
-Updated Allowable Values
-
-Produces/Consumes
-
-Model field descriptions
-
-Multipart File Upload
-
-Form URL Encoded Parameters
-
-#### Other features:
-
-Support resource operations being spread across multiple resource classes
-
-Support custom/override put/post body model type
-
-Support exclude resources/fields (via exclude tags and also via deprecation annotations/tags)
-
-Support @BeanParam
-
-
-
-
-
-
-
-
-
-
-
-
-
-
