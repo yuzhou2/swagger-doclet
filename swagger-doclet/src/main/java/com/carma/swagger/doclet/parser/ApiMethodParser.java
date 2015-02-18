@@ -29,6 +29,7 @@ import com.carma.swagger.doclet.model.Model;
 import com.carma.swagger.doclet.model.Oauth2Scope;
 import com.carma.swagger.doclet.model.OperationAuthorizations;
 import com.carma.swagger.doclet.model.Property;
+import com.carma.swagger.doclet.parser.ParserHelper.NumericTypeFilter;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
 import com.sun.javadoc.AnnotationDesc;
@@ -493,9 +494,11 @@ public class ApiMethodParser {
 
 		// read min and max values of params
 		Map<String, String> paramMinVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
-				this.options.getParamMinValueAnnotations(), this.options, new String[] { "value", "min" });
+				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
 		Map<String, String> paramMaxVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
-				this.options.getParamMaxValueAnnotations(), this.options, new String[] { "value", "max" });
+				this.options.getParamMaxValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "max" });
+
+		// filter min/max params so they
 
 		// read default values of params
 		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames,

@@ -108,6 +108,9 @@
                 	"format" : "int32",
                 	"maximum": 3
                 },
+                "stringSizeField" : {
+                	"type": "string"
+                },
                 "notNullField": {
                 	"type": "string"
                 }

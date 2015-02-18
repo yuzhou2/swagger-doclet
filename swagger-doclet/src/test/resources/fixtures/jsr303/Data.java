@@ -19,6 +19,9 @@ public class Data {
 	@NotNull
 	String notNullField = "";
 
+	@Size(min = 0, max = 10)
+	String stringSizeField;
+
 	@Size(min = 1)
 	int minField;
 

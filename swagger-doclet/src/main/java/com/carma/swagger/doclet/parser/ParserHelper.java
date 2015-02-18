@@ -825,6 +825,30 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether the given type is primitive
+	 * @param type The type to check
+	 * @param options The doclet options
+	 * @return True if the given type is primitive
+	 */
+	public static boolean isNumber(Type type, DocletOptions options) {
+		if (type == null) {
+			return false;
+		}
+		String[] typeFormat = typeOf(type, options);
+		String swaggerType = typeFormat[0];
+		String format = typeFormat[1];
+
+		if (swaggerType.equals("integer")) {
+			return true;
+		} else if (swaggerType.equals("number")) {
+			return true;
+		} else if (format != null && format.equals("byte")) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * This gets whether the given item has any of the given tags
 	 * @param item The javadoc item
 	 * @param matchTags The names of the tags to look for
@@ -899,24 +923,47 @@ public class ParserHelper {
 		return res;
 	}
 
+	@SuppressWarnings("javadoc")
+	public static interface TypeFilter {
+
+		boolean matches(Type t);
+	}
+
+	@SuppressWarnings("javadoc")
+	public static class NumericTypeFilter implements TypeFilter {
+
+		private final DocletOptions options;
+
+		public NumericTypeFilter(DocletOptions options) {
+			super();
+			this.options = options;
+		}
+
+		public boolean matches(Type t) {
+			return ParserHelper.isNumber(t, this.options);
+		}
+
+	}
+
 	/**
 	 * This gets the values of parameters from either javadoc tags or annotations
 	 * @param method The method
 	 * @param params The pre-read params of the method, if null they will be read from the given method
 	 * @param matchTags The names of the javadoc tags to look for
 	 * @param annotations The annotations to look for
+	 * @param annotationTypes The types that the annotations should apply to
 	 * @param options The doclet options (used for var replacement)
 	 * @param valueKeys The attribute names to look for on the annotations as the value
 	 * @return A set of param names with the given annotations
 	 */
 	public static Map<String, String> getParameterValues(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
-			Collection<String> annotations, DocletOptions options, String... valueKeys) {
+			Collection<String> annotations, TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
 		Map<String, String> res = new HashMap<String, String>();
 		// first add values from javadoc tags
 		Map<String, String> javadocVals = getMethodParamNameValuePairs(method, params, matchTags, options);
 		res.putAll(javadocVals);
 		// add values from annotations
-		Map<String, String> annotationVals = getParameterValuesWithAnnotation(method.parameters(), annotations, options, valueKeys);
+		Map<String, String> annotationVals = getParameterValuesWithAnnotation(method.parameters(), annotations, annotationTypes, options, valueKeys);
 		res.putAll(annotationVals);
 		return res;
 	}
@@ -925,12 +972,13 @@ public class ParserHelper {
 	 * This gets the values of annotations of parameters that have any of the given annotations on them
 	 * @param params The parameters
 	 * @param annotations The annotations to look for
+	 * @param annotationTypes The types that the annotations should apply to
 	 * @param options The doclet options (used for var replacement)
 	 * @param valueKeys The attribute names to look for on the annotations as the value
 	 * @return A set of param names with the given annotations
 	 */
-	public static Map<String, String> getParameterValuesWithAnnotation(Parameter[] params, Collection<String> annotations, DocletOptions options,
-			String... valueKeys) {
+	public static Map<String, String> getParameterValuesWithAnnotation(Parameter[] params, Collection<String> annotations, TypeFilter annotationTypes,
+			DocletOptions options, String... valueKeys) {
 		Map<String, String> res = new HashMap<String, String>();
 		for (Parameter p : params) {
 			String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);

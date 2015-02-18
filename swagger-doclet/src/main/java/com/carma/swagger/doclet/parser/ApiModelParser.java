@@ -421,8 +421,8 @@ public class ApiModelParser {
 							Type fieldType = getModelType(field.type(), nested);
 
 							String description = getFieldDescription(field, true);
-							String min = getFieldMin(field);
-							String max = getFieldMax(field);
+							String min = getFieldMin(field, fieldType);
+							String max = getFieldMax(field, fieldType);
 							Boolean required = getFieldRequired(field);
 							boolean hasView = ParserHelper.hasJsonViews(field, this.options);
 
@@ -477,8 +477,8 @@ public class ApiModelParser {
 							&& (method.parameters() == null || method.parameters().length == 0);
 
 					String description = getFieldDescription(method, isFieldGetter);
-					String min = getFieldMin(method);
-					String max = getFieldMax(method);
+					String min = getFieldMin(method, returnType);
+					String max = getFieldMax(method, returnType);
 					String defaultValue = getFieldDefaultValue(method);
 					Boolean required = getFieldRequired(method);
 					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
@@ -681,18 +681,28 @@ public class ApiModelParser {
 		return this.options.replaceVars(description.trim());
 	}
 
-	private String getFieldMin(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getAnnotationOrTagValue(docItem, this.options.getFieldMinAnnotations(), this.options.getFieldMinTags(), this.options,
-				new String[] { "value", "min" });
+	private String getFieldMin(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
+		// ignore annotations on fields that are not numeric
+		Collection<String> annotations = this.options.getFieldMinAnnotations();
+		if (!ParserHelper.isNumber(fieldType, this.options)) {
+			annotations = Collections.emptyList();
+		}
+
+		String val = ParserHelper.getAnnotationOrTagValue(docItem, annotations, this.options.getFieldMinTags(), this.options, new String[] { "value", "min" });
 		if (val != null && val.trim().length() > 0) {
 			return this.options.replaceVars(val.trim());
 		}
 		return null;
 	}
 
-	private String getFieldMax(com.sun.javadoc.MemberDoc docItem) {
-		String val = ParserHelper.getAnnotationOrTagValue(docItem, this.options.getFieldMaxAnnotations(), this.options.getFieldMaxTags(), this.options,
-				new String[] { "value", "max" });
+	private String getFieldMax(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
+		// ignore annotations on fields that are not numeric
+		Collection<String> annotations = this.options.getFieldMaxAnnotations();
+		if (!ParserHelper.isNumber(fieldType, this.options)) {
+			annotations = Collections.emptyList();
+		}
+
+		String val = ParserHelper.getAnnotationOrTagValue(docItem, annotations, this.options.getFieldMaxTags(), this.options, new String[] { "value", "max" });
 		if (val != null && val.trim().length() > 0) {
 			return this.options.replaceVars(val.trim());
 		}
