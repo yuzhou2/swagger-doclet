@@ -1,0 +1,28 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/bidir",
+    "apis": [
+        {
+            "path": "/bidir/a/b/get",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "get",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "path": "/bidir/a/get",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "get",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}
