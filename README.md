@@ -19,7 +19,10 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 ## Versions
 
-The latest production version is 1.0.4
+The latest production version is 1.0.4.1
+
+1.0.4.1 is a patch release of the 1.0.4 version to fix a bug with @Size validation annotation on non numeric fields (Issue 53)
+
 
 The fixes/features in the 1.0.4 version were as follows:
 
@@ -105,7 +108,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0.4</version>
+        						<version>1.0.4.1</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -142,7 +145,7 @@ Here is an example build.gradle file that will generate the swagger JSON files i
 
 dependencies {
     doclet(
-        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.4'],
+        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.4.1'],
         [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
     ) 
 }
