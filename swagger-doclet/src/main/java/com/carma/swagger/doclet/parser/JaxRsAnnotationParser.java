@@ -99,11 +99,7 @@ public class JaxRsAnnotationParser {
 							ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), docletClasses);
 							if (subResourceClassDoc != null) {
 								subResourceClasses.put(method.returnType(), subResourceClassDoc);
-							} else {
-								System.err.println("Failed to lookup sub resource class doc: " + method.returnType() + " looked up type is: "
-										+ ParserHelper.lookUpClassDoc(method.returnType(), docletClasses));
 							}
-
 						}
 					}
 
