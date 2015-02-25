@@ -120,6 +120,18 @@ public class ApiModelParser {
 	}
 
 	/**
+	 * This adds the given vars to types to the ones used by this model
+	 * @param varsToTypes
+	 * @return This
+	 */
+	public ApiModelParser addVarsToTypes(Map<String, Type> varsToTypes) {
+		if (varsToTypes != null) {
+			this.varsToTypes.putAll(varsToTypes);
+		}
+		return this;
+	}
+
+	/**
 	 * This parsers a model class built from parsing this class
 	 * @return The set of model classes
 	 */

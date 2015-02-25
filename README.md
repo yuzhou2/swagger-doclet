@@ -240,7 +240,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	</code>
 	</p>
 
-	</td><td>operations</td><td>@outputType</td></tr>
+	</td><td>operations</td><td>@outputType, @returnType</td></tr>
 	<tr><td>@inputType</td><td>If you want to have a different class type used as the model for a body parameter then you can use this. For example: 
 	<p>
 	<code><pre>

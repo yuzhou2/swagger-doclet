@@ -386,6 +386,32 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets parameterized types of the given type substituting variable types if necessary
+	 * @param type The raw type such as Batch<Item> or Batch<T, Y>
+	 * @param varsToTypes A map of variable name to types
+	 * @return The list of parameterized types
+	 */
+	public static List<Type> getParameterizedTypes(Type type, Map<String, Type> varsToTypes) {
+		ParameterizedType pt = type.asParameterizedType();
+		if (pt != null) {
+			Type[] typeArgs = pt.typeArguments();
+			if (typeArgs != null && typeArgs.length > 0) {
+				List<Type> res = new ArrayList<Type>();
+				for (Type pType : typeArgs) {
+					Type replacedType = getVarType(pType.asTypeVariable(), varsToTypes);
+					if (replacedType == null) {
+						res.add(pType);
+					} else {
+						res.add(replacedType);
+					}
+				}
+				return res;
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	/**
 	 * This gets the type that a container holds
 	 * @param type The raw type like Collection<String>
 	 * @param varsToTypes A map of variables to types for parameterized types, optional if null parameterized types

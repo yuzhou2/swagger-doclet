@@ -42,23 +42,26 @@ public class CrossClassApiParser {
 
 	private final Method parentMethod;
 	private final Map<Type, ClassDoc> subResourceClasses;
+	private final Collection<ClassDoc> typeClasses;
 
 	/**
 	 * This creates a CrossClassApiParser for top level parsing
 	 * @param options The options for parsing
 	 * @param classDoc The class doc
-	 * @param classes The doclet classes
-	 * @param subResourceClasses
+	 * @param classes The doclet classes to document
+	 * @param typeClasses Extra type classes that can be used as generic parameters
+	 * @param subResourceClasses Sub resource doclet classes
 	 * @param swaggerVersion Swagger version
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
 	 */
 	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
-			String swaggerVersion, String apiVersion, String basePath) {
+			Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath) {
 		super();
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
+		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
 		this.rootPath = firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
@@ -71,8 +74,9 @@ public class CrossClassApiParser {
 	 * This creates a CrossClassApiParser for parsing a subresource
 	 * @param options The options for parsing
 	 * @param classDoc The class doc
-	 * @param classes The doclet classes
-	 * @param subResourceClasses
+	 * @param classes The doclet classes to document
+	 * @param typeClasses Extra type classes that can be used as generic parameters
+	 * @param subResourceClasses Sub resource doclet classes
 	 * @param swaggerVersion Swagger version
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
@@ -80,11 +84,12 @@ public class CrossClassApiParser {
 	 * @param parentResourcePath The parent resource path
 	 */
 	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
-			String swaggerVersion, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
+			Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
 		super();
 		this.options = options;
 		this.classDoc = classDoc;
 		this.classes = classes;
+		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
 		this.rootPath = parentResourcePath + firstNonNull(parsePath(classDoc, options), "");
 		this.swaggerVersion = swaggerVersion;
@@ -133,7 +138,8 @@ public class CrossClassApiParser {
 			} else {
 				for (MethodDoc method : currentClassDoc.methods()) {
 					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, this.classes,
-							defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes, defaultErrorTypeClass);
+							this.typeClasses, defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes,
+							this.typeClasses, defaultErrorTypeClass);
 
 					Method parsedMethod = methodParser.parse();
 					if (parsedMethod == null) {
@@ -152,7 +158,7 @@ public class CrossClassApiParser {
 							shrunkClasses.remove(currentClassDoc);
 							// recursively parse the sub-resource class
 							CrossClassApiParser subResourceParser = new CrossClassApiParser(this.options, subResourceClassDoc, shrunkClasses,
-									this.subResourceClasses, this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
+									this.subResourceClasses, this.typeClasses, this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
 							subResourceParser.parse(declarations);
 						}
 						continue;

@@ -63,6 +63,16 @@
                     "type": "Map"
                 }
             ]
+        },
+        {
+            "path": "/maps/g",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getG",
+                    "type": "Map"
+                }
+            ]
         }
     ],
     "models": {

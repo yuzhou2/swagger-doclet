@@ -45,10 +45,23 @@ public class GenericResponseResource {
 	}
 
 	/**
-	 * @returnType fixtures.genericresponse.Parameterized2
+	 * @returnType fixtures.genericresponse.Parameterized2<java.lang.Integer>
 	 */
 	@GET
 	public Response getParameterized2() {
+		return null;
+	}
+
+	@GET
+	public Batch<Item> getBatch() {
+		return null;
+	}
+
+	/**
+	 * @returnType fixtures.genericresponse.Batch<fixtures.genericresponse.Item>
+	 */
+	@GET
+	public Response getBatch2() {
 		return null;
 	}
 }

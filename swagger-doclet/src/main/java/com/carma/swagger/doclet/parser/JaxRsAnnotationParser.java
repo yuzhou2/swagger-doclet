@@ -51,6 +51,21 @@ public class JaxRsAnnotationParser {
 	public boolean run() {
 		try {
 
+			// setup additional classes needed for processing, generally these are java ones such as java.lang.String
+			Collection<ClassDoc> typeClasses = new ArrayList<ClassDoc>();
+			typeClasses.add(this.rootDoc.classNamed("java.lang.String"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Integer"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Boolean"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Float"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Double"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Character"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Long"));
+			typeClasses.add(this.rootDoc.classNamed("java.lang.Byte"));
+			typeClasses.add(this.rootDoc.classNamed("java.util.Map"));
+			typeClasses.add(this.rootDoc.classNamed("java.util.Collection"));
+			typeClasses.add(this.rootDoc.classNamed("java.util.Set"));
+			typeClasses.add(this.rootDoc.classNamed("java.util.List"));
+
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
 			for (ClassDoc classDoc : this.rootDoc.classes()) {
@@ -115,8 +130,8 @@ public class JaxRsAnnotationParser {
 			// parse with the v2 parser that supports endpoints of the same resource being spread across resource files
 			Map<String, ApiDeclaration> resourceToDeclaration = new HashMap<String, ApiDeclaration>();
 			for (ClassDoc classDoc : docletClasses) {
-				CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, subResourceClasses, SWAGGER_VERSION,
-						this.options.getApiVersion(), this.options.getApiBasePath());
+				CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, subResourceClasses, typeClasses,
+						SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath());
 				classParser.parse(resourceToDeclaration);
 			}
 			Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();

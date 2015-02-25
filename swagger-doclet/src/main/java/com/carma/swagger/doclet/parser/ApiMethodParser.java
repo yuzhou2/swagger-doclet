@@ -40,6 +40,7 @@ import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
 
 /**
  * The ApiMethodParser represents a parser for resource methods
@@ -101,6 +102,7 @@ public class ApiMethodParser {
 	private final HttpMethod httpMethod;
 	private final Method parentMethod;
 	private final Collection<ClassDoc> classes;
+	private final Collection<ClassDoc> typeClasses;
 	private final String classDefaultErrorType;
 	private final String methodDefaultErrorType;
 
@@ -110,9 +112,11 @@ public class ApiMethodParser {
 	 * @param parentPath
 	 * @param methodDoc
 	 * @param classes
+	 * @param typeClasses
 	 * @param classDefaultErrorType
 	 */
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, Collection<ClassDoc> typeClasses,
+			String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -121,6 +125,7 @@ public class ApiMethodParser {
 		this.httpMethod = HttpMethod.fromMethod(methodDoc);
 		this.parentMethod = null;
 		this.classes = classes;
+		this.typeClasses = typeClasses;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
 	}
@@ -133,7 +138,8 @@ public class ApiMethodParser {
 	 * @param classes
 	 * @param classDefaultErrorType
 	 */
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, Collection<ClassDoc> typeClasses,
+			String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.methodDoc = methodDoc;
@@ -142,6 +148,7 @@ public class ApiMethodParser {
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
 		this.classes = classes;
+		this.typeClasses = typeClasses;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = ParserHelper.getTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
 	}
@@ -197,6 +204,8 @@ public class ApiMethodParser {
 		String returnTypeItemsType = null;
 		Type containerOf = ParserHelper.getContainerType(returnType, null);
 
+		Map<String, Type> varsToTypes = new HashMap<String, Type>();
+
 		if (containerOf != null) {
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
@@ -226,16 +235,23 @@ public class ApiMethodParser {
 					returnTypeItemsType = nameToType.containerOfPrimitive;
 				} else {
 					modelType = returnType;
+					if (nameToType.varsToTypes != null) {
+						varsToTypes.putAll(nameToType.varsToTypes);
+					}
 				}
 			} else {
 				// if its not a container then adjust the return type name for any views
 				returnTypeName = this.translator.typeName(returnType, viewClasses).value();
+
+				// add parameterized types to the model
+				// TODO: support variables e.g. for inherited or sub resources
+				addParameterizedModelTypes(returnType, varsToTypes);
 			}
 
 		}
 
-		if (this.options.isParseModels()) {
-			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).parse());
+		if (modelType != null && this.options.isParseModels()) {
+			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).addVarsToTypes(varsToTypes).parse());
 		}
 
 		// ************************************
@@ -770,17 +786,21 @@ public class ApiMethodParser {
 		Type containerOf;
 		String containerOfPrimitive;
 		String returnTypeName;
+		Map<String, Type> varsToTypes;
 	}
 
 	NameToType readCustomReturnType(String customTypeName, ClassDoc[] viewClasses) {
 		if (customTypeName != null && customTypeName.trim().length() > 0) {
 			customTypeName = customTypeName.trim();
 
+			Type[] paramTypes = null;
+			Type customType = null;
+
 			// split it into container and container of, if its in the form X<Y>
 			Matcher matcher = GENERIC_RESPONSE_PATTERN.matcher(customTypeName);
 			if (matcher.find()) {
-				String collectionType = matcher.group(1);
-				if (ParserHelper.isCollection(collectionType)) {
+				customTypeName = matcher.group(1);
+				if (ParserHelper.isCollection(customTypeName)) {
 					String containerOfType = matcher.group(2);
 					Type containerOf = null;
 					String containerOfPrimitive = null;
@@ -794,33 +814,81 @@ public class ApiMethodParser {
 					}
 
 					NameToType res = new NameToType();
-					res.returnTypeName = ParserHelper.typeOf(collectionType, this.options)[0];
+					res.returnTypeName = ParserHelper.typeOf(customTypeName, this.options)[0];
 					res.returnType = null;
 					res.containerOf = containerOf;
 					res.containerOfPrimitive = containerOfPrimitive;
 					return res;
+				} else if (ParserHelper.isMap(customTypeName)) {
+					NameToType res = new NameToType();
+					res.returnTypeName = ParserHelper.typeOf(customTypeName, this.options)[0];
+					res.returnType = null;
+					return res;
 				} else {
-					throw new UnsupportedOperationException(
-							"Generic response types are not supported for custom @returnType, only collection types are allowed.");
+					// its a parameterized type, add the parameterized classes to the model
+					String[] paramTypeNames = matcher.group(2).split(",");
+					paramTypes = new Type[paramTypeNames.length];
+					int i = 0;
+					for (String paramTypeName : paramTypeNames) {
+						paramTypes[i] = ParserHelper.findModel(this.classes, paramTypeName);
+						if (paramTypes[i] == null) {
+							paramTypes[i] = ParserHelper.findModel(this.typeClasses, paramTypeName);
+						}
+						i++;
+					}
 				}
 			}
 
 			// lookup the type from the doclet classes
-			Type customType = ParserHelper.findModel(this.classes, customTypeName);
+			customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType == null) {
 				raiseCustomTypeNotFoundError(customTypeName);
 			} else {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
+
+				// build map of var names to parameters if applicable
+				Map<String, Type> varsToTypes = null;
+				if (paramTypes != null) {
+					varsToTypes = new HashMap<String, Type>();
+					TypeVariable[] vars = customType.asClassDoc().typeParameters();
+					int i = 0;
+					for (TypeVariable var : vars) {
+						varsToTypes.put(var.qualifiedTypeName(), paramTypes[i]);
+						i++;
+					}
+					// add param types to the model
+					for (Type type : paramTypes) {
+						if (this.classes.contains(type)) {
+							if (this.options.isParseModels()) {
+								this.models.addAll(new ApiModelParser(this.options, this.translator, type).addVarsToTypes(varsToTypes).parse());
+							}
+						}
+					}
+				}
+
 				String translated = this.translator.typeName(customType, viewClasses).value();
 				if (translated != null) {
 					NameToType res = new NameToType();
 					res.returnTypeName = translated;
 					res.returnType = customType;
+					res.varsToTypes = varsToTypes;
 					return res;
 				}
 			}
 		}
 		return null;
+	}
+
+	private void addParameterizedModelTypes(Type returnType, Map<String, Type> varsToTypes) {
+		// TODO support variable types e.g. parameterize sub resources or inherited resources
+		List<Type> parameterizedTypes = ParserHelper.getParameterizedTypes(returnType, varsToTypes);
+		for (Type type : parameterizedTypes) {
+			if (this.classes.contains(type)) {
+				if (this.options.isParseModels()) {
+					this.models.addAll(new ApiModelParser(this.options, this.translator, type).addVarsToTypes(varsToTypes).parse());
+				}
+			}
+		}
 	}
 
 	private void raiseCustomTypeNotFoundError(String customType) {

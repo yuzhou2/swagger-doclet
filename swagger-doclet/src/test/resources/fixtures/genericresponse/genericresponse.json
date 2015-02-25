@@ -33,7 +33,7 @@
                     "method": "GET",
                     "nickname": "getOptional2",
                     "type": "Response",
-					"parameters": [
+                    "parameters": [
                         {
                             "paramType": "query",
                             "name": "name",
@@ -50,25 +50,61 @@
                 {
                     "method": "GET",
                     "nickname": "getParameterized2",
-                    "type": "Response"
+                    "type": "Parameterized2"
+                },
+                {
+                    "method": "GET",
+                    "nickname": "getBatch",
+                    "type": "Batch"
+                },
+                {
+                    "method": "GET",
+                    "nickname": "getBatch2",
+                    "type": "Batch"
                 }
             ]
         }
     ]
     ,
     "models": {
-    	"Parameterized": {
+        "Batch": {
+            "id": "Batch",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "Item"
+                    }
+                },
+                "nextToken" : {
+                    "type": "string"
+                }
+            }
+        },
+        "Item": {
+            "id": "Item",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                }
+            }
+        },
+        "Parameterized": {
             "id": "Parameterized",
             "properties": {
                 "typedCol": {
                     "type": "array",
                     "items": {
-                    	"type": "integer"
+                        "type": "integer"
                     }
                 },
                 "rtype": {
-                	"type": "integer",
-                	"format" : "int32"
+                    "type": "integer",
+                    "format" : "int32"
                 },
                 "object": {
                     "type": "Object"

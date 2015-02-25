@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 /**
  * The MapsResource represents a resource for testing maps
@@ -48,6 +49,15 @@ public class MapsResource {
 	@GET
 	@Path("/f")
 	public Map<String, Map<String, String>> getF() {
+		return null;
+	}
+
+	/**
+	 * @responseType java.util.Map<java.lang.String, java.lang.Integer>
+	 */
+	@GET
+	@Path("/g")
+	public Response getG() {
 		return null;
 	}
 }

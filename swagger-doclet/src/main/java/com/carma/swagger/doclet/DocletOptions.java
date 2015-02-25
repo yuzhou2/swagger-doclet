@@ -495,6 +495,7 @@ public class DocletOptions {
 		this.responseTypeTags = new ArrayList<String>();
 		this.responseTypeTags.add("responseType");
 		this.responseTypeTags.add("outputType");
+		this.responseTypeTags.add("returnType");
 
 		this.inputTypeTags = new ArrayList<String>();
 		this.inputTypeTags.add("inputType");
