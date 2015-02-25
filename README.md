@@ -222,7 +222,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	 * @responseType fixtures.responsemodel.Response2
 	 */
 	@SuppressWarnings("javadoc")
-	@GET
+	@GET 
 	public Response responseDefinedViaTag() {
 		return Response.ok().entity(new Response2()).build();
 	}
@@ -668,5 +668,5 @@ Here is an example pointing to a zip file:
 Here is an example pointing to a directory:
 
 ```
-<additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui/</additionalparam>
+<additionalparam>-apiVersion 1 -docBasePath /apidocs  -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui/</additionalparam>
 ```
