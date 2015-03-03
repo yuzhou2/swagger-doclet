@@ -1008,7 +1008,7 @@ public class ParserHelper {
 		Map<String, String> res = new HashMap<String, String>();
 		for (Parameter p : params) {
 			String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);
-			if (value != null) {
+			if (value != null && (annotationTypes == null || annotationTypes.matches(p.type()))) {
 				res.put(p.name(), value);
 			}
 		}

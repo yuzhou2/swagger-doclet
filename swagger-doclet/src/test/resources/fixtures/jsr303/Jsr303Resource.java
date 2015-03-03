@@ -35,4 +35,10 @@ public class Jsr303Resource {
 	public void putOptionalMandatory(@NotNull @QueryParam("p1") String p1, @Null Data p2) {
 		// noop
 	}
+
+	@PUT
+	@Path("/4")
+	public void putStringMinMax(@Size(min = 5, max = 15) @QueryParam("p1") String p1) {
+		// noop
+	}
 }

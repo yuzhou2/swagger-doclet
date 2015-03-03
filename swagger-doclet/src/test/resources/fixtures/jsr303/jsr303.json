@@ -15,7 +15,6 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "string",
                             "type": "integer",
                 			"format" : "int32",
                 			"minimum": 5,
@@ -63,6 +62,23 @@
                             "paramType": "body",
                             "name": "p2",
                             "type": "Data"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/jsr303/4",
+            "operations": [
+                {
+                    "method": "PUT",
+                    "nickname": "putStringMinMax",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string"
                         }
                     ]
                 }
