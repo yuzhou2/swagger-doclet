@@ -19,7 +19,12 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 ## Versions
 
-The latest production version is 1.0.4.1
+The latest production version is 1.0.4.2
+
+1.0.4.2 is a patch release of the 1.0.4 version to fix two additional bugs in the 1.0.4 release:
+
++ Classes referenced by a Collection but that do not occur as parameters are not included in the model (Issue 58)
++ @Size on method parameter causes the model parsing to fail (Issue 57)
 
 1.0.4.1 is a patch release of the 1.0.4 version to fix a bug with @Size validation annotation on non numeric fields (Issue 53)
 
