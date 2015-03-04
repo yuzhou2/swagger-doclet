@@ -829,6 +829,17 @@ public class ApiModelParser {
 	private void parseNestedModels(Collection<TypeRef> types) {
 		for (TypeRef type : types) {
 			parseModel(type.type, true);
+
+			// parse paramaterized types
+			ParameterizedType pt = type.type.asParameterizedType();
+			if (pt != null) {
+				Type[] typeArgs = pt.typeArguments();
+				if (typeArgs != null) {
+					for (Type paramType : typeArgs) {
+						parseModel(paramType, true);
+					}
+				}
+			}
 		}
 	}
 

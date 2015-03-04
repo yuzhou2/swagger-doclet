@@ -333,8 +333,7 @@ public class ParserHelper {
 			return new String[] { "boolean", null };
 		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
 			return new String[] { "string", "date-time" };
-		} else if (isCollection(javaType)
-				&& (javaType.toLowerCase().endsWith("list") || javaType.toLowerCase().endsWith("array") || javaType.toLowerCase().endsWith("collection"))) {
+		} else if (isCollection(javaType)) {
 			return new String[] { "array", null };
 		} else if (isSet(javaType)) {
 			return new String[] { "array", null };
