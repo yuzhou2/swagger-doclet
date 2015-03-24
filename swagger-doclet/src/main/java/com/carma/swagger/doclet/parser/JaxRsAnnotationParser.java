@@ -35,10 +35,11 @@ import com.sun.javadoc.Type;
 @SuppressWarnings("javadoc")
 public class JaxRsAnnotationParser {
 
-	private static final String SWAGGER_VERSION = "1.2";
 	// swagger 1.1 spec see https://groups.google.com/forum/#!topic/swagger-swaggersocket/mHdR9u0utH4
 	// diffs between 1.1 and 1.2 see https://github.com/wordnik/swagger-spec/wiki/1.2-transition
-	private static final String SWAGGER_UI_VERSION = "2.0.24";
+	private static final String SWAGGER_VERSION = "1.2";
+
+	private static final String SWAGGER_UI_VERSION = "2.1.8-M1";
 
 	private final DocletOptions options;
 	private final RootDoc rootDoc;

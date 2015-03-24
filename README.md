@@ -171,7 +171,7 @@ dependencies {
 ### Usage Notes
 The settings that you use for the doc base path and the api base path will vary depending on both the version of swagger that is used and the name used for your top level resource listing. Please refer to the Doclet Options section of this document for a detailed description of these. 
 
-The doclet will generate a service.json file which is the swagger spec resource listing and will also generate a series of resource json files. To use the swagger ui with the generated json files you can either use the swagger ui that is embedded with this doclet (currently 2.0.24) or use your own which is recommended for most people as it allows you to tweak the look and feel.
+The doclet will generate a service.json file which is the swagger spec 1.2 resource listing and will also generate a series of resource json files. To use the swagger ui with the generated json files you can either use the swagger ui that is embedded with this doclet (currently 2.1.8-M1) or use your own which is recommended for most people as it allows you to tweak the look and feel.
 
 
 You would then add various javadoc tags to your source code to fine tune the generated documentation.
@@ -314,7 +314,7 @@ These are the options that you will always want to set
 	<tr><th>Option</th><th>Purpose</th></tr>
 	<tr><td>-docBasePath</td><td><p>The base path to the docs in the service.json. You should set to the url of the dir where the swagger json files are hosted e.g. for Carma we use -docBasePath https://api-dev.car.ma/apidoc/ref. If you dont want to build different json files for each server environment one solution which we use at Carma is to use a variable reference for the docBasePath and then serve the json file(s) through a servlet filter which can replace the variable with the hostname of the server it is running on. Alternatively you can use a relative path use the workaround described below (this is technically against the swagger 1.2 spec).</p><p>NOTE: Do not end this with a forward slash.</p>
 	<p>NOTE 2: Technically as per the swagger 1.2 spec the doc base path which is in the resource listing file is NOT required, however, if it is not specified the swagger ui will only work if the resource listing file is in one directory and the url in the index.html points to this and the other resource json files are relative to this. This doclet generates the resource listing as a file called service.json and the resource json files are generated in the same directoy. You can of course name the files and move them to a structure similar to the swagger petstore example where the resource listing is in at the path /api-docs and the resources are under this such as /api-docs/Users.json or you can use web server rewrites to simulate this structure.</p>
-	<p>NOTE 3: If you want to use a relative docBasePath then you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute. <b>The swagger.js (from v 2.0.24 of the swagger ui) which is bundled with the doclet has this patch since version 1.0.1.</b></p>
+	<p>NOTE 3: If you want to use a relative docBasePath then you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute. <b>The swagger.js which is bundled with the doclet has this patch.</b></p>
 	<p>The patch to apply for relative doc base url is as follows:
 <pre>
 <code>
@@ -353,34 +353,6 @@ if (response.basePath)
   //END PATCH to support relative base url in the top level resource listing
   ...
   
-</code>
-</pre>
-</p>
-	<p>NOTE 4: If you want to use a relative path that has a port in the url such as 8080 then you must also patch the shred.bundle.js file of the swagger ui. <b>The shred.bundle.js (from v 2.0.24 of the swagger ui) that is bundled with this doclet has this patch since version 1.0.1.</b></p> 
-<p>The patch to apply for ports is as follows:
-<pre>
-<code>
-port: {
-    get: function() {
-      if (!this._port) {
-    	// BEGIN Patch to support relative doc base path
-    	// use the port of the URI if available
-    	var port = document.URL.match(/:(\d+)\//);
-    	if (port) {
-    	  return this._port = port[2];
-    	}
-    	// END Patch to support relative doc base path
-        switch(this.scheme) {
-          case "https": return this._port = 443;
-          case "http":
-          default: return this._port = 80;
-        }
-      }
-      return this._port;
-    },
-    set: function(value) { this._port = value; return this; },
-    enumerable: true
-  },
 </code>
 </pre>
 </p>

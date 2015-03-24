@@ -83,13 +83,13 @@
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <!-- Example using absolute paths
-                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath http://127.0.0.1:7070 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
+                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath http://127.0.0.1:7070 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
                         	 -->
                         	<!--  Example using relative api base
-                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
+                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
                         	 -->
                         	<!-- Example using relative paths for both -->
-                            <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
+                            <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
                             
                         </configuration>
                         <goals>
