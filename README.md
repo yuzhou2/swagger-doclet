@@ -733,22 +733,22 @@ An example project using Dropwizard is included in `swagger-doclet-sample-dropwi
 ```
 $ cd swagger-doclet-sample-dropwizard
 $ mvn package
-$ java -jar target/swagger-doclet-sample-dropwizard-1.0.jar server sample.yml
+$ java -jar target/swagger-doclet-sample-dropwizard*.jar server sample.yml
 ```
 
-The example server should be running on port 8080:
+The example server should be running on port 7070:
 
-You can view the Swagger UI running here: [http://127.0.0.1:8080/apidocs/](http://127.0.0.1:8080/apidocs/)
+You can view the Swagger UI running here: [http://127.0.0.1:7070/apidocs/](http://127.0.0.1:7070/apidocs/)
 NOTE you need to add the trailing forward slash for the CSS to load.
 
 You can also inspect the generated json:
 
 ```
-$ curl localhost:8080/apidocs/service.json
+$ curl localhost:7070/apidocs/service.json
 {
   "swaggerVersion" : "1.2",
   "apiVersion" : "1",
-  "basePath" : "http://127.0.0.1:8080/apidocs",
+  "basePath" : "http://127.0.0.1:7070/apidocs",
   "apis" : [ {
     "path" : "/Response.{format}"
   }, {

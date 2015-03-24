@@ -11,6 +11,13 @@
     <artifactId>swagger-doclet-sample-dropwizard</artifactId>
 
     <dependencies>
+    
+    	<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>4.3.1.Final</version>
+		</dependency>
+    
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
@@ -21,6 +28,13 @@
             <artifactId>dropwizard-auth</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+        
+        <dependency>
+  			<groupId>org.eclipse.jetty</groupId>
+  			<artifactId>jetty-servlets</artifactId>
+  			<version>${jetty.version}</version>
+		</dependency>
+        
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -46,6 +60,7 @@
 			<artifactId>jersey-multipart</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
+		
     </dependencies>
 
     <build>
@@ -68,10 +83,10 @@
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <!-- Example using absolute paths
-                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:8080/apidocs -apiBasePath http://127.0.0.1:8080 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
+                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath http://127.0.0.1:7070 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
                         	 -->
                         	<!--  Example using relative api base
-                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:8080/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
+                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
                         	 -->
                         	<!-- Example using relative paths for both -->
                             <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.0.24</additionalparam>
@@ -100,7 +115,7 @@
                             </excludes>
                         </filter>
                     </filters>
-                    <minimizeJar>true</minimizeJar>
+                    <minimizeJar>false</minimizeJar>
                 </configuration>
                 <executions>
                     <execution>

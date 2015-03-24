@@ -1,5 +1,7 @@
 package com.carma.swagger.doclet.sample;
 
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+
 import com.carma.swagger.doclet.sample.resources.AuthResource;
 import com.carma.swagger.doclet.sample.resources.FileResource;
 import com.carma.swagger.doclet.sample.resources.GreetingsResource;
@@ -40,6 +42,10 @@ public class SampleService extends Service<Configuration> {
 				return Optional.of("USERNAME");
 			}
 		}, "AuthResource Realm"));
+
+		environment.addFilter(CrossOriginFilter.class, "/*").setInitParam("allowedOrigins", "*")
+				.setInitParam("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin")
+				.setInitParam("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
 
 		environment.addResource(new AuthResource());
 		environment.addResource(new GreetingsResource());
