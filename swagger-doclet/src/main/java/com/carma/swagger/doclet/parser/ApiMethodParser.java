@@ -122,7 +122,7 @@ public class ApiMethodParser {
 		this.parentPath = parentPath;
 		this.methodDoc = methodDoc;
 		this.models = new LinkedHashSet<Model>();
-		this.httpMethod = HttpMethod.fromMethod(methodDoc);
+		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
 		this.parentMethod = null;
 		this.classes = classes;
 		this.typeClasses = typeClasses;
@@ -145,7 +145,7 @@ public class ApiMethodParser {
 		this.translator = options.getTranslator();
 		this.methodDoc = methodDoc;
 		this.models = new LinkedHashSet<Model>();
-		this.httpMethod = HttpMethod.fromMethod(methodDoc);
+		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
 		this.classes = classes;
@@ -159,7 +159,7 @@ public class ApiMethodParser {
 	 * @return The method with appropriate data set
 	 */
 	public Method parse() {
-		String methodPath = firstNonNull(parsePath(this.methodDoc, this.options), "");
+		String methodPath = ParserHelper.resolveMethodPath(this.methodDoc, this.options);
 		if (this.httpMethod == null && methodPath.isEmpty()) {
 			return null;
 		}
@@ -473,7 +473,8 @@ public class ApiMethodParser {
 
 		// get full list including any beanparam parameter names
 		Set<String> allParamNames = new HashSet<String>(rawParamNames);
-		for (Parameter parameter : this.methodDoc.parameters()) {
+		for (int paramIndex = 0; paramIndex < this.methodDoc.parameters().length; ++paramIndex) {
+            final Parameter parameter = ParserHelper.getParameterWithAnnotations(this.methodDoc, paramIndex);
 			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
 			// see if its a special composite type e.g. @BeanParam
 			if ("composite".equals(paramCategory)) {
@@ -525,7 +526,8 @@ public class ApiMethodParser {
 		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsNameTags(),
 				this.options);
 
-		for (Parameter parameter : this.methodDoc.parameters()) {
+		for (int paramIndex = 0; paramIndex < this.methodDoc.parameters().length; ++paramIndex) {
+            final Parameter parameter = ParserHelper.getParameterWithAnnotations(this.methodDoc, paramIndex);
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
 				continue;
 			}

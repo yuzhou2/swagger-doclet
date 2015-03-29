@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.carma.swagger.doclet.DocletOptions;
+import com.carma.swagger.doclet.model.HttpMethod;
 import com.google.common.base.Function;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
@@ -25,6 +26,12 @@ import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
+
+import java.util.*;
+
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.collect.Lists.transform;
+import static java.util.Arrays.asList;
 
 /**
  * The ParserHelper represents a helper class for the parsers
@@ -971,6 +978,24 @@ public class ParserHelper {
 	}
 
 	/**
+     * This gets the first met parameter with annotations from the method overriding hierarchy
+     * @param methodDoc The method
+     * @param paramIndex Parameter index
+     * @return A parameter from the method overriding hierarchy with annotations
+     */
+    public static Parameter getParameterWithAnnotations(MethodDoc methodDoc, int paramIndex) {
+        final Parameter fallbackParameter = methodDoc.parameters()[paramIndex];
+        Parameter parameter;
+        boolean found;
+        do {
+            parameter = methodDoc.parameters()[paramIndex];
+            found = (parameter.annotations() != null && parameter.annotations().length > 0);
+            methodDoc = methodDoc.overriddenMethod();
+        } while(methodDoc != null && !found);
+        return (found) ? parameter : fallbackParameter;
+    }
+
+	/**
 	 * This gets the values of parameters from either javadoc tags or annotations
 	 * @param method The method
 	 * @param params The pre-read params of the method, if null they will be read from the given method
@@ -1135,6 +1160,52 @@ public class ParserHelper {
 
 		// now check for a tag value
 		return getTagValue(item, matchTags, options);
+	}
+
+    /**
+     * Resolves HttpMethod for the MethodDoc respecting the overriden methods
+     * @param methodDoc The method to be processed
+     * @return The resolved HttpMethod
+     */
+    public static HttpMethod resolveMethodHttpMethod(MethodDoc methodDoc) {
+        HttpMethod result = null;
+        while(result == null && methodDoc != null){
+            result = HttpMethod.fromMethod(methodDoc);
+            methodDoc = methodDoc.overriddenMethod();
+        }
+        return result;
+    }
+
+    /**
+     * Resolves tha @Path for the MethodDoc respecting the overriden methods
+     * @param methodDoc The method to be processed
+     * @param options Doclet options
+     * @return The resolved path
+     */
+    public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
+        String result = "";
+        while(result.isEmpty() && methodDoc != null){
+            result = firstNonNull(parsePath(methodDoc, options), "");
+            methodDoc = methodDoc.overriddenMethod();
+        }
+        return result;
+    }
+
+    /**
+     * This gets the value of the first tag found from the given MethodDoc respecting the overriden methods
+     * @param methodDoc The method doc to get the tag value of
+     * @param matchTags The collection of tag names of the tag to get a value of
+     * @param options The doclet options
+     * @return The value of the first tag found with the name in the given collection or null if either the tag
+     *         was not present or had no value
+     */
+    public static String getTagValue(MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
+        String result = null;
+        while(result == null && methodDoc != null){
+            result = getTagValue((com.sun.javadoc.ProgramElementDoc) methodDoc, matchTags, options);
+            methodDoc = methodDoc.overriddenMethod();
+        }
+        return result;
 	}
 
 	/**
