@@ -1,6 +1,7 @@
 package com.carma.swagger.doclet.parser;
 
 import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
+import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
@@ -279,7 +280,22 @@ public class CrossClassApiParser {
 			methodApi.setDescription(apiDescription);
 		}
 
-		methodApi.getOperations().add(new Operation(parsedMethod));
+        boolean alreadyAdded = false;
+        // skip already added declarations
+        for(Operation operation : methodApi.getOperations()){
+            boolean opParamsEmptyOrNull = operation.getParameters() == null || operation.getParameters().isEmpty();
+            boolean parsedParamsEmptyOrNull = parsedMethod.getParameters() == null || parsedMethod.getParameters().isEmpty();
+            if(operation.getMethod().equals(parsedMethod.getMethod()) &&
+                    ((parsedParamsEmptyOrNull && opParamsEmptyOrNull) ||
+                            (!opParamsEmptyOrNull && !parsedParamsEmptyOrNull &&
+                            operation.getParameters().size() == parsedMethod.getParameters().size())) &&
+                    equal(operation.getNickname(), parsedMethod.getMethodName())){
+                alreadyAdded = true;
+            }
+        }
+        if(!alreadyAdded){
+            methodApi.getOperations().add(new Operation(parsedMethod));
+        }
 	}
 
 }
