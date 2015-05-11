@@ -1,5 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
@@ -26,12 +27,6 @@ import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
-
-import java.util.*;
-
-import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.collect.Lists.transform;
-import static java.util.Arrays.asList;
 
 /**
  * The ParserHelper represents a helper class for the parsers
@@ -693,6 +688,21 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets the json views for the given method, it supports deriving the views from an overridden method
+	 * @param methodDoc The method to get the json views of
+	 * @param options The doclet options
+	 * @return The json views for the given method/overridden method or null if there were none
+	 */
+	public static ClassDoc[] getInheritableJsonViews(MethodDoc methodDoc, DocletOptions options) {
+		ClassDoc[] result = null;
+		while (result == null && methodDoc != null) {
+			result = getJsonViews(methodDoc, options);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
+	/**
 	 * This gets the json views for the given method/field
 	 * @param doc The method/field to get the json views of
 	 * @param options The doclet options
@@ -781,7 +791,7 @@ public class ParserHelper {
 	 * @return The list or null if none were found
 	 */
 	public static List<String> getConsumes(MethodDoc methodDoc, DocletOptions options) {
-		List<String> methodLevel = listValues(methodDoc, JAX_RS_CONSUMES, "value", options);
+		List<String> methodLevel = listInheritableValues(methodDoc, JAX_RS_CONSUMES, "value", options);
 		if (methodLevel == null) {
 			// look for class level
 			return listValues(methodDoc.containingClass(), JAX_RS_CONSUMES, "value", options);
@@ -796,12 +806,30 @@ public class ParserHelper {
 	 * @return The list or null if none were found
 	 */
 	public static List<String> getProduces(MethodDoc methodDoc, DocletOptions options) {
-		List<String> methodLevel = listValues(methodDoc, JAX_RS_PRODUCES, "value", options);
+		List<String> methodLevel = listInheritableValues(methodDoc, JAX_RS_PRODUCES, "value", options);
 		if (methodLevel == null) {
 			// look for class level
 			return listValues(methodDoc.containingClass(), JAX_RS_PRODUCES, "value", options);
 		}
 		return methodLevel;
+	}
+
+	/**
+	 * This gets a list of values from an annotation that uses a string array value, it supports getting it from a superclass method
+	 * @param methodDoc The method doc
+	 * @param qualifiedAnnotationType The FQN of the annotation
+	 * @param annotationValueName The name of the value field of the annotation to use
+	 * @param options The doclet options
+	 * @return A list of values or null if none were found
+	 */
+	public static List<String> listInheritableValues(com.sun.javadoc.MethodDoc methodDoc, String qualifiedAnnotationType, String annotationValueName,
+			DocletOptions options) {
+		List<String> result = null;
+		while (result == null && methodDoc != null) {
+			result = listValues(methodDoc, qualifiedAnnotationType, annotationValueName, options);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
 	}
 
 	/**
@@ -881,6 +909,21 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets whether the given method or an overridden method has any of the given tags
+	 * @param methodDoc The method doc to get the tag value of
+	 * @param matchTags The names of the tags to look for
+	 * @return True if the method or an overridden method has any of the given tags
+	 */
+	public static boolean hasInheritableTag(MethodDoc methodDoc, Collection<String> matchTags) {
+		boolean result = false;
+		while (!result && methodDoc != null) {
+			result = hasTag(methodDoc, matchTags);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
+	/**
 	 * This gets whether the given item has any of the given tags
 	 * @param item The javadoc item
 	 * @param matchTags The names of the tags to look for
@@ -930,21 +973,31 @@ public class ParserHelper {
 		res.addAll(javaDocParams);
 
 		// add on params that have one of the param annotations
-		Set<String> annotationParams = getParametersWithAnnotation(method.parameters(), annotations);
+		Set<String> annotationParams = getInheritableParametersWithAnnotation(method, annotations);
 		res.addAll(annotationParams);
 
 		return res;
 	}
 
+	private static Set<String> getInheritableParametersWithAnnotation(com.sun.javadoc.MethodDoc methodDoc, Collection<String> annotations) {
+		Set<String> result = new HashSet<String>();
+		while (methodDoc != null) {
+			Set<String> subResult = getParametersWithAnnotation(methodDoc, annotations);
+			result.addAll(subResult);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
 	/**
 	 * This gets the names of parameters that have any of the given annotations on them
-	 * @param params The parameters
+	 * @param method The method
 	 * @param annotations The annotations to look for
 	 * @return A set of param names with the given annotations
 	 */
-	public static Set<String> getParametersWithAnnotation(Parameter[] params, Collection<String> annotations) {
+	private static Set<String> getParametersWithAnnotation(com.sun.javadoc.MethodDoc method, Collection<String> annotations) {
 		Set<String> res = new HashSet<String>();
-		for (Parameter p : params) {
+		for (Parameter p : method.parameters()) {
 			for (AnnotationDesc annotation : p.annotations()) {
 				String qName = annotation.annotationType().qualifiedTypeName();
 				if (annotations.contains(qName)) {
@@ -978,22 +1031,22 @@ public class ParserHelper {
 	}
 
 	/**
-     * This gets the first met parameter with annotations from the method overriding hierarchy
-     * @param methodDoc The method
-     * @param paramIndex Parameter index
-     * @return A parameter from the method overriding hierarchy with annotations
-     */
-    public static Parameter getParameterWithAnnotations(MethodDoc methodDoc, int paramIndex) {
-        final Parameter fallbackParameter = methodDoc.parameters()[paramIndex];
-        Parameter parameter;
-        boolean found;
-        do {
-            parameter = methodDoc.parameters()[paramIndex];
-            found = (parameter.annotations() != null && parameter.annotations().length > 0);
-            methodDoc = methodDoc.overriddenMethod();
-        } while(methodDoc != null && !found);
-        return (found) ? parameter : fallbackParameter;
-    }
+	 * This gets the first met parameter with annotations from the method overriding hierarchy
+	 * @param methodDoc The method
+	 * @param paramIndex Parameter index
+	 * @return A parameter from the method overriding hierarchy with annotations
+	 */
+	public static Parameter getParameterWithAnnotations(MethodDoc methodDoc, int paramIndex) {
+		final Parameter fallbackParameter = methodDoc.parameters()[paramIndex];
+		Parameter parameter;
+		boolean found;
+		do {
+			parameter = methodDoc.parameters()[paramIndex];
+			found = (parameter.annotations() != null && parameter.annotations().length > 0);
+			methodDoc = methodDoc.overriddenMethod();
+		} while (methodDoc != null && !found);
+		return (found) ? parameter : fallbackParameter;
+	}
 
 	/**
 	 * This gets the values of parameters from either javadoc tags or annotations
@@ -1013,28 +1066,31 @@ public class ParserHelper {
 		Map<String, String> javadocVals = getMethodParamNameValuePairs(method, params, matchTags, options);
 		res.putAll(javadocVals);
 		// add values from annotations
-		Map<String, String> annotationVals = getParameterValuesWithAnnotation(method.parameters(), annotations, annotationTypes, options, valueKeys);
+		Map<String, String> annotationVals = getParameterValuesWithAnnotation(method, annotations, annotationTypes, options, valueKeys);
 		res.putAll(annotationVals);
 		return res;
 	}
 
 	/**
 	 * This gets the values of annotations of parameters that have any of the given annotations on them
-	 * @param params The parameters
+	 * @param methodDoc The method
 	 * @param annotations The annotations to look for
 	 * @param annotationTypes The types that the annotations should apply to
 	 * @param options The doclet options (used for var replacement)
 	 * @param valueKeys The attribute names to look for on the annotations as the value
 	 * @return A set of param names with the given annotations
 	 */
-	public static Map<String, String> getParameterValuesWithAnnotation(Parameter[] params, Collection<String> annotations, TypeFilter annotationTypes,
-			DocletOptions options, String... valueKeys) {
+	public static Map<String, String> getParameterValuesWithAnnotation(com.sun.javadoc.MethodDoc methodDoc, Collection<String> annotations,
+			TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
 		Map<String, String> res = new HashMap<String, String>();
-		for (Parameter p : params) {
-			String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);
-			if (value != null && (annotationTypes == null || annotationTypes.matches(p.type()))) {
-				res.put(p.name(), value);
+		while (methodDoc != null) {
+			for (Parameter p : methodDoc.parameters()) {
+				String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);
+				if (value != null && (annotationTypes == null || annotationTypes.matches(p.type()))) {
+					res.put(p.name(), value);
+				}
 			}
+			methodDoc = methodDoc.overriddenMethod();
 		}
 		return res;
 	}
@@ -1056,7 +1112,7 @@ public class ParserHelper {
 		}
 
 		// add name to value pairs from any matching javadoc tag on the method
-		String value = getTagValue(method, matchTags, options);
+		String value = getInheritableTagValue(method, matchTags, options);
 		if (value != null) {
 			String[] parts = value.split("\\s+");
 			if (parts != null && parts.length > 0) {
@@ -1122,8 +1178,8 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return The csv values of the first matching tags value or an empty list if there were none.
 	 */
-	public static List<String> getTagCsvValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
-		String value = getTagValue(item, matchTags, options);
+	public static List<String> getTagCsvValues(com.sun.javadoc.MethodDoc item, Collection<String> matchTags, DocletOptions options) {
+		String value = getInheritableTagValue(item, matchTags, options);
 		if (value != null) {
 			String[] vals = value.split(",");
 			if (vals != null && vals.length > 0) {
@@ -1140,7 +1196,8 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This gets the first value on the given item (field or method) that matches either an annotation or a javadoc tag
+	 * This gets the first value on the given item (field or method) that matches either an annotation or a javadoc tag.
+	 * This does NOT support method overriding
 	 * @param item The javadoc item
 	 * @param annotations The FQN of the annotations to check
 	 * @param matchTags The collection of tag names of the tag to get a value of
@@ -1162,50 +1219,137 @@ public class ParserHelper {
 		return getTagValue(item, matchTags, options);
 	}
 
-    /**
-     * Resolves HttpMethod for the MethodDoc respecting the overriden methods
-     * @param methodDoc The method to be processed
-     * @return The resolved HttpMethod
-     */
-    public static HttpMethod resolveMethodHttpMethod(MethodDoc methodDoc) {
-        HttpMethod result = null;
-        while(result == null && methodDoc != null){
-            result = HttpMethod.fromMethod(methodDoc);
-            methodDoc = methodDoc.overriddenMethod();
-        }
-        return result;
-    }
+	/**
+	 * Resolves HttpMethod for the MethodDoc respecting the overriden methods
+	 * @param methodDoc The method to be processed
+	 * @return The resolved HttpMethod
+	 */
+	public static HttpMethod resolveMethodHttpMethod(MethodDoc methodDoc) {
+		HttpMethod result = null;
+		while (result == null && methodDoc != null) {
+			result = HttpMethod.fromMethod(methodDoc);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
 
-    /**
-     * Resolves tha @Path for the MethodDoc respecting the overriden methods
-     * @param methodDoc The method to be processed
-     * @param options Doclet options
-     * @return The resolved path
-     */
-    public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
-        String result = "";
-        while(result.isEmpty() && methodDoc != null){
-            result = firstNonNull(parsePath(methodDoc, options), "");
-            methodDoc = methodDoc.overriddenMethod();
-        }
-        return result;
-    }
+	/**
+	 * Resolves tha @Path for the MethodDoc respecting the overriden methods
+	 * @param methodDoc The method to be processed
+	 * @param options Doclet options
+	 * @return The resolved path
+	 */
+	public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
+		String result = "";
+		while (result.isEmpty() && methodDoc != null) {
+			result = firstNonNull(parsePath(methodDoc, options), "");
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
 
-    /**
-     * This gets the value of the first tag found from the given MethodDoc respecting the overriden methods
-     * @param methodDoc The method doc to get the tag value of
-     * @param matchTags The collection of tag names of the tag to get a value of
-     * @param options The doclet options
-     * @return The value of the first tag found with the name in the given collection or null if either the tag
-     *         was not present or had no value
-     */
-    public static String getTagValue(MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
-        String result = null;
-        while(result == null && methodDoc != null){
-            result = getTagValue((com.sun.javadoc.ProgramElementDoc) methodDoc, matchTags, options);
-            methodDoc = methodDoc.overriddenMethod();
-        }
-        return result;
+	/**
+	 * This gets the first sentence tags of a method or its overridden ancestor method
+	 * @param methodDoc The method
+	 * @return The first sentence tag or null if there is none
+	 */
+	public static String getInheritableFirstSentenceTags(MethodDoc methodDoc) {
+		String result = null;
+		while (result == null && methodDoc != null) {
+
+			Tag[] fst = methodDoc.firstSentenceTags();
+			if (fst != null && fst.length > 0) {
+				StringBuilder sentences = new StringBuilder();
+				for (Tag tag : fst) {
+					sentences.append(tag.text());
+				}
+				String firstSentences = sentences.toString();
+				result = firstSentences;
+			}
+
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
+	/**
+	 * This gets the first sentence tags of a method or its overridden ancestor method
+	 * @param methodDoc The method
+	 * @return The first sentence tag or null if there is none
+	 */
+	public static String getInheritableCommentText(MethodDoc methodDoc) {
+		String result = null;
+		while (result == null && methodDoc != null) {
+
+			String commentText = methodDoc.commentText();
+			if (commentText != null && !commentText.isEmpty()) {
+				result = commentText;
+			}
+
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
+	/**
+	 * This gets values of any of the javadoc tags that are in the given collection from the method or overridden methods
+	 * @param methodDoc The javadoc method to get the tags of
+	 * @param matchTags The names of the tags to get
+	 * @param options The doclet options
+	 * @return A list of tag values or null if none were found
+	 */
+	public static List<String> getInheritableTagValues(com.sun.javadoc.MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
+		List<String> result = null;
+		while (result == null && methodDoc != null) {
+			result = getTagValues(methodDoc, matchTags, options);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
+	}
+
+	/**
+	 * This gets values of any of the javadoc tags that are in the given collection
+	 * @param item The javadoc item to get the tags of
+	 * @param matchTags The names of the tags to get
+	 * @param options The doclet options
+	 * @return A list of tag values or null if none were found
+	 */
+	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
+		List<String> res = null;
+		if (matchTags != null) {
+			for (String matchTag : matchTags) {
+				Tag[] tags = item.tags(matchTag);
+				if (tags != null && tags.length > 0) {
+					for (Tag tag : tags) {
+						if (res == null) {
+							res = new ArrayList<String>();
+						}
+						String customValue = tag.text().trim();
+						if (customValue.length() > 0) {
+							res.add(options.replaceVars(customValue));
+						}
+					}
+				}
+			}
+		}
+		return res == null || res.isEmpty() ? null : res;
+	}
+
+	/**
+	 * This gets the value of the first tag found from the given MethodDoc respecting the overriden methods
+	 * @param methodDoc The method doc to get the tag value of
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @return The value of the first tag found with the name in the given collection or null if either the tag
+	 *         was not present or had no value
+	 */
+	public static String getInheritableTagValue(MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
+		String result = null;
+		while (result == null && methodDoc != null) {
+			result = getTagValue(methodDoc, matchTags, options);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
 	}
 
 	/**
@@ -1239,6 +1383,22 @@ public class ParserHelper {
 		DEPRECATED_TAGS.add("deprecated");
 		DEPRECATED_TAGS.add("Deprecated");
 		DEPRECATED_ANNOTATIONS.add("java.lang.Deprecated");
+	}
+
+	/**
+	 * This gets whether the given method or an overridden method has any of the given annotations
+	 * @param methodDoc The method doc to check
+	 * @param annotations the annotations to check
+	 * @param options The doclet options
+	 * @return True if the method or an overridden method has one of the given annotations
+	 */
+	public static boolean hasInheritableAnnotation(MethodDoc methodDoc, Collection<String> annotations, DocletOptions options) {
+		boolean result = false;
+		while (!result && methodDoc != null) {
+			result = hasAnnotation(methodDoc, annotations, options);
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return result;
 	}
 
 	/**
@@ -1304,6 +1464,20 @@ public class ParserHelper {
 
 	/**
 	 * This gets whether the given item is marked as deprecated either via a javadoc tag
+	 * or an annotation, this supports looking at overridden methods
+	 * @param item The item to check
+	 * @param options The doclet options
+	 * @return True if the item is flagged as deprecated
+	 */
+	public static boolean isInheritableDeprecated(com.sun.javadoc.MethodDoc item, DocletOptions options) {
+		if (hasInheritableTag(item, DEPRECATED_TAGS)) {
+			return true;
+		}
+		return hasInheritableAnnotation(item, DEPRECATED_ANNOTATIONS, options);
+	}
+
+	/**
+	 * This gets whether the given item is marked as deprecated either via a javadoc tag
 	 * or an annotation
 	 * @param item The item to check
 	 * @param options The doclet options
@@ -1325,34 +1499,6 @@ public class ParserHelper {
 	 */
 	public static boolean isDeprecated(com.sun.javadoc.Parameter parameter, DocletOptions options) {
 		return hasAnnotation(parameter, DEPRECATED_ANNOTATIONS, options);
-	}
-
-	/**
-	 * This gets values of any of the javadoc tags that are in the given collection
-	 * @param item The javadoc item to get the tags of
-	 * @param matchTags The names of the tags to get
-	 * @param options The doclet options
-	 * @return A list of tag values or null if none were found
-	 */
-	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
-		List<String> res = null;
-		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = item.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					for (Tag tag : tags) {
-						if (res == null) {
-							res = new ArrayList<String>();
-						}
-						String customValue = tag.text().trim();
-						if (customValue.length() > 0) {
-							res.add(options.replaceVars(customValue));
-						}
-					}
-				}
-			}
-		}
-		return res == null || res.isEmpty() ? null : res;
 	}
 
 	/**
@@ -1388,6 +1534,44 @@ public class ParserHelper {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * This trims specific characters from the start of the given string
+	 * @param str The string to trim
+	 * @param trimChars The characters to trim from the string
+	 * @return The string with any of the trimable characters removed from the start of the string
+	 */
+	public static String trimLeadingChars(String str, char... trimChars) {
+		if (str == null || str.trim().isEmpty()) {
+			return str;
+		}
+		StringBuilder newStr = new StringBuilder();
+		boolean foundNonTrimChar = false;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (foundNonTrimChar) {
+				newStr.append(c);
+			} else {
+				if (Character.isWhitespace(c)) {
+					// trim
+				} else {
+					// see if a non trim char, if so add it and set flag
+					boolean isTrimChar = false;
+					for (char trimC : trimChars) {
+						if (c == trimC) {
+							isTrimChar = true;
+							break;
+						}
+					}
+					if (!isTrimChar) {
+						foundNonTrimChar = true;
+						newStr.append(c);
+					}
+				}
+			}
+		}
+		return newStr.length() == 0 ? null : newStr.toString().trim();
 	}
 
 }

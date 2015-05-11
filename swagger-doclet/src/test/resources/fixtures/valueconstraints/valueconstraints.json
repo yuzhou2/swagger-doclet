@@ -43,7 +43,6 @@
                         {
                             "paramType": "query",
                             "name": "p1",
-                            "type": "string",
                             "type": "integer",
                 			"format" : "int32",
                 			"minimum": 5,
