@@ -1332,10 +1332,10 @@ public class ParserHelper {
 	public static List<String> getTagValues(com.sun.javadoc.ProgramElementDoc item, Collection<String> matchTags, DocletOptions options) {
 		List<String> res = null;
 		if (matchTags != null) {
-			for (String matchTag : matchTags) {
-				Tag[] tags = item.tags(matchTag);
-				if (tags != null && tags.length > 0) {
-					for (Tag tag : tags) {
+			Tag[] tags = item.tags();
+			if (tags != null && tags.length > 0) {
+				for (Tag tag : tags) {
+					if (matchTags.contains(tag.name().substring(1))) {
 						if (res == null) {
 							res = new ArrayList<String>();
 						}

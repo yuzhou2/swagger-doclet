@@ -447,7 +447,6 @@ public class ApiMethodParser {
 					}
 				}
 			}
-
 		}
 
 		// read required and optional params
