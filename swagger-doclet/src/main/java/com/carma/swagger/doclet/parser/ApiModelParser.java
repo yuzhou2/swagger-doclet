@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -336,7 +337,7 @@ public class ApiModelParser {
 
 	private Map<String, TypeRef> findReferencedTypes(ClassDoc rootClassDoc, boolean nested) {
 
-		Map<String, TypeRef> elements = new HashMap<String, TypeRef>();
+		Map<String, TypeRef> elements = new LinkedHashMap<String, TypeRef>();
 
 		List<ClassDoc> classes = getClassLineage(rootClassDoc);
 
@@ -365,7 +366,7 @@ public class ApiModelParser {
 		}
 
 		// finally switch the element keys to use the translated field names
-		Map<String, TypeRef> res = new HashMap<String, TypeRef>();
+		Map<String, TypeRef> res = new LinkedHashMap<String, TypeRef>();
 		for (Map.Entry<String, TypeRef> entry : elements.entrySet()) {
 			String rawName = entry.getKey();
 			String translatedName = rawToTranslatedFields.get(rawName);
@@ -744,8 +745,11 @@ public class ApiModelParser {
 	}
 
 	private Map<String, Property> findReferencedElements(ClassDoc classDoc, Map<String, TypeRef> types, boolean nested) {
-		Map<String, Property> elements = new HashMap<String, Property>();
+
+		Map<String, Property> elements = new LinkedHashMap<String, Property>();
+
 		for (Map.Entry<String, TypeRef> entry : types.entrySet()) {
+
 			String typeName = entry.getKey();
 			TypeRef typeRef = entry.getValue();
 			Type type = typeRef.type;
