@@ -351,10 +351,26 @@ public class ParserHelper {
 				}
 			}
 
-			// must be a complex type, return class name
-			int i = javaType.lastIndexOf(".");
-			if (i >= 0) {
-				return new String[] { javaType.substring(i + 1), null };
+			// support inner classes, for this we use case sensitivity
+			// e.g. com.my.Foo.Bar should map to Foo-Bar
+			int startPos = -1;
+			for (int i = 0; i < javaType.length(); i++) {
+				char c = javaType.charAt(i);
+				if (Character.isUpperCase(c)) {
+					startPos = i;
+					break;
+				}
+			}
+			if (startPos == -1) {
+				startPos = javaType.lastIndexOf(".") + 1;
+				if (startPos > javaType.length() - 1) {
+					startPos = -1;
+				}
+			}
+
+			if (startPos >= 0) {
+				String typeName = javaType.substring(startPos).replace(".", "-");
+				return new String[] { typeName, null };
 			} else {
 				return new String[] { javaType, null };
 			}
@@ -382,7 +398,6 @@ public class ParserHelper {
 	public static String[] typeOf(Type type, DocletOptions options) {
 
 		String javaType = getQualifiedTypeName(type);
-
 		return typeOf(javaType, options);
 	}
 

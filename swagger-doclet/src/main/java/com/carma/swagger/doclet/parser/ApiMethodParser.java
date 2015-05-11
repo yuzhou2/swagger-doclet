@@ -464,7 +464,6 @@ public class ApiMethodParser {
 		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getCsvParamsTags(), this.options);
 
 		// read min and max values of params
-		// FIXME inheritance
 		Map<String, String> paramMinVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
 				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
 		Map<String, String> paramMaxVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
