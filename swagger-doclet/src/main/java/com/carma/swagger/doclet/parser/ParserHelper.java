@@ -266,7 +266,7 @@ public class ParserHelper {
 			} else if (format != null && format.equals("byte")) {
 				Byte.parseByte(value);
 			} else if (type.equals("boolean")) {
-				if (!value.equalsIgnoreCase("true") && !value.equals("false")) {
+				if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
 					throw new IllegalStateException("The value was not valid for the type: " + type + " and format: " + format + context);
 				}
 			}
