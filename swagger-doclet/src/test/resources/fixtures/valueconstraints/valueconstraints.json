@@ -82,6 +82,42 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/valueconstraints/3",
+            "operations": [
+                {
+                    "method": "PUT",
+                    "nickname": "putBoolean",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "boolean",
+                			"defaultValue" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "boolean",
+                			"defaultValue" : false
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p3",
+                            "type": "boolean",
+                			"defaultValue" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p4",
+                            "type": "boolean",
+                			"defaultValue" : false
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -129,6 +165,14 @@
                 	"type": "integer",
                 	"format" : "int32",
                 	"minimum": 1
+                },
+                "falseFieldTag" : {
+                    "type": "boolean",
+                    "defaultValue" : false
+                },
+                "trueFieldTag" : {
+                    "type": "boolean",
+                    "defaultValue" : true
                 }
             }
         }

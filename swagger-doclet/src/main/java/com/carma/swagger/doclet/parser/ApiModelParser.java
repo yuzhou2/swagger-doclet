@@ -439,7 +439,7 @@ public class ApiModelParser {
 							Boolean required = getFieldRequired(field);
 							boolean hasView = ParserHelper.hasJsonViews(field, this.options);
 
-							String defaultValue = getFieldDefaultValue(field);
+							String defaultValue = getFieldDefaultValue(fieldType, field);
 
 							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
 									: null;
@@ -492,7 +492,7 @@ public class ApiModelParser {
 					String description = getFieldDescription(method, isFieldGetter);
 					String min = getFieldMin(method, returnType);
 					String max = getFieldMax(method, returnType);
-					String defaultValue = getFieldDefaultValue(method);
+					String defaultValue = getFieldDefaultValue(returnType, method);
 					Boolean required = getFieldRequired(method);
 					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
 
@@ -722,12 +722,16 @@ public class ApiModelParser {
 		return null;
 	}
 
-	private String getFieldDefaultValue(com.sun.javadoc.MemberDoc docItem) {
+	private String getFieldDefaultValue(Type fieldType, com.sun.javadoc.MemberDoc docItem) {
 		String val = ParserHelper.getTagValue(docItem, this.options.getFieldDefaultTags(), this.options);
+		// if its a boolean then convert to lowercase true/false
 		if (val != null && val.trim().length() > 0) {
-			return this.options.replaceVars(val.trim());
+			val = this.options.replaceVars(val.trim());
 		}
-		return null;
+		if (val != null && fieldType.simpleTypeName().equalsIgnoreCase("boolean")) {
+			val = val.toLowerCase();
+		}
+		return val == null ? null : val;
 	}
 
 	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {

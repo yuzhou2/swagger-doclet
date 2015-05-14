@@ -608,6 +608,11 @@ public class ApiMethodParser {
 									+ paramName + " it should be <= the maximum: " + maximum);
 						}
 					}
+
+					// if boolean then make lowercase
+					if ("boolean".equalsIgnoreCase(typeName)) {
+						defaultVal = defaultVal.toLowerCase();
+					}
 				}
 
 				// if enum and default value check it matches the enum values
