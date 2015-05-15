@@ -173,7 +173,28 @@ public class ApiMethodParser {
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
-		if (containerOf != null) {
+		// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
+		// but typically return a different object in its entity (such as for a 201 created response)
+		String customReturnTypeName = ParserHelper.getInheritableTagValue(this.methodDoc, this.options.getResponseTypeTags(), this.options);
+		NameToType nameToType = readCustomReturnType(customReturnTypeName, viewClasses);
+		if (nameToType != null) {
+			returnTypeName = nameToType.returnTypeName;
+			returnType = nameToType.returnType;
+			// set collection data
+			if (nameToType.containerOf != null) {
+				// its a model collection, add the container of type to the model
+				modelType = nameToType.containerOf;
+				returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, viewClasses).value();
+			} else if (nameToType.containerOfPrimitive != null) {
+				// its a primitive collection
+				returnTypeItemsType = nameToType.containerOfPrimitive;
+			} else {
+				modelType = returnType;
+				if (nameToType.varsToTypes != null) {
+					varsToTypes.putAll(nameToType.varsToTypes);
+				}
+			}
+		} else if (containerOf != null) {
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
 			// set the items type or ref
@@ -184,37 +205,12 @@ public class ApiMethodParser {
 			}
 
 		} else {
+			// if its not a container then adjust the return type name for any views
+			returnTypeName = this.translator.typeName(returnType, viewClasses).value();
 
-			// look for a custom return type, this is useful where we return a jaxrs Response in the method signature
-			// but typically return a different object in its entity (such as for a 201 created response)
-			String customReturnTypeName = ParserHelper.getInheritableTagValue(this.methodDoc, this.options.getResponseTypeTags(), this.options);
-			NameToType nameToType = readCustomReturnType(customReturnTypeName, viewClasses);
-			if (nameToType != null) {
-				returnTypeName = nameToType.returnTypeName;
-				returnType = nameToType.returnType;
-				// set collection data
-				if (nameToType.containerOf != null) {
-					// its a model collection, add the container of type to the model
-					modelType = nameToType.containerOf;
-					returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, viewClasses).value();
-				} else if (nameToType.containerOfPrimitive != null) {
-					// its a primitive collection
-					returnTypeItemsType = nameToType.containerOfPrimitive;
-				} else {
-					modelType = returnType;
-					if (nameToType.varsToTypes != null) {
-						varsToTypes.putAll(nameToType.varsToTypes);
-					}
-				}
-			} else {
-				// if its not a container then adjust the return type name for any views
-				returnTypeName = this.translator.typeName(returnType, viewClasses).value();
-
-				// add parameterized types to the model
-				// TODO: support variables e.g. for inherited or sub resources
-				addParameterizedModelTypes(returnType, varsToTypes);
-			}
-
+			// add parameterized types to the model
+			// TODO: support variables e.g. for inherited or sub resources
+			addParameterizedModelTypes(returnType, varsToTypes);
 		}
 
 		if (modelType != null && this.options.isParseModels()) {
