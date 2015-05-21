@@ -44,6 +44,12 @@ public class JaxRsAnnotationParser {
 	private final DocletOptions options;
 	private final RootDoc rootDoc;
 
+	private static final <T> void addIfNotNull(Collection<T> collection, T item) {
+		if (item != null) {
+			collection.add(item);
+		}
+	}
+
 	public JaxRsAnnotationParser(DocletOptions options, RootDoc rootDoc) {
 		this.options = options;
 		this.rootDoc = rootDoc;
@@ -54,18 +60,18 @@ public class JaxRsAnnotationParser {
 
 			// setup additional classes needed for processing, generally these are java ones such as java.lang.String
 			Collection<ClassDoc> typeClasses = new ArrayList<ClassDoc>();
-			typeClasses.add(this.rootDoc.classNamed("java.lang.String"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Integer"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Boolean"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Float"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Double"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Character"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Long"));
-			typeClasses.add(this.rootDoc.classNamed("java.lang.Byte"));
-			typeClasses.add(this.rootDoc.classNamed("java.util.Map"));
-			typeClasses.add(this.rootDoc.classNamed("java.util.Collection"));
-			typeClasses.add(this.rootDoc.classNamed("java.util.Set"));
-			typeClasses.add(this.rootDoc.classNamed("java.util.List"));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.String.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Integer.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Boolean.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Float.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Double.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Character.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Long.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Byte.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Map.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Collection.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Set.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.List.class.getName()));
 
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();

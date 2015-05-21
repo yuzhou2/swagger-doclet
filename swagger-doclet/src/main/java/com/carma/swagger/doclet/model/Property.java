@@ -40,6 +40,7 @@ public class Property {
 	 * @param description
 	 * @param itemsRef
 	 * @param itemsType
+	 * @param itemsFormat
 	 * @param uniqueItems
 	 * @param allowableValues
 	 * @param minimum
@@ -47,14 +48,14 @@ public class Property {
 	 * @param defaultValue
 	 */
 	public Property(String rawFieldName, String paramCategory, String type, String format, String description, String itemsRef, String itemsType,
-			Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue) {
+			String itemsFormat, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue) {
 		this.rawFieldName = rawFieldName;
 		this.paramCategory = paramCategory;
 		this.type = type;
 		this.format = format;
 		this.description = emptyToNull(description);
 		if (itemsRef != null || itemsType != null) {
-			this.items = new PropertyItems(itemsRef, itemsType);
+			this.items = new PropertyItems(itemsRef, itemsType, itemsFormat);
 		}
 		this.uniqueItems = uniqueItems;
 		this.allowableValues = allowableValues;

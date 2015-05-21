@@ -60,15 +60,17 @@ public class ApiMethodParser {
 		return "";
 	}
 
+	private Method parentMethod;
+	private String parentPath;
+
 	private final DocletOptions options;
 	private final Translator translator;
-	private final String parentPath;
 	private final MethodDoc methodDoc;
 	private final Set<Model> models;
 	private final HttpMethod httpMethod;
-	private final Method parentMethod;
-	private final Collection<ClassDoc> classes;
-	private final Collection<ClassDoc> typeClasses;
+	private final Collection<ClassDoc> classes; // model classes
+	private final Collection<ClassDoc> typeClasses; // additional classes such as for primitives
+	private final Collection<ClassDoc> allClasses; // merge of model and additional classes
 	private final String classDefaultErrorType;
 	private final String methodDefaultErrorType;
 
@@ -94,6 +96,13 @@ public class ApiMethodParser {
 		this.typeClasses = typeClasses;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = ParserHelper.getInheritableTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
+		this.allClasses = new HashSet<ClassDoc>();
+		if (classes != null) {
+			this.allClasses.addAll(classes);
+		}
+		if (typeClasses != null) {
+			this.allClasses.addAll(typeClasses);
+		}
 	}
 
 	/**
@@ -107,17 +116,11 @@ public class ApiMethodParser {
 	 */
 	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, Collection<ClassDoc> typeClasses,
 			String classDefaultErrorType) {
-		this.options = options;
-		this.translator = options.getTranslator();
-		this.methodDoc = methodDoc;
-		this.models = new LinkedHashSet<Model>();
-		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
+		this(options, parentMethod.getPath(), methodDoc, classes, typeClasses, classDefaultErrorType);
+
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
-		this.classes = classes;
-		this.typeClasses = typeClasses;
-		this.classDefaultErrorType = classDefaultErrorType;
-		this.methodDefaultErrorType = ParserHelper.getInheritableTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
+
 	}
 
 	/**
@@ -169,7 +172,8 @@ public class ApiMethodParser {
 
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
-		Type containerOf = ParserHelper.getContainerType(returnType, null);
+		String returnTypeItemsFormat = null;
+		Type containerOf = ParserHelper.getContainerType(returnType, null, this.allClasses);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
@@ -182,12 +186,15 @@ public class ApiMethodParser {
 			returnType = nameToType.returnType;
 			// set collection data
 			if (nameToType.containerOf != null) {
+				returnTypeName = "array";
 				// its a model collection, add the container of type to the model
 				modelType = nameToType.containerOf;
 				returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, viewClasses).value();
-			} else if (nameToType.containerOfPrimitive != null) {
+			} else if (nameToType.containerOfPrimitiveType != null) {
+				returnTypeName = "array";
 				// its a primitive collection
-				returnTypeItemsType = nameToType.containerOfPrimitive;
+				returnTypeItemsType = nameToType.containerOfPrimitiveType;
+				returnTypeItemsFormat = nameToType.containerOfPrimitiveTypeFormat;
 			} else {
 				modelType = returnType;
 				if (nameToType.varsToTypes != null) {
@@ -195,11 +202,14 @@ public class ApiMethodParser {
 				}
 			}
 		} else if (containerOf != null) {
+			returnTypeName = "array";
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
 			// set the items type or ref
 			if (ParserHelper.isPrimitive(containerOf, this.options)) {
-				returnTypeItemsType = this.translator.typeName(containerOf).value();
+				OptionalName oName = this.translator.typeName(containerOf);
+				returnTypeItemsType = oName.value();
+				returnTypeItemsFormat = oName.getFormat();
 			} else {
 				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
 			}
@@ -254,7 +264,7 @@ public class ApiMethodParser {
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
-				returnTypeItemsType, consumes, produces, authorizations, deprecated);
+				returnTypeItemsType, returnTypeItemsFormat, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {
@@ -514,9 +524,10 @@ public class ApiMethodParser {
 
 							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 							String itemsType = property.getItems() == null ? null : property.getItems().getType();
+							String itemsFormat = property.getItems() == null ? null : property.getItems().getFormat();
 
 							ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-									property.getFormat(), property.getDescription(), itemsRef, itemsType, property.getUniqueItems(),
+									property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, property.getUniqueItems(),
 									property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
 
 							parameters.add(param);
@@ -542,6 +553,7 @@ public class ApiMethodParser {
 			List<String> allowableValues = null;
 			String itemsRef = null;
 			String itemsType = null;
+			String itemsFormat = null;
 			Boolean uniqueItems = null;
 			String minimum = null;
 			String maximum = null;
@@ -552,8 +564,11 @@ public class ApiMethodParser {
 				paramCategory = "form";
 			} else {
 
+				Type containerOf = ParserHelper.getContainerType(paramType, null, this.allClasses);
+
 				if (this.options.isParseModels()) {
-					this.models.addAll(new ApiModelParser(this.options, this.translator, paramType).parse());
+					Type modelType = containerOf == null ? paramType : containerOf;
+					this.models.addAll(new ApiModelParser(this.options, this.translator, modelType).parse());
 				}
 
 				// set enum values
@@ -619,14 +634,13 @@ public class ApiMethodParser {
 
 				// set collection related fields
 				// TODO: consider supporting parameterized collections as api parameters...
-				Type containerOf = null;
-				containerOf = ParserHelper.getContainerType(paramType, null);
-				String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 				if (containerOf != null) {
+					OptionalName oName = this.translator.typeName(containerOf);
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
-						itemsType = containerTypeOf;
+						itemsType = oName.value();
+						itemsFormat = oName.getFormat();
 					} else {
-						itemsRef = containerTypeOf;
+						itemsRef = oName.value();
 					}
 				}
 
@@ -648,7 +662,7 @@ public class ApiMethodParser {
 
 			// build parameter
 			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef,
-					itemsType, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+					itemsType, itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 			parameters.add(param);
 		}
@@ -740,7 +754,8 @@ public class ApiMethodParser {
 
 		Type returnType;
 		Type containerOf;
-		String containerOfPrimitive;
+		String containerOfPrimitiveType;
+		String containerOfPrimitiveTypeFormat;
 		String returnTypeName;
 		Map<String, Type> varsToTypes;
 	}
@@ -759,9 +774,12 @@ public class ApiMethodParser {
 				if (ParserHelper.isCollection(customTypeName)) {
 					String containerOfType = matcher.group(2);
 					Type containerOf = null;
-					String containerOfPrimitive = null;
+					String containerOfPrimitiveType = null;
+					String containerOfPrimitiveTypeFormat = null;
 					if (ParserHelper.isPrimitive(containerOfType, this.options)) {
-						containerOfPrimitive = ParserHelper.typeOf(containerOfType, this.options)[0];
+						String[] typeFormat = ParserHelper.typeOf(containerOfType, this.options);
+						containerOfPrimitiveType = typeFormat[0];
+						containerOfPrimitiveTypeFormat = typeFormat[1];
 					} else {
 						containerOf = ParserHelper.findModel(this.classes, containerOfType);
 						if (containerOf == null) {
@@ -773,7 +791,8 @@ public class ApiMethodParser {
 					res.returnTypeName = ParserHelper.typeOf(customTypeName, this.options)[0];
 					res.returnType = null;
 					res.containerOf = containerOf;
-					res.containerOfPrimitive = containerOfPrimitive;
+					res.containerOfPrimitiveType = containerOfPrimitiveType;
+					res.containerOfPrimitiveTypeFormat = containerOfPrimitiveTypeFormat;
 					return res;
 				} else if (ParserHelper.isMap(customTypeName)) {
 					NameToType res = new NameToType();

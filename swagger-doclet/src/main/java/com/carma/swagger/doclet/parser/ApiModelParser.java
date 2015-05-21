@@ -158,12 +158,13 @@ public class ApiModelParser {
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		boolean isClass = qName.equals("java.lang.Class");
 		boolean isCollection = ParserHelper.isCollection(qName);
+		boolean isArray = ParserHelper.isArray(type);
 		boolean isMap = ParserHelper.isMap(qName);
 		boolean isWildcard = qName.equals("?");
 
 		ClassDoc classDoc = type.asClassDoc();
 
-		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isCollection || isMap || classDoc == null || classDoc.isEnum()
+		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isCollection || isMap || isArray || classDoc == null || classDoc.isEnum()
 				|| alreadyStoredType(type)) {
 			return;
 		}
@@ -257,7 +258,7 @@ public class ApiModelParser {
 					discriminator = val;
 					// auto add as model field if not already done
 					if (!elements.containsKey(discriminator)) {
-						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null);
+						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null, null);
 						elements.put(discriminator, discriminatorProp);
 					}
 					// auto add discriminator to required fields
@@ -773,9 +774,20 @@ public class ApiModelParser {
 				propertyType = "string";
 			}
 
-			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
+			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, this.subTypeClasses);
 			String itemsRef = null;
 			String itemsType = null;
+			String itemsFormat = null;
+			if (containerOf != null) {
+				OptionalName oName = this.translator.typeName(containerOf);
+				if (ParserHelper.isPrimitive(containerOf, this.options)) {
+					itemsType = oName.value();
+					itemsFormat = oName.getFormat();
+				} else {
+					itemsRef = oName.value();
+				}
+			}
+
 			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 			if (containerOf != null) {
 				if (ParserHelper.isPrimitive(containerOf, this.options)) {
@@ -784,6 +796,7 @@ public class ApiModelParser {
 					itemsRef = containerTypeOf;
 				}
 			}
+
 			Boolean uniqueItems = null;
 			if (propertyType.equals("array")) {
 				if (ParserHelper.isSet(type.qualifiedTypeName())) {
@@ -828,7 +841,7 @@ public class ApiModelParser {
 			}
 
 			Property property = new Property(typeRef.rawName, typeRef.paramCategory, propertyType, propertyTypeFormat.getFormat(), typeRef.description,
-					itemsRef, itemsType, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
+					itemsRef, itemsType, itemsFormat, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
 			elements.put(typeName, property);
 		}
 		return elements;
@@ -899,7 +912,7 @@ public class ApiModelParser {
 	private boolean alreadyStoredType(Type type) {
 
 		// if a collection then the type to check is the param type
-		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
+		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, null);
 		if (containerOf != null) {
 			type = containerOf;
 		}

@@ -313,9 +313,7 @@ public class ParserHelper {
 	 */
 	public static String[] typeOf(String javaType, DocletOptions options) {
 
-		if (javaType.toLowerCase().equals("byte[]")) {
-			return new String[] { "ByteArray", null };
-		} else if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
+		if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
 			return new String[] { "string", "byte" };
 		} else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
 			return new String[] { "integer", "int32" };
@@ -338,6 +336,8 @@ public class ParserHelper {
 		} else if (isCollection(javaType)) {
 			return new String[] { "array", null };
 		} else if (isSet(javaType)) {
+			return new String[] { "array", null };
+		} else if (isArray(javaType)) {
 			return new String[] { "array", null };
 		} else if (javaType.equalsIgnoreCase("java.io.File")) {
 			// special handling of files, the datatype File is reserved for multipart
@@ -432,12 +432,13 @@ public class ParserHelper {
 	 * @param type The raw type like Collection<String>
 	 * @param varsToTypes A map of variables to types for parameterized types, optional if null parameterized types
 	 *            will not be handled
+	 * @param classes set of classes
 	 * @return The container type or null if not a collection
 	 */
-	public static Type getContainerType(Type type, Map<String, Type> varsToTypes) {
+	public static Type getContainerType(Type type, Map<String, Type> varsToTypes, Collection<ClassDoc> classes) {
 		Type result = null;
 		ParameterizedType pt = type.asParameterizedType();
-		if (pt != null && ParserHelper.isCollection(type.qualifiedTypeName())) {
+		if (pt != null && (ParserHelper.isCollection(type.qualifiedTypeName()) || ParserHelper.isArray(type))) {
 			Type[] typeArgs = pt.typeArguments();
 			if (typeArgs != null && typeArgs.length > 0) {
 				result = typeArgs[0];
@@ -450,6 +451,12 @@ public class ParserHelper {
 				return paramType;
 			}
 		}
+		// if its a non parameterized array then find the array type
+		// note in java 8 we can do this directly, however for now the only solution is to look it up via the model classes
+		if (ParserHelper.isArray(type)) {
+			result = findModel(classes, type.qualifiedTypeName());
+		}
+
 		return result;
 	}
 
@@ -484,6 +491,24 @@ public class ParserHelper {
 		} catch (ClassNotFoundException ex) {
 			return false;
 		}
+	}
+
+	/**
+	 * This gets whether the given type is an Array
+	 * @param type The type
+	 * @return True if this is an array
+	 */
+	public static boolean isArray(Type type) {
+		return type.dimension() != null && type.dimension().length() > 0;
+	}
+
+	/**
+	 * This gets whether the given type is an Array
+	 * @param javaType The java type
+	 * @return True if this is an array
+	 */
+	public static boolean isArray(String javaType) {
+		return javaType.endsWith("[]");
 	}
 
 	/**
@@ -1534,6 +1559,17 @@ public class ParserHelper {
 		return types;
 	}
 
+	static final Map<String, String> PRIMITIVE_TO_CLASS = new HashMap<String, String>();
+	static {
+		PRIMITIVE_TO_CLASS.put("int", java.lang.Integer.class.getName());
+		PRIMITIVE_TO_CLASS.put("boolean", java.lang.Boolean.class.getName());
+		PRIMITIVE_TO_CLASS.put("float", java.lang.Float.class.getName());
+		PRIMITIVE_TO_CLASS.put("double", java.lang.Double.class.getName());
+		PRIMITIVE_TO_CLASS.put("char", java.lang.Character.class.getName());
+		PRIMITIVE_TO_CLASS.put("long", java.lang.Long.class.getName());
+		PRIMITIVE_TO_CLASS.put("byte", java.lang.Byte.class.getName());
+	}
+
 	/**
 	 * This finds a model class by the given name
 	 * @param classes The model classes
@@ -1542,6 +1578,10 @@ public class ParserHelper {
 	 */
 	public static ClassDoc findModel(Collection<ClassDoc> classes, String qualifiedClassName) {
 		if (classes != null && qualifiedClassName != null) {
+			// map primitives to their class equiv
+			if (PRIMITIVE_TO_CLASS.containsKey(qualifiedClassName)) {
+				qualifiedClassName = PRIMITIVE_TO_CLASS.get(qualifiedClassName);
+			}
 			for (ClassDoc cls : classes) {
 				if (qualifiedClassName.equals(cls.qualifiedName())) {
 					return cls;

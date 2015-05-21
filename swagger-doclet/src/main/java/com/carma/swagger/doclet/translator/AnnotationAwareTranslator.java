@@ -136,7 +136,12 @@ public class AnnotationAwareTranslator implements Translator {
 			return null;
 		}
 
-		OptionalName name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc(), false);
+		OptionalName name = null;
+		if (ParserHelper.isArray(type.getType())) {
+			name = presentOrMissing("array");
+		} else {
+			name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc(), false);
+		}
 		this.typeNameCache.put(type, name);
 		return name;
 	}
