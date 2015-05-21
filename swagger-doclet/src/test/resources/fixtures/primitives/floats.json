@@ -2,7 +2,7 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/primitives/floats",
+    "resourcePath": "/primitives_floats",
     "apis": [
         {
             "path": "/primitives/floats",

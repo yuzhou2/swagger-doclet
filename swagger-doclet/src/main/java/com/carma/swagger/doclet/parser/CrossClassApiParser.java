@@ -214,9 +214,16 @@ public class CrossClassApiParser {
 				}
 			}
 		}
-		if (resourcePath != null && !resourcePath.startsWith("/")) {
-			resourcePath = "/" + resourcePath;
+
+		// sanitize the path and ensure it starts with /
+		if (resourcePath != null) {
+			resourcePath = ParserHelper.sanitizeResourcePath(resourcePath);
+
+			if (!resourcePath.startsWith("/")) {
+				resourcePath = "/" + resourcePath;
+			}
 		}
+
 		return resourcePath;
 	}
 

@@ -2,7 +2,7 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/primitives/longs",
+    "resourcePath": "/primitives_longs",
     "apis": [
         {
             "path": "/primitives/longs",

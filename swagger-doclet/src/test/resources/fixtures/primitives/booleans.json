@@ -2,7 +2,7 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/primitives/booleans",
+    "resourcePath": "/primitives_booleans",
     "apis": [
         {
             "path": "/primitives/booleans",
