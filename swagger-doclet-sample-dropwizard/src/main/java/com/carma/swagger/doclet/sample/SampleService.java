@@ -10,6 +10,7 @@ import com.carma.swagger.doclet.sample.resources.ModelResource;
 import com.carma.swagger.doclet.sample.resources.ParentResource;
 import com.carma.swagger.doclet.sample.resources.PersonResource;
 import com.carma.swagger.doclet.sample.resources.RecursiveResource;
+import com.carma.swagger.doclet.sample.resources.RegexPathResource;
 import com.carma.swagger.doclet.sample.resources.ResponseResource;
 import com.carma.swagger.doclet.sample.resources.SubResource;
 import com.google.common.base.Optional;
@@ -57,5 +58,6 @@ public class SampleService extends Service<Configuration> {
 		environment.addResource(new SubResource());
 		environment.addResource(new PersonResource());
 		environment.addResource(new FileResource());
+		environment.addResource(new RegexPathResource());
 	}
 }

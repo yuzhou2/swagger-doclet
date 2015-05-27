@@ -217,7 +217,7 @@ public class CrossClassApiParser {
 
 		// sanitize the path and ensure it starts with /
 		if (resourcePath != null) {
-			resourcePath = ParserHelper.sanitizeResourcePath(resourcePath);
+			resourcePath = ParserHelper.sanitizePath(resourcePath);
 
 			if (!resourcePath.startsWith("/")) {
 				resourcePath = "/" + resourcePath;

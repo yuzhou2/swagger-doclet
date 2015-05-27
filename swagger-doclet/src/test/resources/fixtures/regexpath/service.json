@@ -3,7 +3,7 @@
     "swaggerVersion": "1.2",
     "apis": [
         {
-            "path": "/project.{format}"
+            "path": "/project_id.{format}"
         }
     ]
 }

@@ -1592,45 +1592,28 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This sanitizes a resource path such that it can be used as a relative path to a resource.
-	 * It only supports a single level as that is all the swagger ui allows.
+	 * This generates a file name to use for a resource with the given resource path.
+	 * It ensures that any non filename safe characters are removed
+	 * For example /api/test/{id:[0-9]+} will become api_test_id
 	 * @param resourcePath The path to sanitize
 	 * @return The resource path sanitized
 	 */
-	public static String sanitizeResourcePath(String resourcePath) {
-		if (resourcePath == null) {
-			return null;
-		}
-		if (resourcePath.isEmpty() || resourcePath.trim().isEmpty()) {
-			return resourcePath;
-		}
+	public static String generateResourceFilename(String resourcePath) {
 
-		resourcePath = resourcePath.trim();
-		boolean inParam = false;
-		StringBuilder path = new StringBuilder();
-		for (int i = 0; i < resourcePath.length(); i++) {
-			char c = resourcePath.charAt(i);
-			if (inParam) {
-				// skip
-			} else if (c == '{') {
-				inParam = true;
-			} else if (c == '}') {
-				if (inParam) {
-					inParam = false;
-				}
-			} else if (!Character.isLetterOrDigit(c)) {
-				path.append('_');
-			} else {
-				path.append(c);
-			}
-		}
+		// first remove regex expressions so we end up for example
+		// instead of /api/test/{id:[0-9]+} with /api/test/{id}
+		String sanitized = sanitizePath(resourcePath)
+		// now replace / and {} with underscores
+				.replace("{", "_").replace("}", "").replace("/", "_")
+				// and finally swap multiple underscores with a single one
+				.replaceAll("[_]+", "_");
 
-		String sanitized = path.toString();
-		if (sanitized.startsWith("_")) {
-			sanitized = "/" + sanitized.substring(1);
-		}
+		// remove any trailing or leading underscores
 		if (sanitized.endsWith("_")) {
 			sanitized = sanitized.substring(0, sanitized.length() - 1);
+		}
+		if (sanitized.startsWith("_")) {
+			sanitized = sanitized.substring(1);
 		}
 
 		return sanitized;
@@ -1639,42 +1622,12 @@ public class ParserHelper {
 
 	/**
 	 * This sanitizes an API path. It handles removing regex path expressions
+	 * e.g instead of /api/test/{id:[0-9]+} it will return /api/test/{id}
 	 * @param apiPath The api path to sanitize
 	 * @return The sanitized path
 	 */
-	public static String sanitizeApiPath(String apiPath) {
-		if (apiPath == null) {
-			return null;
-		}
-		if (apiPath.isEmpty() || apiPath.trim().isEmpty()) {
-			return apiPath;
-		}
-
-		// for apis we simply remove regexs in any path params,
-		// so for example {packageId: [0-9]+} will become {packageId}
-		boolean inParam = false;
-		boolean inParamRegex = false;
-		StringBuilder path = new StringBuilder();
-		for (int i = 0; i < apiPath.length(); i++) {
-			char c = apiPath.charAt(i);
-			if (inParam && c == ':') {
-				inParamRegex = true;
-			} else if (c == '{') {
-				inParam = true;
-				path.append(c);
-			} else if (c == '}') {
-				if (inParam) {
-					inParam = false;
-					inParamRegex = false;
-				}
-				path.append(c);
-			} else if (Character.isWhitespace(c) || inParamRegex) {
-				// skip
-			} else {
-				path.append(c);
-			}
-		}
-		return path.toString();
+	public static String sanitizePath(String apiPath) {
+		return apiPath.replaceAll("[: ]+.*?}", "}");
 	}
 
 	/**
