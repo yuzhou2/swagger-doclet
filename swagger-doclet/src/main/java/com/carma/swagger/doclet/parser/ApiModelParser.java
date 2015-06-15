@@ -165,7 +165,7 @@ public class ApiModelParser {
 	}
 
 	private void parseModel(Type type, boolean nested) {
-
+            
 		String qName = type.qualifiedTypeName();
 		boolean isPrimitive = ParserHelper.isPrimitive(type, this.options);
 		boolean isJavaxType = qName.startsWith("javax.");
@@ -202,7 +202,7 @@ public class ApiModelParser {
 				}
 			}
 		}
-
+                
 		// if parameterized then build map of the param vars
 		ParameterizedType pt = type.asParameterizedType();
 		if (pt != null) {
@@ -219,8 +219,9 @@ public class ApiModelParser {
 
 		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
 		Map<String, Property> elements = findReferencedElements(classDoc, types, nested);
-		if (!elements.isEmpty()) {
-
+                
+		if (!elements.isEmpty() || classDoc.superclass() != null) {
+                    
 			String modelId = this.translator.typeName(type, this.viewClasses).value();
 
 			List<String> requiredFields = null;
