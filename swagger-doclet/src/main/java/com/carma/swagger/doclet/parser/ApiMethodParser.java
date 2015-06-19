@@ -563,9 +563,11 @@ public class ApiMethodParser {
 
 							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 							String itemsType = property.getItems() == null ? null : property.getItems().getType();
+                            // TODO: Fix allowable types
+                            List<String> itemsAllowableValues = null;
 
 							ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-									property.getFormat(), property.getDescription(), itemsRef, itemsType, property.getUniqueItems(),
+									property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsAllowableValues, property.getUniqueItems(),
 									property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
 
 							parameters.add(param);
@@ -591,6 +593,8 @@ public class ApiMethodParser {
 			List<String> allowableValues = null;
 			String itemsRef = null;
 			String itemsType = null;
+            // TODO: Fix allowable types
+            List<String> itemsAllowableValues = null;
 			Boolean uniqueItems = null;
 			String minimum = null;
 			String maximum = null;
@@ -692,7 +696,7 @@ public class ApiMethodParser {
 
 			// build parameter
 			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef,
-					itemsType, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+					itemsType, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 			parameters.add(param);
 		}

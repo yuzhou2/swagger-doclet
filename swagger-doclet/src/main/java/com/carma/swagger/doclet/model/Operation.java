@@ -33,7 +33,8 @@ public class Operation {
 		this.nickname = emptyToNull(method.getMethodName());
 		this.type = emptyToNull(method.getReturnType());
 		if (method.getReturnTypeItemsRef() != null || method.getReturnTypeItemsType() != null) {
-			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType());
+            // TODO: Fix allowable types
+			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType(), null);
 		}
 		this.parameters = method.getParameters().isEmpty() ? null : method.getParameters();
 		this.responseMessages = method.getResponseMessages().isEmpty() ? null : method.getResponseMessages();

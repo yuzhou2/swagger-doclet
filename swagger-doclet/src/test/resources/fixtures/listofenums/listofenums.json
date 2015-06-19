@@ -2,58 +2,61 @@
     "apiVersion": "0",
     "swaggerVersion": "1.2",
     "basePath": "http://localhost:8080",
-    "resourcePath": "/modelinheritanceusingsubtypes",
+    "resourcePath": "/listofenums",
     "apis": [
         {
-            "path": "/modelinheritanceusingsubtypes",
+            "path": "/listofenums",
             "operations": [
                 {
                     "method": "GET",
-                    "nickname": "getSmallestVehicle",
-                    "type": "Vehicle"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getMotorcycle",
-                    "type": "Motorcycle"
+                    "nickname": "getAnimals",
+                    "type": "Animal",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "color",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BLACK",
+                                    "WHITE",
+                                    "RED",
+                                    "GREEN",
+                                    "BLUE"
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
         }
     ],
     "models": {
-        "Vehicle": {
-            "id": "Vehicle",
+        "Animal": {
+            "id": "Animal",
             "properties": {
-                "make": {
+                "name": {
                     "type": "string"
                 },
-                "model": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
+                "colors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "BLACK",
+                            "WHITE",
+                            "RED",
+                            "GREEN",
+                            "BLUE"
+                        ]
+                    }
                 }
-            },
-            "required" : [ "type" ],
-            "subTypes" : [ "Car", "Truck", "Motorcycle" ],
-            "discriminator" : "type"
-        },
-        "Car": {
-            "id": "Car",
-            "properties": {
-            }
-        },
-        "Truck": {
-            "id": "Truck",
-            "properties": {
-                "maxLoad": {
-                    "type": "string"
-                }
-            }
-        },
-        "Motorcycle": {
-            "id": "Motorcycle",
-            "properties": {
             }
         }
     }
