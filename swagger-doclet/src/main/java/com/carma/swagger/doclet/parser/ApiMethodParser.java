@@ -563,8 +563,7 @@ public class ApiMethodParser {
 
 							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 							String itemsType = property.getItems() == null ? null : property.getItems().getType();
-                            // TODO: Fix allowable types
-                            List<String> itemsAllowableValues = null;
+                            List<String> itemsAllowableValues = property.getItems() == null ? null : property.getItems().getAllowableValues();
 
 							ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
 									property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsAllowableValues, property.getUniqueItems(),
@@ -593,7 +592,6 @@ public class ApiMethodParser {
 			List<String> allowableValues = null;
 			String itemsRef = null;
 			String itemsType = null;
-            // TODO: Fix allowable types
             List<String> itemsAllowableValues = null;
 			Boolean uniqueItems = null;
 			String minimum = null;
@@ -671,11 +669,16 @@ public class ApiMethodParser {
 				containerOf = ParserHelper.getContainerType(paramType, null);
 				String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
 				if (containerOf != null) {
-					if (ParserHelper.isPrimitive(containerOf, this.options)) {
-						itemsType = containerTypeOf;
-					} else {
-						itemsRef = containerTypeOf;
-					}
+                    itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+                    if (itemsAllowableValues != null) {
+                        itemsType = "string";
+                    } else {
+                        if (ParserHelper.isPrimitive(containerOf, this.options)) {
+                            itemsType = containerTypeOf;
+                        } else {
+                            itemsRef = containerTypeOf;
+                        }
+                    }
 				}
 
 				if (typeName.equals("array")) {

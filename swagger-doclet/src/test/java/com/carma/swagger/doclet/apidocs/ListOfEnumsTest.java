@@ -30,7 +30,7 @@ public class ListOfEnumsTest {
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
 	}
 
-        @Test
+    @Test
 	public void testStart() throws IOException {
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.listofenums");
 		new JaxRsAnnotationParser(this.options, rootDoc).run();
