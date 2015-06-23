@@ -16,8 +16,16 @@ public class ListOfEnumsResource {
 
 	@SuppressWarnings("javadoc")
 	@GET
+    @Path("/animals")
 	public Animal getAnimals(@QueryParam("name") String name, @QueryParam("color") List<Color> colors) {
 		return new Animal("Frog", Arrays.asList(Color.BLACK, Color.GREEN));
 	}
+
+    @SuppressWarnings("javadoc")
+    @GET
+    @Path("/colors")
+    public List<Color> getAnimalColors() {
+        return Arrays.asList(Color.BLACK, Color.GREEN);
+    }
 
 }

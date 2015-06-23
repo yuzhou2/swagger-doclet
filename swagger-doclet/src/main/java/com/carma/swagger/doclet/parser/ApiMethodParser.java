@@ -202,6 +202,7 @@ public class ApiMethodParser {
 
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
+        List<String> returnTypeItemsAllowableValues = null;
 		Type containerOf = ParserHelper.getContainerType(returnType, null);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
@@ -209,12 +210,17 @@ public class ApiMethodParser {
 		if (containerOf != null) {
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
-			// set the items type or ref
-			if (ParserHelper.isPrimitive(containerOf, this.options)) {
-				returnTypeItemsType = this.translator.typeName(containerOf).value();
-			} else {
-				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
-			}
+            returnTypeItemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+            if (returnTypeItemsAllowableValues != null) {
+                returnTypeItemsType = "string";
+            } else {
+                // set the items type or ref
+                if (ParserHelper.isPrimitive(containerOf, this.options)) {
+                    returnTypeItemsType = this.translator.typeName(containerOf).value();
+                } else {
+                    returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
+                }
+            }
 
 		} else {
 
@@ -293,7 +299,7 @@ public class ApiMethodParser {
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
-				returnTypeItemsType, consumes, produces, authorizations, deprecated);
+				returnTypeItemsType, returnTypeItemsAllowableValues, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {

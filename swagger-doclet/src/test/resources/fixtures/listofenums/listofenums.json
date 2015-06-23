@@ -5,7 +5,7 @@
     "resourcePath": "/listofenums",
     "apis": [
         {
-            "path": "/listofenums",
+            "path": "/listofenums/animals",
             "operations": [
                 {
                     "method": "GET",
@@ -33,6 +33,26 @@
                             }
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "path": "/listofenums/colors",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getAnimalColors",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "BLACK",
+                            "WHITE",
+                            "RED",
+                            "GREEN",
+                            "BLUE"
+                        ]
+                    }
                 }
             ]
         }
