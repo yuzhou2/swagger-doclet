@@ -18,6 +18,7 @@ import com.carma.swagger.doclet.model.HttpMethod;
 import com.google.common.base.Function;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
@@ -145,6 +146,34 @@ public class ParserHelper {
 		String qName = classDoc.qualifiedName();
 		boolean isBaseObject = qName.equals("java.lang.Object");
 		return !isBaseObject;
+	}
+
+	/**
+	 * This gets an annotation value from the given class, it supports looking at super classes
+	 * @param classDoc The class to look for the annotation
+	 * @param options The doclet options
+	 * @param qualifiedAnnotationType The FQN of the annotation to look for
+	 * @param keys The keys for the annotation values
+	 * @return The value of the annotation or null if none was found
+	 */
+	public static String getInheritableClassLevelAnnotationValue(ClassDoc classDoc, DocletOptions options, String qualifiedAnnotationType, String... keys) {
+		ClassDoc currentClassDoc = classDoc;
+		while (currentClassDoc != null) {
+
+			AnnotationParser p = new AnnotationParser(currentClassDoc, options);
+			String value = p.getAnnotationValue(qualifiedAnnotationType, keys);
+
+			if (value != null) {
+				return value;
+			}
+
+			currentClassDoc = currentClassDoc.superclass();
+			// ignore parent object class
+			if (!ParserHelper.hasAncestor(currentClassDoc)) {
+				break;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -702,8 +731,29 @@ public class ParserHelper {
 	 */
 	public static String paramNameOf(Parameter parameter, Map<String, String> overrideParamNames, List<String> paramNameAnnotations, DocletOptions options) {
 
-		String name = null;
 		String rawName = parameter.name();
+		AnnotationParser p = new AnnotationParser(parameter, options);
+		return paramNameOf(rawName, p, overrideParamNames, paramNameAnnotations, options);
+	}
+
+	/**
+	 * Determines the string representation of the parameter name.
+	 * @param field The parameter field to get the name of that is used for the api
+	 * @param overrideParamNames A map of rawname to override names for parameters
+	 * @param paramNameAnnotations List of FQN of annotations that can be used for the parameter name
+	 * @param options The doclet options
+	 * @return the name of the parameter used by http requests
+	 */
+	public static String fieldParamNameOf(FieldDoc field, Map<String, String> overrideParamNames, List<String> paramNameAnnotations, DocletOptions options) {
+
+		String rawName = field.name();
+		AnnotationParser p = new AnnotationParser(field, options);
+		return paramNameOf(rawName, p, overrideParamNames, paramNameAnnotations, options);
+	}
+
+	private static String paramNameOf(String rawName, AnnotationParser p, Map<String, String> overrideParamNames, List<String> paramNameAnnotations,
+			DocletOptions options) {
+		String name = null;
 
 		// if there is an override name use that ahead of any annotation
 		if (overrideParamNames != null && overrideParamNames.containsKey(rawName)) {
@@ -711,7 +761,6 @@ public class ParserHelper {
 		}
 		// look for any of the configured annotations that can determine the parameter name
 		if (name == null) {
-			AnnotationParser p = new AnnotationParser(parameter, options);
 			for (String paramNameAnnotation : paramNameAnnotations) {
 				name = p.getAnnotationValue(paramNameAnnotation, "value");
 				if (name != null) {
@@ -862,12 +911,12 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return A list of values or null if none were found
 	 */
-	public static List<String> listInheritableValues(com.sun.javadoc.MethodDoc methodDoc, String qualifiedAnnotationType, String annotationValueName,
+	public static List<String> listInheritableValues(ExecutableMemberDoc methodDoc, String qualifiedAnnotationType, String annotationValueName,
 			DocletOptions options) {
 		List<String> result = null;
 		while (result == null && methodDoc != null) {
 			result = listValues(methodDoc, qualifiedAnnotationType, annotationValueName, options);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -954,11 +1003,11 @@ public class ParserHelper {
 	 * @param matchTags The names of the tags to look for
 	 * @return True if the method or an overridden method has any of the given tags
 	 */
-	public static boolean hasInheritableTag(MethodDoc methodDoc, Collection<String> matchTags) {
+	public static boolean hasInheritableTag(ExecutableMemberDoc methodDoc, Collection<String> matchTags) {
 		boolean result = false;
 		while (!result && methodDoc != null) {
 			result = hasTag(methodDoc, matchTags);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -986,7 +1035,7 @@ public class ParserHelper {
 	 * @param method The method
 	 * @return the names of the method parameters or an empty set if the method had none
 	 */
-	public static Set<String> getParamNames(com.sun.javadoc.MethodDoc method) {
+	public static Set<String> getParamNames(ExecutableMemberDoc method) {
 		Set<String> params = new HashSet<String>();
 		for (Parameter parameter : method.parameters()) {
 			params.add(parameter.name());
@@ -1003,8 +1052,8 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return A set of param names for the params that have either any of the matching javadoc tags or annotations
 	 */
-	public static Set<String> getMatchingParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> javadocTags,
-			Collection<String> annotations, DocletOptions options) {
+	public static Set<String> getMatchingParams(ExecutableMemberDoc method, Set<String> params, Collection<String> javadocTags, Collection<String> annotations,
+			DocletOptions options) {
 
 		Set<String> res = new HashSet<String>();
 
@@ -1019,12 +1068,12 @@ public class ParserHelper {
 		return res;
 	}
 
-	private static Set<String> getInheritableParametersWithAnnotation(com.sun.javadoc.MethodDoc methodDoc, Collection<String> annotations) {
+	private static Set<String> getInheritableParametersWithAnnotation(ExecutableMemberDoc methodDoc, Collection<String> annotations) {
 		Set<String> result = new HashSet<String>();
 		while (methodDoc != null) {
 			Set<String> subResult = getParametersWithAnnotation(methodDoc, annotations);
 			result.addAll(subResult);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -1035,7 +1084,7 @@ public class ParserHelper {
 	 * @param annotations The annotations to look for
 	 * @return A set of param names with the given annotations
 	 */
-	private static Set<String> getParametersWithAnnotation(com.sun.javadoc.MethodDoc method, Collection<String> annotations) {
+	private static Set<String> getParametersWithAnnotation(ExecutableMemberDoc method, Collection<String> annotations) {
 		Set<String> res = new HashSet<String>();
 		for (Parameter p : method.parameters()) {
 			for (AnnotationDesc annotation : p.annotations()) {
@@ -1076,14 +1125,14 @@ public class ParserHelper {
 	 * @param paramIndex Parameter index
 	 * @return A parameter from the method overriding hierarchy with annotations
 	 */
-	public static Parameter getParameterWithAnnotations(MethodDoc methodDoc, int paramIndex) {
+	public static Parameter getParameterWithAnnotations(ExecutableMemberDoc methodDoc, int paramIndex) {
 		final Parameter fallbackParameter = methodDoc.parameters()[paramIndex];
 		Parameter parameter;
 		boolean found;
 		do {
 			parameter = methodDoc.parameters()[paramIndex];
 			found = (parameter.annotations() != null && parameter.annotations().length > 0);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		} while (methodDoc != null && !found);
 		return (found) ? parameter : fallbackParameter;
 	}
@@ -1099,7 +1148,7 @@ public class ParserHelper {
 	 * @param valueKeys The attribute names to look for on the annotations as the value
 	 * @return A set of param names with the given annotations
 	 */
-	public static Map<String, String> getParameterValues(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
+	public static Map<String, String> getParameterValues(ExecutableMemberDoc method, Set<String> params, Collection<String> matchTags,
 			Collection<String> annotations, TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
 		Map<String, String> res = new HashMap<String, String>();
 		// first add values from javadoc tags
@@ -1120,7 +1169,7 @@ public class ParserHelper {
 	 * @param valueKeys The attribute names to look for on the annotations as the value
 	 * @return A set of param names with the given annotations
 	 */
-	public static Map<String, String> getParameterValuesWithAnnotation(com.sun.javadoc.MethodDoc methodDoc, Collection<String> annotations,
+	public static Map<String, String> getParameterValuesWithAnnotation(ExecutableMemberDoc methodDoc, Collection<String> annotations,
 			TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
 		Map<String, String> res = new HashMap<String, String>();
 		while (methodDoc != null) {
@@ -1130,7 +1179,7 @@ public class ParserHelper {
 					res.put(p.name(), value);
 				}
 			}
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return res;
 	}
@@ -1144,7 +1193,7 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return a map of parameter name to value from a javadoc tag on a method or an empty map if none were found
 	 */
-	public static Map<String, String> getMethodParamNameValuePairs(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags,
+	public static Map<String, String> getMethodParamNameValuePairs(ExecutableMemberDoc method, Set<String> params, Collection<String> matchTags,
 			DocletOptions options) {
 
 		if (params == null) {
@@ -1192,7 +1241,7 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return The list of parameter names or an empty list if there were none
 	 */
-	public static List<String> getCsvParams(com.sun.javadoc.MethodDoc method, Set<String> params, Collection<String> matchTags, DocletOptions options) {
+	public static List<String> getCsvParams(ExecutableMemberDoc method, Set<String> params, Collection<String> matchTags, DocletOptions options) {
 		if (params == null) {
 			params = getParamNames(method);
 		}
@@ -1218,7 +1267,7 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return The csv values of the first matching tags value or an empty list if there were none.
 	 */
-	public static List<String> getTagCsvValues(com.sun.javadoc.MethodDoc item, Collection<String> matchTags, DocletOptions options) {
+	public static List<String> getTagCsvValues(ExecutableMemberDoc item, Collection<String> matchTags, DocletOptions options) {
 		String value = getInheritableTagValue(item, matchTags, options);
 		if (value != null) {
 			String[] vals = value.split(",");
@@ -1293,7 +1342,7 @@ public class ParserHelper {
 	 * @param methodDoc The method
 	 * @return The first sentence tag or null if there is none
 	 */
-	public static String getInheritableFirstSentenceTags(MethodDoc methodDoc) {
+	public static String getInheritableFirstSentenceTags(ExecutableMemberDoc methodDoc) {
 		String result = null;
 		while (result == null && methodDoc != null) {
 
@@ -1307,7 +1356,7 @@ public class ParserHelper {
 				result = firstSentences;
 			}
 
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -1317,7 +1366,7 @@ public class ParserHelper {
 	 * @param methodDoc The method
 	 * @return The first sentence tag or null if there is none
 	 */
-	public static String getInheritableCommentText(MethodDoc methodDoc) {
+	public static String getInheritableCommentText(ExecutableMemberDoc methodDoc) {
 		String result = null;
 		while (result == null && methodDoc != null) {
 
@@ -1326,7 +1375,7 @@ public class ParserHelper {
 				result = commentText;
 			}
 
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -1338,11 +1387,11 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return A list of tag values or null if none were found
 	 */
-	public static List<String> getInheritableTagValues(com.sun.javadoc.MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
+	public static List<String> getInheritableTagValues(ExecutableMemberDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
 		List<String> result = null;
 		while (result == null && methodDoc != null) {
 			result = getTagValues(methodDoc, matchTags, options);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}
@@ -1383,11 +1432,11 @@ public class ParserHelper {
 	 * @return The value of the first tag found with the name in the given collection or null if either the tag
 	 *         was not present or had no value
 	 */
-	public static String getInheritableTagValue(MethodDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
+	public static String getInheritableTagValue(ExecutableMemberDoc methodDoc, Collection<String> matchTags, DocletOptions options) {
 		String result = null;
 		while (result == null && methodDoc != null) {
 			result = getTagValue(methodDoc, matchTags, options);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
 	}

@@ -28,15 +28,12 @@ import com.carma.swagger.doclet.model.Model;
 import com.carma.swagger.doclet.model.Oauth2Scope;
 import com.carma.swagger.doclet.model.OperationAuthorizations;
 import com.carma.swagger.doclet.model.Property;
-import com.carma.swagger.doclet.parser.ParserHelper.NumericTypeFilter;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
-import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 
@@ -50,15 +47,6 @@ public class ApiMethodParser {
 
 	// pattern that can match a code, a description and an optional response model type
 	private static final Pattern[] RESPONSE_MESSAGE_PATTERNS = new Pattern[] { Pattern.compile("(\\d+)([^`]+)(`.*)?") };
-
-	private static String commentForParameter(MethodDoc method, Parameter parameter) {
-		for (ParamTag tag : method.paramTags()) {
-			if (tag.parameterName().equals(parameter.name())) {
-				return tag.parameterComment();
-			}
-		}
-		return "";
-	}
 
 	private Method parentMethod;
 	private String parentPath;
@@ -455,260 +443,46 @@ public class ApiMethodParser {
 			}
 		}
 
-		// read required and optional params
-		Set<String> optionalParams = ParserHelper.getMatchingParams(this.methodDoc, allParamNames, this.options.getOptionalParamsTags(),
-				this.options.getOptionalParamAnnotations(), this.options);
-
-		Set<String> requiredParams = ParserHelper.getMatchingParams(this.methodDoc, allParamNames, this.options.getRequiredParamsTags(),
-				this.options.getRequiredParamAnnotations(), this.options);
-
 		// read exclude params
 		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getExcludeParamsTags(), this.options);
 
-		// read csv params
-		List<String> csvParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getCsvParamsTags(), this.options);
+		ParameterReader paramReader = new ParameterReader(this.options, this.allClasses);
+		paramReader.readClass(this.methodDoc.containingClass());
 
-		// read min and max values of params
-		Map<String, String> paramMinVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMinValueTags(),
-				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
-		Map<String, String> paramMaxVals = ParserHelper.getParameterValues(this.methodDoc, allParamNames, this.options.getParamsMaxValueTags(),
-				this.options.getParamMaxValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "max" });
+		Set<String> addedParamNames = new HashSet<String>();
 
-		// filter min/max params so they
-
-		// read default values of params
-		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames,
-				this.options.getParamsDefaultValueTags(), this.options);
-
-		// read override names of params
-		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(this.methodDoc, allParamNames, this.options.getParamsNameTags(),
-				this.options);
-
+		// build params from the method's params
 		for (int paramIndex = 0; paramIndex < this.methodDoc.parameters().length; paramIndex++) {
 			final Parameter parameter = ParserHelper.getParameterWithAnnotations(this.methodDoc, paramIndex);
 			if (!shouldIncludeParameter(this.httpMethod, excludeParams, parameter)) {
 				continue;
 			}
 
-			Type paramType = getParamType(parameter.type());
-			String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
-			String paramName = parameter.name();
-
-			// see if its a special composite type e.g. @BeanParam
-			if ("composite".equals(paramCategory)) {
-
-				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart, true);
-				Set<Model> models = modelParser.parse();
-				String rootModelId = modelParser.getRootModelId();
-				for (Model model : models) {
-					if (model.getId().equals(rootModelId)) {
-						List<String> requiredFields = model.getRequiredFields();
-						List<String> optionalFields = model.getOptionalFields();
-						Map<String, Property> modelProps = model.getProperties();
-						for (Map.Entry<String, Property> entry : modelProps.entrySet()) {
-							Property property = entry.getValue();
-							String renderedParamName = entry.getKey();
-							String rawFieldName = property.getRawFieldName();
-
-							Boolean allowMultiple = getAllowMultiple(paramCategory, rawFieldName, csvParams);
-
-							// see if there is a required javadoc tag directly on the bean param field, if so use that
-							Boolean required = null;
-							if (requiredFields != null && requiredFields.contains(renderedParamName)) {
-								required = Boolean.TRUE;
-							} else if (optionalFields != null && optionalFields.contains(renderedParamName)) {
-								required = Boolean.FALSE;
-							} else {
-								required = getRequired(paramCategory, rawFieldName, property.getType(), optionalParams, requiredParams);
-							}
-
-							String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
-							String itemsType = property.getItems() == null ? null : property.getItems().getType();
-							String itemsFormat = property.getItems() == null ? null : property.getItems().getFormat();
-
-							ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-									property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, property.getUniqueItems(),
-									property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
-
-							parameters.add(param);
-						}
-						break;
-					}
-				}
-
-				continue;
-			}
-
-			// look for a custom input type for body params
-			if ("body".equals(paramCategory)) {
-				String customParamType = ParserHelper.getInheritableTagValue(this.methodDoc, this.options.getInputTypeTags(), this.options);
-				paramType = readCustomParamType(customParamType, paramType);
-			}
-
-			OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType);
-			String typeName = paramTypeFormat.value();
-			String format = paramTypeFormat.getFormat();
-
-			Boolean allowMultiple = null;
-			List<String> allowableValues = null;
-			String itemsRef = null;
-			String itemsType = null;
-			String itemsFormat = null;
-			Boolean uniqueItems = null;
-			String minimum = null;
-			String maximum = null;
-			String defaultVal = null;
-
-			// set to form param type if data type is File
-			if ("File".equals(typeName)) {
-				paramCategory = "form";
-			} else {
-
-				Type containerOf = ParserHelper.getContainerType(paramType, null, this.allClasses);
-
-				if (this.options.isParseModels()) {
-					Type modelType = containerOf == null ? paramType : containerOf;
-					this.models.addAll(new ApiModelParser(this.options, this.translator, modelType).parse());
-				}
-
-				// set enum values
-				ClassDoc typeClassDoc = parameter.type().asClassDoc();
-				allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
-				if (allowableValues != null) {
-					typeName = "string";
-				}
-
-				// set whether its a csv param
-				allowMultiple = getAllowMultiple(paramCategory, paramName, csvParams);
-
-				// get min and max param values
-				minimum = paramMinVals.get(paramName);
-				maximum = paramMaxVals.get(paramName);
-
-				String validationContext = " for the method: " + this.methodDoc.name() + " parameter: " + paramName;
-
-				// verify min max are numbers
-				ParserHelper.verifyNumericValue(validationContext + " min value.", typeName, format, minimum);
-				ParserHelper.verifyNumericValue(validationContext + " max value.", typeName, format, maximum);
-
-				// get a default value, prioritize the jaxrs annotation
-				// otherwise look for the javadoc tag
-				defaultVal = ParserHelper.getDefaultValue(parameter, this.options);
-				if (defaultVal == null) {
-					defaultVal = paramDefaultVals.get(paramName);
-				}
-
-				// verify default vs min, max and by itself
-				if (defaultVal != null) {
-					if (minimum == null && maximum == null) {
-						// just validate the default
-						ParserHelper.verifyValue(validationContext + " default value.", typeName, format, defaultVal);
-					}
-					// if min/max then default is validated as part of comparison
-					if (minimum != null) {
-						int comparison = ParserHelper.compareNumericValues(validationContext + " min value.", typeName, format, defaultVal, minimum);
-						if (comparison < 0) {
-							throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
-									+ paramName + " it should be >= the minimum: " + minimum);
-						}
-					}
-					if (maximum != null) {
-						int comparison = ParserHelper.compareNumericValues(validationContext + " max value.", typeName, format, defaultVal, maximum);
-						if (comparison > 0) {
-							throw new IllegalStateException("Invalid value for the default value of the method: " + this.methodDoc.name() + " parameter: "
-									+ paramName + " it should be <= the maximum: " + maximum);
-						}
-					}
-
-					// if boolean then make lowercase
-					if ("boolean".equalsIgnoreCase(typeName)) {
-						defaultVal = defaultVal.toLowerCase();
-					}
-				}
-
-				// if enum and default value check it matches the enum values
-				if (allowableValues != null && defaultVal != null && !allowableValues.contains(defaultVal)) {
-					throw new IllegalStateException("Invalid value: " + defaultVal + " for the default value of the method: " + this.methodDoc.name()
-							+ " parameter: " + paramName + " it should be one of: " + allowableValues);
-				}
-
-				// set collection related fields
-				// TODO: consider supporting parameterized collections as api parameters...
-				if (containerOf != null) {
-					OptionalName oName = this.translator.typeName(containerOf);
-					if (ParserHelper.isPrimitive(containerOf, this.options)) {
-						itemsType = oName.value();
-						itemsFormat = oName.getFormat();
-					} else {
-						itemsRef = oName.value();
-					}
-				}
-
-				if (typeName.equals("array")) {
-					if (ParserHelper.isSet(paramType.qualifiedTypeName())) {
-						uniqueItems = Boolean.TRUE;
-					}
-				}
-			}
-
-			// get whether required
-			Boolean required = getRequired(paramCategory, paramName, typeName, optionalParams, requiredParams);
-
-			// get the parameter name to use for the documentation
-			String renderedParamName = ParserHelper.paramNameOf(parameter, paramNames, this.options.getParameterNameAnnotations(), this.options);
-
-			// get description
-			String description = this.options.replaceVars(commentForParameter(this.methodDoc, parameter));
-
-			// build parameter
-			ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef,
-					itemsType, itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
-
-			parameters.add(param);
+			List<ApiParameter> apiParams = paramReader.buildApiParams(this.methodDoc, parameter, consumesMultipart, allParamNames, this.models);
+			addUniqueParam(addedParamNames, apiParams, parameters);
 		}
 
-		// parent method parameters are inherited
+		// add any parent method parameters that are inherited
 		if (this.parentMethod != null) {
-			parameters.addAll(this.parentMethod.getParameters());
+			addUniqueParam(addedParamNames, this.parentMethod.getParameters(), parameters);
 		}
+
+		// add class level parameters
+		List<ApiParameter> classLevelParams = paramReader.readClassLevelParameters(this.models);
+		addUniqueParam(addedParamNames, classLevelParams, parameters);
 
 		return parameters;
 	}
 
-	private Boolean getAllowMultiple(String paramCategory, String paramName, List<String> csvParams) {
-		Boolean allowMultiple = null;
-		if ("query".equals(paramCategory) || "path".equals(paramCategory) || "header".equals(paramCategory)) {
-			if (csvParams != null && csvParams.contains(paramName)) {
-				allowMultiple = Boolean.TRUE;
+	private void addUniqueParam(Set<String> addedParamNames, List<ApiParameter> paramsToAdd, List<ApiParameter> targetList) {
+		if (paramsToAdd != null) {
+			for (ApiParameter apiParam : paramsToAdd) {
+				if (!addedParamNames.contains(apiParam.getName())) {
+					addedParamNames.add(apiParam.getName());
+					targetList.add(apiParam);
+				}
 			}
 		}
-		return allowMultiple;
-	}
-
-	private Boolean getRequired(String paramCategory, String paramName, String typeName, Collection<String> optionalParams, Collection<String> requiredParams) {
-		// set whether the parameter is required or not
-		Boolean required = null;
-		// if its a path param then its required as per swagger spec
-		if ("path".equals(paramCategory)) {
-			required = Boolean.TRUE;
-		}
-		// if its in the required list then its required
-		else if (requiredParams.contains(paramName)) {
-			required = Boolean.TRUE;
-		}
-		// else if its in the optional list its optional
-		else if (optionalParams.contains(paramName)) {
-			// leave as null as this is equivalent to false but doesn't add to the json
-		}
-		// else if its a body or File param its required
-		else if ("body".equals(paramCategory) || ("File".equals(typeName) && "form".equals(paramCategory))) {
-			required = Boolean.TRUE;
-		}
-		// otherwise its optional
-		else {
-			// leave as null as this is equivalent to false but doesn't add to the json
-		}
-		return required;
 	}
 
 	/**
@@ -717,37 +491,6 @@ public class ApiMethodParser {
 	 */
 	public Set<Model> models() {
 		return this.models;
-	}
-
-	private Type getParamType(Type type) {
-		if (type != null) {
-			ParameterizedType pt = type.asParameterizedType();
-			if (pt != null) {
-				Type[] typeArgs = pt.typeArguments();
-				if (typeArgs != null && typeArgs.length > 0) {
-					// if its a generic wrapper type then return the wrapped type
-					if (this.options.getGenericWrapperTypes().contains(type.qualifiedTypeName())) {
-						return typeArgs[0];
-					}
-				}
-			}
-		}
-		return type;
-	}
-
-	private Type readCustomParamType(String customTypeName, Type defaultType) {
-		if (customTypeName != null) {
-			// lookup the type from the doclet classes
-			Type customType = ParserHelper.findModel(this.classes, customTypeName);
-			if (customType != null) {
-				// also add this custom return type to the models
-				if (this.options.isParseModels()) {
-					this.models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
-				}
-				return customType;
-			}
-		}
-		return defaultType;
 	}
 
 	static class NameToType {
