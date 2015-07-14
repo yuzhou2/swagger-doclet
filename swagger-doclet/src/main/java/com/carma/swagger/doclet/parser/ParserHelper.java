@@ -1617,6 +1617,7 @@ public class ParserHelper {
 		PRIMITIVE_TO_CLASS.put("char", java.lang.Character.class.getName());
 		PRIMITIVE_TO_CLASS.put("long", java.lang.Long.class.getName());
 		PRIMITIVE_TO_CLASS.put("byte", java.lang.Byte.class.getName());
+		PRIMITIVE_TO_CLASS.put("string", java.lang.String.class.getName());
 	}
 
 	/**

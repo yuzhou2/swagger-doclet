@@ -54,6 +54,24 @@ public class ResponseModelResource {
 	}
 
 	/**
+	 * @responseType string
+	 */
+	@SuppressWarnings("javadoc")
+	@GET
+	public Response responseString() {
+		return Response.ok().build();
+	}
+
+	/**
+	 * @responseType java.lang.String
+	 */
+	@SuppressWarnings("javadoc")
+	@GET
+	public Response responseStringObject() {
+		return Response.ok().build();
+	}
+
+	/**
 	 * @responseMessage 200 if ok `fixtures.responsemodel.Response1
 	 * @responseMessage 404 if no result found `fixtures.responsemodel.Response2
 	 * @responseMessage 500 if an internal error occurred

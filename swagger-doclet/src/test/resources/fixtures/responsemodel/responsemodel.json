@@ -40,6 +40,16 @@
                 },
                 {
                     "method": "GET",
+                    "nickname": "responseString",
+                    "type": "string"
+                },
+                {
+                    "method": "GET",
+                    "nickname": "responseStringObject",
+                    "type": "string"
+                },
+                {
+                    "method": "GET",
                     "nickname": "responseDefinedViaResponseCode",
                     "type": "Response",
                     "responseMessages": [

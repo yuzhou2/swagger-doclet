@@ -361,7 +361,7 @@ public class ApiMethodParser {
 
 						String responseModel = null;
 						if (responseModelClass != null) {
-							Type responseType = ParserHelper.findModel(this.classes, responseModelClass);
+							Type responseType = ParserHelper.findModel(this.allClasses, responseModelClass);
 							if (responseType != null) {
 								responseModel = this.translator.typeName(responseType).value();
 								if (this.options.isParseModels()) {
@@ -524,7 +524,7 @@ public class ApiMethodParser {
 						containerOfPrimitiveType = typeFormat[0];
 						containerOfPrimitiveTypeFormat = typeFormat[1];
 					} else {
-						containerOf = ParserHelper.findModel(this.classes, containerOfType);
+						containerOf = ParserHelper.findModel(this.allClasses, containerOfType);
 						if (containerOf == null) {
 							raiseCustomTypeNotFoundError(containerOfType);
 						}
@@ -548,7 +548,7 @@ public class ApiMethodParser {
 					paramTypes = new Type[paramTypeNames.length];
 					int i = 0;
 					for (String paramTypeName : paramTypeNames) {
-						paramTypes[i] = ParserHelper.findModel(this.classes, paramTypeName);
+						paramTypes[i] = ParserHelper.findModel(this.allClasses, paramTypeName);
 						if (paramTypes[i] == null) {
 							paramTypes[i] = ParserHelper.findModel(this.typeClasses, paramTypeName);
 						}
@@ -558,7 +558,7 @@ public class ApiMethodParser {
 			}
 
 			// lookup the type from the doclet classes
-			customType = ParserHelper.findModel(this.classes, customTypeName);
+			customType = ParserHelper.findModel(this.allClasses, customTypeName);
 			if (customType == null) {
 				raiseCustomTypeNotFoundError(customTypeName);
 			} else {
