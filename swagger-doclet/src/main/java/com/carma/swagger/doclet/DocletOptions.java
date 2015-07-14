@@ -210,6 +210,8 @@ public class DocletOptions {
 				parsedOptions.paramsMaxValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-paramsDefaultValueTags")) {
 				parsedOptions.paramsDefaultValueTags.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-paramsAllowableValuesTags")) {
+				parsedOptions.paramsAllowableValuesTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-paramsNameTags")) {
 				parsedOptions.paramsNameTags.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-resourceTags")) {
@@ -323,6 +325,7 @@ public class DocletOptions {
 	private List<String> paramsMaxValueTags;
 	private List<String> paramMaxValueAnnotations;
 	private List<String> paramsDefaultValueTags;
+	private List<String> paramsAllowableValuesTags;
 	private List<String> paramsNameTags;
 	private List<String> resourceTags;
 	private List<String> apiDescriptionTags;
@@ -511,6 +514,10 @@ public class DocletOptions {
 		this.paramsDefaultValueTags = new ArrayList<String>();
 		this.paramsDefaultValueTags.add("paramsDefaultValue");
 		this.paramsDefaultValueTags.add("defaultValues");
+
+		this.paramsAllowableValuesTags = new ArrayList<String>();
+		this.paramsAllowableValuesTags.add("paramsAllowableValues");
+		this.paramsAllowableValuesTags.add("allowableValues");
 
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("parentEndpointName");
@@ -806,6 +813,14 @@ public class DocletOptions {
 	 */
 	public List<String> getParamsDefaultValueTags() {
 		return this.paramsDefaultValueTags;
+	}
+
+	/**
+	 * This gets the paramsAllowableValuesTags
+	 * @return the paramsAllowableValuesTags
+	 */
+	public List<String> getParamsAllowableValuesTags() {
+		return this.paramsAllowableValuesTags;
 	}
 
 	/**

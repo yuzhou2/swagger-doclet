@@ -89,6 +89,7 @@ public class ServiceDoclet {
 		options.put("-paramsMinValueTags", 2);
 		options.put("-paramsMaxValueTags", 2);
 		options.put("-paramsDefaultValueTags", 2);
+		options.put("-paramsAllowableValuesTags", 2);
 		options.put("-paramsNameTags", 2);
 		options.put("-parameterNameAnnotations", 2);
 

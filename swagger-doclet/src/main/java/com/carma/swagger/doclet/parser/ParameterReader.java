@@ -192,6 +192,10 @@ public class ParameterReader {
 		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsDefaultValueTags(),
 				this.options);
 
+		// read allowable values of params
+		Map<String, List<String>> paramAllowableVals = ParserHelper.getMethodParamNameValueLists(method, allParamNames,
+				this.options.getParamsAllowableValuesTags(), this.options);
+
 		// read override names of params
 		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsNameTags(), this.options);
 
@@ -278,9 +282,15 @@ public class ParameterReader {
 			}
 
 			// set enum values
+			// a) if param type is enum build based on enum values
 			ClassDoc typeClassDoc = parameter.type().asClassDoc();
 			allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
-			if (allowableValues != null) {
+			if (allowableValues == null) {
+				// b) if the method has a javadoc tag for allowable values use that
+				allowableValues = paramAllowableVals.get(paramName);
+			}
+
+			if (allowableValues != null && !allowableValues.isEmpty()) {
 				typeName = "string";
 			}
 

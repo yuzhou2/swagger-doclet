@@ -1234,6 +1234,60 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets a map of parameter name to list of values from a javadoc tag on a method.
+	 * This validates that the names of the parameters in each name to list is an actual method parameter
+	 * @param method The method
+	 * @param params The pre-read params of the method, if null they will be read from the given method
+	 * @param matchTags The names of the javadoc tags to look for
+	 * @param options The doclet options
+	 * @return a map of parameter name to list of values from a javadoc tag on a method or an empty map if none were found
+	 */
+	public static Map<String, List<String>> getMethodParamNameValueLists(ExecutableMemberDoc method, Set<String> params, Collection<String> matchTags,
+			DocletOptions options) {
+
+		if (params == null) {
+			params = getParamNames(method);
+		}
+
+		// add name to value pairs from any matching javadoc tag on the method
+		String value = getInheritableTagValue(method, matchTags, options);
+		if (value != null) {
+			String[] parts = value.split("\\s+");
+			if (parts != null && parts.length > 0) {
+				if (parts.length % 2 != 0) {
+					throw new IllegalStateException(
+							"Invalid javadoc parameter on method "
+									+ method.name()
+									+ " for tags: "
+									+ matchTags
+									+ ". The value had "
+									+ parts.length
+									+ " whitespace seperated parts when it was expected to have name value pairs for each parameter, e.g. the number of parts should have been even.");
+				}
+				Map<String, List<String>> res = new HashMap<String, List<String>>();
+				for (int i = 0; i < parts.length; i += 2) {
+					String name = parts[i];
+					if (!params.contains(name)) {
+						throw new IllegalStateException("Invalid javadoc parameter on method " + method.name() + " for tags: " + matchTags + ". The parameter "
+								+ name + " is not the name of one of the method parameters.");
+					}
+					String val = parts[i + 1];
+
+					List<String> vals = res.get(name);
+					if (vals == null) {
+						vals = new ArrayList<String>();
+						res.put(name, vals);
+					}
+					vals.add(val);
+				}
+				return res;
+			}
+		}
+
+		return Collections.emptyMap();
+	}
+
+	/**
 	 * This gets a list of parameter names from a method javadoc tag where the value of the tag is in the form
 	 * paramName1,paramName2 ... paramNameN
 	 * @param method The method
