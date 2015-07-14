@@ -98,6 +98,20 @@ public class JaxRsAnnotationParser {
 						}
 					}
 				}
+
+				// see if the inclusion filter is set and if so this resource must match this
+				if (!excludeResource && this.options.getIncludeResourcePrefixes() != null && !this.options.getIncludeResourcePrefixes().isEmpty()) {
+					boolean matched = false;
+					for (String prefix : this.options.getIncludeResourcePrefixes()) {
+						String className = classDoc.qualifiedName();
+						if (className.startsWith(prefix)) {
+							matched = true;
+							break;
+						}
+					}
+					excludeResource = !matched;
+				}
+
 				if (excludeResource) {
 					continue;
 				}

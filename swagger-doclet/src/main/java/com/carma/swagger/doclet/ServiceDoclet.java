@@ -142,6 +142,7 @@ public class ServiceDoclet {
 		options.put("-typesToTreatAsOpaque", 2); // this is kept for backward compatibility
 		options.put("-excludeModelPrefixes", 2);
 		options.put("-excludeResourcePrefixes", 2);
+		options.put("-includeResourcePrefixes", 2);
 
 		options.put("-excludeParamAnnotations", 2);
 		options.put("-excludeClassTags", 2);

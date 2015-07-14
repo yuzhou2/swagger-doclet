@@ -165,6 +165,8 @@ public class DocletOptions {
 				parsedOptions.excludeModelPrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeResourcePrefixes")) {
 				parsedOptions.excludeResourcePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+			} else if (option[0].equals("-includeResourcePrefixes")) {
+				parsedOptions.includeResourcePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-genericWrapperTypes")) {
 				parsedOptions.genericWrapperTypes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-fileParameterAnnotations")) {
@@ -294,6 +296,7 @@ public class DocletOptions {
 	private Properties variableReplacements;
 
 	private List<String> excludeResourcePrefixes;
+	private List<String> includeResourcePrefixes;
 	private List<String> excludeModelPrefixes;
 	private List<String> genericWrapperTypes;
 	private List<String> responseMessageTags;
@@ -465,6 +468,7 @@ public class DocletOptions {
 		this.subTypesAnnotations.add("com.fasterxml.jackson.annotation.JsonSubTypes");
 
 		this.excludeResourcePrefixes = new ArrayList<String>();
+		this.includeResourcePrefixes = new ArrayList<String>();
 
 		this.excludeClassTags = new ArrayList<String>();
 		this.excludeClassTags.add("hidden");
@@ -830,6 +834,23 @@ public class DocletOptions {
 	 */
 	public DocletOptions setExcludeResourcePrefixes(List<String> excludeResourcePrefixes) {
 		this.excludeResourcePrefixes = excludeResourcePrefixes;
+		return this;
+	}
+
+	/**
+	 * This gets prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 * @return the prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 */
+	public List<String> getIncludeResourcePrefixes() {
+		return this.includeResourcePrefixes;
+	}
+
+	/**
+	 * This sets the prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 * @param includeResourcePrefixes the prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 */
+	public DocletOptions setIncludeResourcePrefixes(List<String> includeResourcePrefixes) {
+		this.includeResourcePrefixes = includeResourcePrefixes;
 		return this;
 	}
 
