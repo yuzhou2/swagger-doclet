@@ -168,6 +168,64 @@ dependencies {
 }
 ```
 
+#### Including Model Classes from outside the doclet project
+Thanks to @nkoterba for these gradle instructions described in issue 82.
+There are two solutions:
+
+**Solution 1**
+For those **not** using Intelli-J, you can just define a sourceset that points to the source of your current project where the Doclet plugin is run + any Model projects:
+
+```
+sourceSets {
+    doclet {
+        java {
+            srcDir 'src/main/java'
+            // List all the source project directories where we define
+            // Models that will be used by Doclet to generate REST API Docs
+            srcDir project(":code:models:api").file("src/main/java")
+        }
+    }
+}
+```
+
+Then update your task that generates the REST API Docs from:
+```
+source = sourceSets.main.allJava
+```
+
+to:
+```
+source = sourceSets.doclet.allJava
+```
+
+**Solution 2**
+Unfortunately, if you are using Intelli-J, it's Gradle Sync/Plugin will complain if you define a SourceSet with sources outside of your project. See: https://youtrack.jetbrains.com/issue/IDEA-122577#tab=Comments
+
+So instead, you have to "manually" build your source set:
+
+```
+task generateRestApiDocs(type: Javadoc) {
+    // Ideally would use a custom-defined source set above
+    // However, Intelli-J can't handle Sources out of content root
+    // See: https://youtrack.jetbrains.com/issue/IDEA-122577#tab=Comments
+    // and: https://github.com/spockframework/spock/issues/70
+    // So instead "manually" creating the source set
+
+    def sourceList = new ArrayList<File>()
+
+    sourceList.addAll(sourceSets.main.allJava);
+    project(":code:models:api").fileTree("src/main/java").each {
+        sourceList.add(it)
+    }
+
+    source = sourceList
+    options.classpath = configurations.doclet.files.asType(List)
+    options.docletpath = configurations.doclet.files.asType(List)
+
+   // ... Rest of doclet setup/configuration here
+   
+```
+
 ### Usage Notes
 The settings that you use for the doc base path and the api base path will vary depending on both the version of swagger that is used and the name used for your top level resource listing. Please refer to the Doclet Options section of this document for a detailed description of these. 
 
