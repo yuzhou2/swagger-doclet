@@ -72,6 +72,8 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Collection.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Set.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.List.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigInteger.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigDecimal.class.getName()));
 
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();

@@ -348,11 +348,12 @@ public class ParserHelper {
 			return new String[] { "integer", "int32" };
 		} else if (javaType.toLowerCase().equals("short") || javaType.equalsIgnoreCase("java.lang.Short")) {
 			return new String[] { "integer", "int32" };
-		} else if (javaType.toLowerCase().equals("long") || javaType.equalsIgnoreCase("java.lang.Long")) {
+		} else if (javaType.toLowerCase().equals("long") || javaType.equalsIgnoreCase("java.lang.Long") || javaType.equalsIgnoreCase("java.math.BigInteger")) {
 			return new String[] { "integer", "int64" };
 		} else if (javaType.toLowerCase().equals("float") || javaType.equalsIgnoreCase("java.lang.Float")) {
 			return new String[] { "number", "float" };
-		} else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")) {
+		} else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")
+				|| javaType.equalsIgnoreCase("java.math.BigDecimal")) {
 			return new String[] { "number", "double" };
 		} else if (javaType.toLowerCase().equals("string") || javaType.equalsIgnoreCase("java.lang.String")) {
 			return new String[] { "string", null };
@@ -1618,6 +1619,9 @@ public class ParserHelper {
 		PRIMITIVE_TO_CLASS.put("long", java.lang.Long.class.getName());
 		PRIMITIVE_TO_CLASS.put("byte", java.lang.Byte.class.getName());
 		PRIMITIVE_TO_CLASS.put("string", java.lang.String.class.getName());
+
+		PRIMITIVE_TO_CLASS.put(java.math.BigDecimal.class.getName(), java.lang.Double.class.getName());
+		PRIMITIVE_TO_CLASS.put(java.math.BigInteger.class.getName(), java.lang.Long.class.getName());
 	}
 
 	/**

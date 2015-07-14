@@ -150,7 +150,10 @@ public class ApiMethodParser {
 		// first check if its a wrapper type and if so replace with the wrapped type
 		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
 
-		String returnTypeName = this.translator.typeName(returnType).value();
+		OptionalName returnTypeOName = this.translator.typeName(returnType);
+		String returnTypeName = returnTypeOName.value();
+		String returnTypeFormat = returnTypeOName.getFormat();
+
 		Type modelType = returnType;
 
 		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(this.methodDoc, this.options);
@@ -171,6 +174,7 @@ public class ApiMethodParser {
 		NameToType nameToType = readCustomReturnType(customReturnTypeName, viewClasses);
 		if (nameToType != null) {
 			returnTypeName = nameToType.returnTypeName;
+			returnTypeFormat = nameToType.returnTypeFormat;
 			returnType = nameToType.returnType;
 			// set collection data
 			if (nameToType.containerOf != null) {
@@ -204,7 +208,9 @@ public class ApiMethodParser {
 
 		} else {
 			// if its not a container then adjust the return type name for any views
-			returnTypeName = this.translator.typeName(returnType, viewClasses).value();
+			returnTypeOName = this.translator.typeName(returnType, viewClasses);
+			returnTypeName = returnTypeOName.value();
+			returnTypeFormat = returnTypeOName.getFormat();
 
 			// add parameterized types to the model
 			// TODO: support variables e.g. for inherited or sub resources
@@ -251,8 +257,8 @@ public class ApiMethodParser {
 		List<String> produces = ParserHelper.getProduces(this.methodDoc, this.options);
 
 		// final result!
-		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeItemsRef,
-				returnTypeItemsType, returnTypeItemsFormat, consumes, produces, authorizations, deprecated);
+		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeFormat,
+				returnTypeItemsRef, returnTypeItemsType, returnTypeItemsFormat, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {
@@ -500,6 +506,7 @@ public class ApiMethodParser {
 		String containerOfPrimitiveType;
 		String containerOfPrimitiveTypeFormat;
 		String returnTypeName;
+		String returnTypeFormat;
 		Map<String, Type> varsToTypes;
 	}
 
@@ -531,7 +538,9 @@ public class ApiMethodParser {
 					}
 
 					NameToType res = new NameToType();
-					res.returnTypeName = ParserHelper.typeOf(customTypeName, this.options)[0];
+					String[] nameFormat = ParserHelper.typeOf(customTypeName, this.options);
+					res.returnTypeName = nameFormat[0];
+					res.returnTypeFormat = nameFormat[1];
 					res.returnType = null;
 					res.containerOf = containerOf;
 					res.containerOfPrimitiveType = containerOfPrimitiveType;
@@ -539,7 +548,9 @@ public class ApiMethodParser {
 					return res;
 				} else if (ParserHelper.isMap(customTypeName)) {
 					NameToType res = new NameToType();
-					res.returnTypeName = ParserHelper.typeOf(customTypeName, this.options)[0];
+					String[] nameFormat = ParserHelper.typeOf(customTypeName, this.options);
+					res.returnTypeName = nameFormat[0];
+					res.returnTypeFormat = nameFormat[1];
 					res.returnType = null;
 					return res;
 				} else {
@@ -584,10 +595,11 @@ public class ApiMethodParser {
 					}
 				}
 
-				String translated = this.translator.typeName(customType, viewClasses).value();
-				if (translated != null) {
+				OptionalName translated = this.translator.typeName(customType, viewClasses);
+				if (translated != null && translated.value() != null) {
 					NameToType res = new NameToType();
-					res.returnTypeName = translated;
+					res.returnTypeName = translated.value();
+					res.returnTypeFormat = translated.getFormat();
 					res.returnType = customType;
 					res.varsToTypes = varsToTypes;
 					return res;
