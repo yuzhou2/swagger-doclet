@@ -400,6 +400,8 @@ public class DocletOptions {
 	public DocletOptions() {
 		this.excludeParamAnnotations = new ArrayList<String>();
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
+		this.excludeParamAnnotations.add("javax.ws.rs.CookieParam");
+		this.excludeParamAnnotations.add("javax.ws.rs.MatrixParam");
 
 		this.responseMessageTags = new ArrayList<String>();
 		this.responseMessageTags.add("responseMessage");
