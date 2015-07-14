@@ -180,6 +180,9 @@ public class ParameterReader {
 		// read csv params
 		List<String> csvParams = ParserHelper.getCsvParams(method, allParamNames, this.options.getCsvParamsTags(), this.options);
 
+		// read formats
+		Map<String, String> paramFormats = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsFormatTags(), this.options);
+
 		// read min and max values of params
 		Map<String, String> paramMinVals = ParserHelper.getParameterValues(method, allParamNames, this.options.getParamsMinValueTags(),
 				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
@@ -258,6 +261,11 @@ public class ParameterReader {
 		OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
+
+		// overide format if possible
+		if (format == null) {
+			format = paramFormats.get(paramName);
+		}
 
 		Boolean allowMultiple = null;
 		List<String> allowableValues = null;

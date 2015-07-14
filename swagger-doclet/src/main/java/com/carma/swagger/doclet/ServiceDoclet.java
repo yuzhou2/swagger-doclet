@@ -80,12 +80,14 @@ public class ServiceDoclet {
 		options.put("-operationNotesTags", 2);
 		options.put("-operationSummaryTags", 2);
 		options.put("-fieldDescriptionTags", 2);
+		options.put("-fieldFormatTags", 2);
 		options.put("-fieldMinTags", 2);
 		options.put("-fieldMaxTags", 2);
 		options.put("-fieldDefaultTags", 2);
 
 		options.put("-requiredParamsTags", 2);
 		options.put("-optionalParamsTags", 2);
+		options.put("-paramsFormatTags", 2);
 		options.put("-paramsMinValueTags", 2);
 		options.put("-paramsMaxValueTags", 2);
 		options.put("-paramsDefaultValueTags", 2);
