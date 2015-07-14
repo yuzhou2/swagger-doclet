@@ -139,6 +139,8 @@ public class DocletOptions {
 				parsedOptions.modelFieldsRequiredByDefault = true;
 			} else if (option[0].equals("-disableModelFieldsXmlAccessType")) {
 				parsedOptions.modelFieldsXmlAccessTypeEnabled = false;
+			} else if (option[0].equals("-defaultModelFieldsXmlAccessType")) {
+				parsedOptions.modelFieldsDefaultXmlAccessTypeEnabled = true;
 			} else if (option[0].equals("-modelFieldsNamingConvention")) {
 				parsedOptions.modelFieldsNamingConvention = NamingConvention.forValue(option[1], NamingConvention.DEFAULT_NAME);
 			} else if (option[0].equals("-disableCopySwaggerUi") || option[0].equals("-skipUiFiles")) {
@@ -374,6 +376,7 @@ public class DocletOptions {
 	private boolean parseModels = true;
 	private boolean modelFieldsRequiredByDefault = false;
 	private boolean modelFieldsXmlAccessTypeEnabled = true;
+	private boolean modelFieldsDefaultXmlAccessTypeEnabled = false;
 	private NamingConvention modelFieldsNamingConvention = NamingConvention.DEFAULT_NAME;
 
 	private boolean sortResourcesByPath = false;
@@ -1002,6 +1005,23 @@ public class DocletOptions {
 	 */
 	public DocletOptions setModelFieldsXmlAccessTypeEnabled(boolean modelFieldsXmlAccessTypeEnabled) {
 		this.modelFieldsXmlAccessTypeEnabled = modelFieldsXmlAccessTypeEnabled;
+		return this;
+	}
+
+	/**
+	 * This gets the modelFieldsDefaultXmlAccessTypeEnabled
+	 * @return the modelFieldsDefaultXmlAccessTypeEnabled
+	 */
+	public boolean isModelFieldsDefaultXmlAccessTypeEnabled() {
+		return this.modelFieldsDefaultXmlAccessTypeEnabled;
+	}
+
+	/**
+	 * This sets the modelFieldsDefaultXmlAccessTypeEnabled
+	 * @param modelFieldsDefaultXmlAccessTypeEnabled the modelFieldsDefaultXmlAccessTypeEnabled to set
+	 */
+	public DocletOptions setModelFieldsDefaultXmlAccessTypeEnabled(boolean modelFieldsDefaultXmlAccessTypeEnabled) {
+		this.modelFieldsDefaultXmlAccessTypeEnabled = modelFieldsDefaultXmlAccessTypeEnabled;
 		return this;
 	}
 

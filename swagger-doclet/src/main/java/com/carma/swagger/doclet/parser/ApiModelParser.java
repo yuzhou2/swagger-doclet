@@ -582,8 +582,9 @@ public class ApiModelParser {
 				return hasJaxbAnnotation;
 			}
 
-			// if public then return true if field is public or if annotated by a jaxb annotation
-			if ("javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
+			// if public or default then return true if field is public or if annotated by a jaxb annotation
+			if ((xmlAccessorType == null && this.options.isModelFieldsDefaultXmlAccessTypeEnabled())
+					|| "javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
 				return field.isPublic() || hasJaxbAnnotation;
 			}
 
@@ -608,8 +609,9 @@ public class ApiModelParser {
 				return hasJaxbAnnotation;
 			}
 
-			// if public then return true if field is public or if annotated by a jaxb annotation
-			if ("javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
+			// if public or default then return true if field is public or if annotated by a jaxb annotation
+			if ((xmlAccessorType == null && this.options.isModelFieldsDefaultXmlAccessTypeEnabled())
+					|| "javax.xml.bind.annotation.XmlAccessType.PUBLIC_MEMBER".equals(xmlAccessorType)) {
 				return method.isPublic() || hasJaxbAnnotation;
 			}
 

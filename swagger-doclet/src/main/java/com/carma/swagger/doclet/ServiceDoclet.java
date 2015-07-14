@@ -136,6 +136,7 @@ public class ServiceDoclet {
 		options.put("-modelFieldsRequiredByDefault", 1);
 		options.put("-modelFieldsNamingConvention", 2);
 		options.put("-disableModelFieldsXmlAccessType", 1);
+		options.put("-defaultModelFieldsXmlAccessType", 1);
 
 		// supports removing certain methods from the docs, e.g. for hidden/private
 		// endpoints
