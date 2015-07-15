@@ -239,9 +239,10 @@ public class ParameterReader {
 						String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 						String itemsType = property.getItems() == null ? null : property.getItems().getType();
 						String itemsFormat = property.getItems() == null ? null : property.getItems().getFormat();
+						List<String> itemsAllowableValues = property.getItems() == null ? null : property.getItems().getAllowableValues();
 
 						ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, property.getUniqueItems(),
+								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues, property.getUniqueItems(),
 								property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
 
 						res.add(param);
@@ -272,6 +273,7 @@ public class ParameterReader {
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
@@ -359,12 +361,17 @@ public class ParameterReader {
 			// set collection related fields
 			// TODO: consider supporting parameterized collections as api parameters...
 			if (containerOf != null) {
-				OptionalName oName = this.translator.typeName(containerOf);
-				if (ParserHelper.isPrimitive(containerOf, this.options)) {
-					itemsType = oName.value();
-					itemsFormat = oName.getFormat();
+				itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+				if (itemsAllowableValues != null) {
+					itemsType = "string";
 				} else {
-					itemsRef = oName.value();
+					OptionalName oName = this.translator.typeName(containerOf);
+					if (ParserHelper.isPrimitive(containerOf, this.options)) {
+						itemsType = oName.value();
+						itemsFormat = oName.getFormat();
+					} else {
+						itemsRef = oName.value();
+					}
 				}
 			}
 
@@ -386,7 +393,7 @@ public class ParameterReader {
 
 		// build parameter
 		ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-				itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+				itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 		res.add(param);
 
@@ -406,6 +413,7 @@ public class ParameterReader {
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
@@ -427,12 +435,17 @@ public class ParameterReader {
 		// set collection related fields
 		// TODO: consider supporting parameterized collections as api parameters...
 		if (containerOf != null) {
-			OptionalName oName = this.translator.typeName(containerOf);
-			if (ParserHelper.isPrimitive(containerOf, this.options)) {
-				itemsType = oName.value();
-				itemsFormat = oName.getFormat();
+			itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+			if (itemsAllowableValues != null) {
+				itemsType = "string";
 			} else {
-				itemsRef = oName.value();
+				OptionalName oName = this.translator.typeName(containerOf);
+				if (ParserHelper.isPrimitive(containerOf, this.options)) {
+					itemsType = oName.value();
+					itemsFormat = oName.getFormat();
+				} else {
+					itemsRef = oName.value();
+				}
 			}
 		}
 
@@ -455,7 +468,7 @@ public class ParameterReader {
 
 		// build parameter
 		ApiParameter param = new ApiParameter("path", renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-				itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+				itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 		return param;
 
