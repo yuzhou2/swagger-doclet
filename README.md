@@ -23,9 +23,18 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest production version is 1.0.5
+The latest production version is 1.1.0.
 
-1.0.5 contains many fixes and feature requests since the previous release.
+This contains the following fixes/features:
+
++ Support Java 8 (Issue 83)
++ Upgrade swagger UI to 2.1.0; fixes: 
+	+ Api ordering in the embedded UI (Issue 70) 
+	+ Success code not being displayed (Issue 77)
++ Adding support for arrays of enums -courtesy of @tandrup (Issue 93) 
+
+
+The fixes in the 1.0.5 version were as follows:
 
 + Added better support for subTypes - courtesy of @mhardorf (Issue 86)
 + Class PathParam Variables Not Being Added as Required Parameters to JSON Output - big help from @nkoterba (Issue 74)
