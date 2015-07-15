@@ -3,7 +3,7 @@
   <parent>
     <artifactId>swagger-doclet-parent</artifactId>
     <groupId>com.carma</groupId>
-    <version>1.0.4.2-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>swagger-doclet-sample-jersey2</artifactId>
@@ -229,6 +229,26 @@
       <artifactId>dropwizard-auth</artifactId>
       <version>0.6.2</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlets</artifactId>
+      <version>8.1.10.v20130312</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>jetty-continuation</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-client</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-util</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>joda-time</groupId>
