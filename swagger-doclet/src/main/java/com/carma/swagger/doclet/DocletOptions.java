@@ -735,6 +735,7 @@ public class DocletOptions {
 	/**
 	 * This sets the docBasePath
 	 * @param docBasePath the docBasePath to set
+	 * @return this
 	 */
 	public DocletOptions setDocBasePath(String docBasePath) {
 		this.docBasePath = docBasePath;
@@ -752,6 +753,7 @@ public class DocletOptions {
 	/**
 	 * This sets the resourceRootPath
 	 * @param resourceRootPath the resourceRootPath to set
+	 * @return this
 	 */
 	public DocletOptions setResourceRootPath(String resourceRootPath) {
 		this.resourceRootPath = resourceRootPath;
@@ -765,6 +767,7 @@ public class DocletOptions {
 	/**
 	 * This sets the apiBasePath
 	 * @param apiBasePath the apiBasePath to set
+	 * @return this
 	 */
 	public DocletOptions setApiBasePath(String apiBasePath) {
 		this.apiBasePath = apiBasePath;
@@ -778,6 +781,7 @@ public class DocletOptions {
 	/**
 	 * This sets the apiVersion
 	 * @param apiVersion the apiVersion to set
+	 * @return this
 	 */
 	public DocletOptions setApiVersion(String apiVersion) {
 		this.apiVersion = apiVersion;
@@ -933,6 +937,7 @@ public class DocletOptions {
 	/**
 	 * This sets the prefixes of the FQN of resource classes to include, if specified then resources must match these
 	 * @param includeResourcePrefixes the prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 * @return this
 	 */
 	public DocletOptions setIncludeResourcePrefixes(List<String> includeResourcePrefixes) {
 		this.includeResourcePrefixes = includeResourcePrefixes;
@@ -1101,6 +1106,7 @@ public class DocletOptions {
 	/**
 	 * This sets the modelFieldsDefaultXmlAccessTypeEnabled
 	 * @param modelFieldsDefaultXmlAccessTypeEnabled the modelFieldsDefaultXmlAccessTypeEnabled to set
+	 * @return this
 	 */
 	public DocletOptions setModelFieldsDefaultXmlAccessTypeEnabled(boolean modelFieldsDefaultXmlAccessTypeEnabled) {
 		this.modelFieldsDefaultXmlAccessTypeEnabled = modelFieldsDefaultXmlAccessTypeEnabled;
@@ -1337,6 +1343,11 @@ public class DocletOptions {
 		return this.recorder;
 	}
 
+	/**
+	 * This sets the recorder to use
+	 * @param recorder The recorder
+	 * @return this
+	 */
 	public DocletOptions setRecorder(Recorder recorder) {
 		this.recorder = recorder;
 		return this;
@@ -1346,6 +1357,11 @@ public class DocletOptions {
 		return this.translator;
 	}
 
+	/**
+	 * This sets the translator to use
+	 * @param translator The translator
+	 * @return this
+	 */
 	public DocletOptions setTranslator(Translator translator) {
 		this.translator = translator;
 		return this;

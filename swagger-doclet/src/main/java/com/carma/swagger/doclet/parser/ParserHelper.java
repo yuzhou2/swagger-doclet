@@ -435,7 +435,7 @@ public class ParserHelper {
 
 	/**
 	 * This gets parameterized types of the given type substituting variable types if necessary
-	 * @param type The raw type such as Batch<Item> or Batch<T, Y>
+	 * @param type The raw type such as Batch&lt;Item&gt; or Batch&lt;T, Y&gt;
 	 * @param varsToTypes A map of variable name to types
 	 * @return The list of parameterized types
 	 */
@@ -461,7 +461,7 @@ public class ParserHelper {
 
 	/**
 	 * This gets the type that a container holds
-	 * @param type The raw type like Collection<String>
+	 * @param type The raw type like Collection&lt;String&gt;
 	 * @param varsToTypes A map of variables to types for parameterized types, optional if null parameterized types
 	 *            will not be handled
 	 * @param classes set of classes

@@ -1,8 +1,8 @@
 package com.carma.swagger.doclet.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * The PropertyItemsObject represents an object that defines the items for a collections
@@ -14,9 +14,9 @@ public class PropertyItems {
 	private String ref;
 	private String type;
 	private String format;
-    private List<String> allowableValues;
+	private List<String> allowableValues;
 
-    /**
+	/**
 	 * This creates a PropertyItems
 	 */
 	public PropertyItems() {
@@ -28,13 +28,14 @@ public class PropertyItems {
 	 * @param ref
 	 * @param type
 	 * @param format
+	 * @param allowableValues
 	 */
 	public PropertyItems(String ref, String type, String format, List<String> allowableValues) {
 		super();
 		this.ref = ref;
 		this.type = type;
 		this.format = format;
-        this.allowableValues = allowableValues;
+		this.allowableValues = allowableValues;
 	}
 
 	/**
@@ -66,8 +67,10 @@ public class PropertyItems {
 	 * This gets the allowable values
 	 * @return the allowable values
 	 */
-    @JsonProperty("enum")
-    public List<String> getAllowableValues() { return this.allowableValues; }
+	@JsonProperty("enum")
+	public List<String> getAllowableValues() {
+		return this.allowableValues;
+	}
 
 	/**
 	 * {@inheritDoc}
