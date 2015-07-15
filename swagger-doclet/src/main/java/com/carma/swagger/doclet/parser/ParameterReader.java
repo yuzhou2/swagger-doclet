@@ -273,7 +273,7 @@ public class ParameterReader {
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
-		List<String> itemsAllowableValues = null; //TODO
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
@@ -413,7 +413,7 @@ public class ParameterReader {
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
-		List<String> itemsAllowableValues = null; //TODO
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
