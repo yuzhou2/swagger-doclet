@@ -105,7 +105,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.0.5-SNAPSHOT.
+The latest snapshot version is 1.1.1-SNAPSHOT.
 
 ## Usage
 
