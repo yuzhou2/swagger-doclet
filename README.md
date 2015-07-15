@@ -20,9 +20,11 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 ## Versions
 
 1.1.x Versions and higher require Java 8
+
 1.0.x Versions require Java 6/7
 
 The latest production version is 1.0.5
+
 1.0.5 contains many fixes and feature requests since the previous release.
 
 + Added better support for subTypes - courtesy of @mhardorf (Issue 86)
