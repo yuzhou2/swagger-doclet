@@ -64,9 +64,9 @@ public class CrossClassResourceListingTest {
 		final ApiDeclaration api3 = loadFixture("/fixtures/crossclassresourcelisting/c.json", ApiDeclaration.class);
 
 		List<ApiDeclaration> capturedApis = apis.getAllValues();
-		assertEquals(api3, capturedApis.get(0));
-		assertEquals(api1, capturedApis.get(2));
+		assertEquals(api1, capturedApis.get(0));
 		assertEquals(api2, capturedApis.get(1));
+		assertEquals(api3, capturedApis.get(2));
 
 	}
 

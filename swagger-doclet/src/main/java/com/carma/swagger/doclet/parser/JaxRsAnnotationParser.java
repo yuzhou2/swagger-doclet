@@ -190,7 +190,7 @@ public class JaxRsAnnotationParser {
 				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
 
 					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
-						return Integer.valueOf(dec1.getPriority()).compareTo(dec2.getPriority());
+						return Integer.compare(dec1.getPriority(), dec2.getPriority());
 					}
 
 				});
@@ -345,8 +345,10 @@ public class JaxRsAnnotationParser {
 			}
 
 			String[] children = sourceLocation.list();
-			for (String element : children) {
-				copyDirectory(recorder, uiPathFile, new File(sourceLocation, element), new File(targetLocation, element));
+			if (children != null) {
+				for (String element : children) {
+					copyDirectory(recorder, uiPathFile, new File(sourceLocation, element), new File(targetLocation, element));
+				}
 			}
 		} else {
 

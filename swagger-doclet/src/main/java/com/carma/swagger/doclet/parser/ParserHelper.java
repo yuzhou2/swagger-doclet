@@ -40,17 +40,19 @@ public class ParserHelper {
 	private static final String JAX_RS_HEADER_PARAM = "javax.ws.rs.HeaderParam";
 	private static final String JAX_RS_FORM_PARAM = "javax.ws.rs.FormParam";
 
+	private static final Set<String> _JAXRS_PARAM_ANNOTATIONS = new HashSet<String>();
+	static {
+		// TODO support cookie and matrix params...
+		_JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_PATH_PARAM);
+		_JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_QUERY_PARAM);
+		_JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_HEADER_PARAM);
+		_JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_FORM_PARAM);
+	}
+
 	/**
 	 * This is a set of the FQN of the various JAXRS parameter annotations
 	 */
-	public static final Set<String> JAXRS_PARAM_ANNOTATIONS = new HashSet<String>();
-	static {
-		// TODO support cookie and matrix params...
-		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_PATH_PARAM);
-		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_QUERY_PARAM);
-		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_HEADER_PARAM);
-		JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_FORM_PARAM);
-	}
+	public static final Set<String> JAXRS_PARAM_ANNOTATIONS = Collections.unmodifiableSet(_JAXRS_PARAM_ANNOTATIONS);
 
 	private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
 	private static final Set<String> JAX_RS_PREFIXES = new HashSet<String>();
@@ -228,7 +230,7 @@ public class ParserHelper {
 		}
 		Number val1 = verifyNumericValue(context, type, format, value1);
 		Number val2 = verifyNumericValue(context, type, format, value1);
-		return Double.valueOf(val1.doubleValue()).compareTo(val2.doubleValue());
+		return Double.compare(val1.doubleValue(), val2.doubleValue());
 	}
 
 	/**

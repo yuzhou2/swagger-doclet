@@ -2,6 +2,8 @@ package com.carma.swagger.doclet.apidocs;
 
 import java.io.IOException;
 
+import javax.tools.JavaFileObject;
+
 import com.sun.javadoc.RootDoc;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.ListBuffer;
@@ -26,7 +28,8 @@ public class RootDocLoader {
 
 		final JavadocTool javaDoc = JavadocTool.make0(context);
 		return javaDoc.getRootDocImpl("", null, new ModifierFilter(ModifierFilter.ALL_ACCESS), new ListBuffer<String>().toList(),
-				new ListBuffer<String[]>().toList(), false, subPackages.toList(), new ListBuffer<String>().toList(), false, false, false);
+				new ListBuffer<String[]>().toList(), new ListBuffer<JavaFileObject>().toList(), false, subPackages.toList(), new ListBuffer<String>().toList(),
+				false, false, false);
 	}
 
 }

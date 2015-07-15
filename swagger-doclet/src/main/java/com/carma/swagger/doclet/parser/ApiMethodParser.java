@@ -390,7 +390,7 @@ public class ApiMethodParser {
 					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
 
 						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.valueOf(o1.getCode()).compareTo(Integer.valueOf(o2.getCode()));
+							return Integer.compare(o1.getCode(), o2.getCode());
 						}
 					});
 					break;
@@ -398,7 +398,7 @@ public class ApiMethodParser {
 					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
 
 						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode()));
+							return Integer.compare(o2.getCode(), o1.getCode());
 						}
 					});
 					break;
