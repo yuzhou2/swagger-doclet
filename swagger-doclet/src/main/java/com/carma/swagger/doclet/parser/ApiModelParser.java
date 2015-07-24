@@ -274,7 +274,7 @@ public class ApiModelParser {
 					discriminator = val;
 					// auto add as model field if not already done
 					if (!elements.containsKey(discriminator)) {
-						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null, null);
+						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null, null, null);
 						elements.put(discriminator, discriminatorProp);
 					}
 					// auto add discriminator to required fields
@@ -801,7 +801,7 @@ public class ApiModelParser {
 
 			String propertyType = propertyTypeFormat.value();
 
-			// set enum values
+            // set enum values
 			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
 			if (allowableValues != null) {
 				propertyType = "string";
@@ -811,23 +811,20 @@ public class ApiModelParser {
 			String itemsRef = null;
 			String itemsType = null;
 			String itemsFormat = null;
+			List<String> itemsAllowableValues = null;
 			if (containerOf != null) {
-				OptionalName oName = this.translator.typeName(containerOf);
-				if (ParserHelper.isPrimitive(containerOf, this.options)) {
-					itemsType = oName.value();
-					itemsFormat = oName.getFormat();
-				} else {
-					itemsRef = oName.value();
-				}
-			}
-
-			String containerTypeOf = containerOf == null ? null : this.translator.typeName(containerOf).value();
-			if (containerOf != null) {
-				if (ParserHelper.isPrimitive(containerOf, this.options)) {
-					itemsType = containerTypeOf;
-				} else {
-					itemsRef = containerTypeOf;
-				}
+                itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+                if (itemsAllowableValues != null) {
+                    itemsType = "string";
+                } else {
+					OptionalName oName = this.translator.typeName(containerOf);
+					if (ParserHelper.isPrimitive(containerOf, this.options)) {
+						itemsType = oName.value();
+						itemsFormat = oName.getFormat();
+					} else {
+						itemsRef = oName.value();
+					}
+                }
 			}
 
 			Boolean uniqueItems = null;
@@ -881,7 +878,7 @@ public class ApiModelParser {
 			}
 
 			Property property = new Property(typeRef.rawName, typeRef.paramCategory, propertyType, format, typeRef.description, itemsRef, itemsType,
-					itemsFormat, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
+					itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
 			elements.put(typeName, property);
 		}
 		return elements;
