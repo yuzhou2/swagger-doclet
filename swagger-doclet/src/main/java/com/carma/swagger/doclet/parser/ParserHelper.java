@@ -343,30 +343,10 @@ public class ParserHelper {
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
 	public static String[] typeOf(String javaType, DocletOptions options) {
+		String[] simpleType = primitiveTypeOf(javaType, options);
 
-		if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
-			return new String[] { "string", "byte" };
-		} else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
-			return new String[] { "integer", "int32" };
-		} else if (javaType.toLowerCase().equals("short") || javaType.equalsIgnoreCase("java.lang.Short")) {
-			return new String[] { "integer", "int32" };
-		} else if (javaType.toLowerCase().equals("long") || javaType.equalsIgnoreCase("java.lang.Long") || javaType.equalsIgnoreCase("java.math.BigInteger")) {
-			return new String[] { "integer", "int64" };
-		} else if (javaType.toLowerCase().equals("float") || javaType.equalsIgnoreCase("java.lang.Float")) {
-			return new String[] { "number", "float" };
-		} else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")
-				|| javaType.equalsIgnoreCase("java.math.BigDecimal")) {
-			return new String[] { "number", "double" };
-		} else if (javaType.toLowerCase().equals("string") || javaType.equalsIgnoreCase("java.lang.String")) {
-			return new String[] { "string", null };
-		} else if (javaType.toLowerCase().equals("char") || javaType.equalsIgnoreCase("java.lang.Character")) {
-			return new String[] { "string", null };
-		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
-			return new String[] { "boolean", null };
-		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
-			return new String[] { "string", "date-time" };
-		} else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
-			return new String[] { "string", "uuid" };
+		if (simpleType != null) {
+			return simpleType;
 		} else if (isCollection(javaType)) {
 			return new String[] { "array", null };
 		} else if (isSet(javaType)) {
@@ -377,13 +357,6 @@ public class ParserHelper {
 			// special handling of files, the datatype File is reserved for multipart
 			return new String[] { "JavaFile", null };
 		} else {
-
-			// see if its a special string type
-			for (String prefix : options.getStringTypePrefixes()) {
-				if (javaType.startsWith(prefix)) {
-					return new String[] { "string", null };
-				}
-			}
 
 			// support inner classes, for this we use case sensitivity
 			// e.g. com.my.Foo.Bar should map to Foo-Bar
@@ -409,7 +382,6 @@ public class ParserHelper {
 				return new String[] { javaType, null };
 			}
 		}
-
 	}
 
 	/**
@@ -430,9 +402,61 @@ public class ParserHelper {
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
 	public static String[] typeOf(Type type, DocletOptions options) {
-
 		String javaType = getQualifiedTypeName(type);
 		return typeOf(javaType, options);
+	}
+
+	/**
+	 * This gets the swagger type and format for a javatype but only looks at primitives
+	 * @param javaType The java type
+	 * @param options the doclet options
+	 * @return The swagger type and format or null if the java type is not a primitive
+	 */
+	public static String[] primitiveTypeOf(String javaType, DocletOptions options) {
+		if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
+			return new String[] { "string", "byte" };
+		} else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
+			return new String[] { "integer", "int32" };
+		} else if (javaType.toLowerCase().equals("short") || javaType.equalsIgnoreCase("java.lang.Short")) {
+			return new String[] { "integer", "int32" };
+		} else if (javaType.toLowerCase().equals("long") || javaType.equalsIgnoreCase("java.lang.Long") || javaType.equalsIgnoreCase("java.math.BigInteger")) {
+			return new String[] { "integer", "int64" };
+		} else if (javaType.toLowerCase().equals("float") || javaType.equalsIgnoreCase("java.lang.Float")) {
+			return new String[] { "number", "float" };
+		} else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")
+				|| javaType.equalsIgnoreCase("java.math.BigDecimal")) {
+			return new String[] { "number", "double" };
+		} else if (javaType.toLowerCase().equals("string") || javaType.equalsIgnoreCase("java.lang.String")) {
+			return new String[] { "string", null };
+		} else if (javaType.toLowerCase().equals("char") || javaType.equalsIgnoreCase("java.lang.Character")) {
+			return new String[] { "string", null };
+		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
+			return new String[] { "boolean", null };
+		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
+			return new String[] { "string", "date-time" };
+		} else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
+			return new String[] { "string", "uuid" };
+		}
+
+		// see if its a special string type
+		for (String prefix : options.getStringTypePrefixes()) {
+			if (javaType.startsWith(prefix)) {
+				return new String[] { "string", null };
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This gets the swagger type and format for a javatype but only looks at primitives
+	 * @param type The java type
+	 * @param options the doclet options
+	 * @return The swagger type and format or null if the java type is not a primitive
+	 */
+	public static String[] primitiveTypeOf(Type type, DocletOptions options) {
+		String javaType = getQualifiedTypeName(type);
+		return primitiveTypeOf(javaType, options);
 	}
 
 	/**
@@ -494,6 +518,17 @@ public class ParserHelper {
 		return result;
 	}
 
+	private static Map<String, Class<?>> CLASSES = new HashMap<String, Class<?>>();
+
+	private static Class<?> lookupClass(String javaType) throws ClassNotFoundException {
+		if (CLASSES.containsKey(javaType)) {
+			return CLASSES.get(javaType);
+		}
+		Class<?> clazz = Class.forName(javaType);
+		CLASSES.put(javaType, clazz);
+		return clazz;
+	}
+
 	/**
 	 * This finds a variable type and returns its impl from the given map
 	 * @param var The variable type to find
@@ -514,14 +549,24 @@ public class ParserHelper {
 		return res;
 	}
 
+	private static Map<String, Boolean> SET_TYPES = new HashMap<String, Boolean>();
+
 	/**
 	 * This gets whether the given type is a Set
 	 * @param javaType The java type
 	 * @return True if this is a Set
 	 */
 	public static boolean isSet(String javaType) {
+		if (SET_TYPES.containsKey(javaType)) {
+			return SET_TYPES.get(javaType);
+		}
 		try {
-			return java.util.Set.class.isAssignableFrom(Class.forName(javaType));
+			Class<?> clazz = lookupClass(javaType);
+			boolean res = java.util.Set.class.isAssignableFrom(clazz);
+			if (res) {
+				SET_TYPES.put(javaType, res);
+			}
+			return res;
 		} catch (ClassNotFoundException ex) {
 			return false;
 		}
@@ -545,18 +590,30 @@ public class ParserHelper {
 		return javaType.endsWith("[]");
 	}
 
+	private static Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
+
 	/**
 	 * This gets whether the given type is a Collection
 	 * @param javaType The java type
 	 * @return True if this is a collection
 	 */
 	public static boolean isCollection(String javaType) {
+		if (COLLECTION_TYPES.containsKey(javaType)) {
+			return COLLECTION_TYPES.get(javaType);
+		}
 		try {
-			return java.util.Collection.class.isAssignableFrom(Class.forName(javaType));
+			Class<?> clazz = lookupClass(javaType);
+			boolean res = java.util.Collection.class.isAssignableFrom(clazz);
+			if (res) {
+				COLLECTION_TYPES.put(javaType, res);
+			}
+			return res;
 		} catch (ClassNotFoundException ex) {
 			return false;
 		}
 	}
+
+	private static Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
 
 	/**
 	 * This gets whether the given type is a Map
@@ -564,8 +621,16 @@ public class ParserHelper {
 	 * @return True if this is a map
 	 */
 	public static boolean isMap(String javaType) {
+		if (MAP_TYPES.containsKey(javaType)) {
+			return MAP_TYPES.get(javaType);
+		}
 		try {
-			return java.util.Map.class.isAssignableFrom(Class.forName(javaType));
+			Class<?> clazz = lookupClass(javaType);
+			boolean res = java.util.Map.class.isAssignableFrom(clazz);
+			if (res) {
+				MAP_TYPES.put(javaType, res);
+			}
+			return res;
 		} catch (ClassNotFoundException ex) {
 			return false;
 		}
@@ -962,7 +1027,8 @@ public class ParserHelper {
 		if (type == null) {
 			return false;
 		}
-		return PRIMITIVES.contains(typeOf(type, options)[0]);
+		String[] simpleType = primitiveTypeOf(type, options);
+		return simpleType != null && PRIMITIVES.contains(simpleType[0]);
 	}
 
 	/**
@@ -975,11 +1041,12 @@ public class ParserHelper {
 		if (type == null) {
 			return false;
 		}
-		return PRIMITIVES.contains(typeOf(type, options)[0]);
+		String[] simpleType = primitiveTypeOf(type, options);
+		return simpleType != null && PRIMITIVES.contains(simpleType[0]);
 	}
 
 	/**
-	 * This gets whether the given type is primitive
+	 * This gets whether the given type is a number
 	 * @param type The type to check
 	 * @param options The doclet options
 	 * @return True if the given type is primitive
@@ -988,16 +1055,18 @@ public class ParserHelper {
 		if (type == null) {
 			return false;
 		}
-		String[] typeFormat = typeOf(type, options);
-		String swaggerType = typeFormat[0];
-		String format = typeFormat[1];
+		String[] typeFormat = primitiveTypeOf(type, options);
+		if (typeFormat != null) {
+			String swaggerType = typeFormat[0];
+			String format = typeFormat[1];
 
-		if (swaggerType.equals("integer")) {
-			return true;
-		} else if (swaggerType.equals("number")) {
-			return true;
-		} else if (format != null && format.equals("byte")) {
-			return true;
+			if (swaggerType.equals("integer")) {
+				return true;
+			} else if (swaggerType.equals("number")) {
+				return true;
+			} else if (format != null && format.equals("byte")) {
+				return true;
+			}
 		}
 		return false;
 	}
