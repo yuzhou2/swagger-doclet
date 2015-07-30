@@ -79,16 +79,6 @@ public class JaxRsAnnotationParser {
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
 			for (ClassDoc classDoc : this.rootDoc.classes()) {
 
-				// see if deprecated
-				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
-					continue;
-				}
-
-				// see if excluded via a tag
-				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
-					continue;
-				}
-
 				// see if excluded via its FQN
 				boolean excludeResource = false;
 				if (this.options.getExcludeResourcePrefixes() != null && !this.options.getExcludeResourcePrefixes().isEmpty()) {
@@ -115,6 +105,16 @@ public class JaxRsAnnotationParser {
 				}
 
 				if (excludeResource) {
+					continue;
+				}
+
+				// see if deprecated
+				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
+					continue;
+				}
+
+				// see if excluded via a tag
+				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
 					continue;
 				}
 
