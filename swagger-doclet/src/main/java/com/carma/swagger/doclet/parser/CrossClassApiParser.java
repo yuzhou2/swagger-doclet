@@ -115,6 +115,8 @@ public class CrossClassApiParser {
 		allClasses.addAll(this.classes);
 		allClasses.addAll(this.typeClasses);
 
+		ClassDocCache classCache = new ClassDocCache(allClasses);
+
 		ClassDoc currentClassDoc = this.classDoc;
 		while (currentClassDoc != null) {
 
@@ -153,7 +155,7 @@ public class CrossClassApiParser {
 					String resourcePath = buildResourcePath(classResourcePath, method);
 
 					if (parsedMethod.isSubResource()) {
-						ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), this.classes);
+						ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 						if (subResourceClassDoc != null) {
 							// delete class from the dictionary to handle recursive sub-resources
 							Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);

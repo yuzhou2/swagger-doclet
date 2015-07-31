@@ -121,6 +121,8 @@ public class JaxRsAnnotationParser {
 				docletClasses.add(classDoc);
 			}
 
+			ClassDocCache classCache = new ClassDocCache(docletClasses);
+
 			List<ApiDeclaration> declarations = null;
 
 			// build up set of subresources
@@ -134,7 +136,7 @@ public class JaxRsAnnotationParser {
 
 					for (MethodDoc method : currentClassDoc.methods()) {
 						if (ParserHelper.resolveMethodPath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
-							ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), docletClasses);
+							ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 							if (subResourceClassDoc != null) {
 								subResourceClasses.put(method.returnType(), subResourceClassDoc);
 							}
