@@ -113,6 +113,10 @@ public class CrossClassApiParser {
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
 
+		Collection<ClassDoc> allClasses = new ArrayList<ClassDoc>();
+		allClasses.addAll(this.classes);
+		allClasses.addAll(this.typeClasses);
+
 		ClassDoc currentClassDoc = this.classDoc;
 		while (currentClassDoc != null) {
 
@@ -138,9 +142,8 @@ public class CrossClassApiParser {
 				// skip
 			} else {
 				for (MethodDoc method : currentClassDoc.methods()) {
-					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, this.classes,
-							this.typeClasses, defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, this.classes,
-							this.typeClasses, defaultErrorTypeClass);
+					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, allClasses,
+							defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, allClasses, defaultErrorTypeClass);
 
 					Method parsedMethod = methodParser.parse();
 					if (parsedMethod == null) {
