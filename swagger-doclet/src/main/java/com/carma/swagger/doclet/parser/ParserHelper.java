@@ -1,6 +1,5 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
@@ -191,14 +190,38 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This parses the path from the annotations of a method or class
-	 * @param doc The method or class
-	 * @param options The doclet options
-	 * @return The path or null if no path related annotations were present
+	 * Resolves tha @Path for the ClassDoc supporting inheritance
+	 * @param classDoc The class to be processed
+	 * @param options Doclet options
+	 * @return The resolved path
 	 */
-	public static String parsePath(com.sun.javadoc.ProgramElementDoc doc, DocletOptions options) {
-		AnnotationParser p = new AnnotationParser(doc, options);
-		String path = p.getAnnotationValue(JAX_RS_PATH, "value");
+	public static String resolveClassPath(ClassDoc classDoc, DocletOptions options) {
+		String path = ParserHelper.getInheritableClassLevelAnnotationValue(classDoc, options, JAX_RS_PATH, "value");
+		return normalisePath(path);
+	}
+
+	/**
+	 * Resolves tha @Path for the MethodDoc respecting the overriden methods
+	 * @param methodDoc The method to be processed
+	 * @param options Doclet options
+	 * @return The resolved path
+	 */
+	public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
+		String path = null;
+		while (path == null && methodDoc != null) {
+			AnnotationParser p = new AnnotationParser(methodDoc, options);
+			path = p.getAnnotationValue(JAX_RS_PATH, "value");
+			methodDoc = methodDoc.overriddenMethod();
+		}
+		return normalisePath(path);
+	}
+
+	/**
+	 * This normalises a path to ensure it starts with / and does not end with /
+	 * @param path The path to normalize
+	 * @return The path or an empty string if given no path
+	 */
+	private static String normalisePath(String path) {
 		if (path != null) {
 			path = path.trim();
 			if (path.endsWith("/")) {
@@ -210,7 +233,7 @@ public class ParserHelper {
 
 			return path;
 		}
-		return null;
+		return "";
 	}
 
 	/**
@@ -1445,21 +1468,6 @@ public class ParserHelper {
 		HttpMethod result = null;
 		while (result == null && methodDoc != null) {
 			result = HttpMethod.fromMethod(methodDoc);
-			methodDoc = methodDoc.overriddenMethod();
-		}
-		return result;
-	}
-
-	/**
-	 * Resolves tha @Path for the MethodDoc respecting the overriden methods
-	 * @param methodDoc The method to be processed
-	 * @param options Doclet options
-	 * @return The resolved path
-	 */
-	public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
-		String result = "";
-		while (result.isEmpty() && methodDoc != null) {
-			result = firstNonNull(parsePath(methodDoc, options), "");
 			methodDoc = methodDoc.overriddenMethod();
 		}
 		return result;

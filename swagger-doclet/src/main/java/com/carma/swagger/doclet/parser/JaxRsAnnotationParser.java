@@ -133,7 +133,7 @@ public class JaxRsAnnotationParser {
 				while (currentClassDoc != null) {
 
 					for (MethodDoc method : currentClassDoc.methods()) {
-						if (ParserHelper.parsePath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
+						if (ParserHelper.resolveMethodPath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
 							ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), docletClasses);
 							if (subResourceClassDoc != null) {
 								subResourceClasses.put(method.returnType(), subResourceClassDoc);

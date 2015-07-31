@@ -1,8 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
-import static com.carma.swagger.doclet.parser.ParserHelper.parsePath;
 import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
 import java.util.ArrayList;
@@ -64,7 +62,7 @@ public class CrossClassApiParser {
 		this.classes = classes;
 		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
-		this.rootPath = firstNonNull(parsePath(classDoc, options), "");
+		this.rootPath = ParserHelper.resolveClassPath(classDoc, options);
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
@@ -92,7 +90,7 @@ public class CrossClassApiParser {
 		this.classes = classes;
 		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
-		this.rootPath = parentResourcePath + firstNonNull(parsePath(classDoc, options), "");
+		this.rootPath = parentResourcePath + ParserHelper.resolveClassPath(classDoc, options);
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
