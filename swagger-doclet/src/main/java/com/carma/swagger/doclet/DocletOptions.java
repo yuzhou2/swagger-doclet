@@ -88,7 +88,7 @@ public class DocletOptions {
 				String[] filePaths = option[1].split(",");
 				for (String filePath : filePaths) {
 					filePath = filePath.trim();
-					ApiDeclaration api = loadModelFromJson("-apiAuthorizationsFile", filePath, ApiDeclaration.class);
+					ApiDeclaration api = loadModelFromJson("-extraApiDeclarations", filePath, ApiDeclaration.class);
 					extraApiDeclarations.add(api);
 				}
 				if (!extraApiDeclarations.isEmpty()) {
