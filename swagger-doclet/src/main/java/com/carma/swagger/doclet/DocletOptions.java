@@ -694,6 +694,7 @@ public class DocletOptions {
 		this.resourcePriorityTags = new ArrayList<String>();
 		this.resourcePriorityTags.add("resourcePriority");
 		this.resourcePriorityTags.add("resourceOrder");
+		this.resourcePriorityTags.add("priority");
 
 		this.resourceDescriptionTags = new ArrayList<String>();
 		this.resourceDescriptionTags.add("resourceDescription");

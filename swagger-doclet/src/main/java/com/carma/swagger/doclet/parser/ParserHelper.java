@@ -429,8 +429,25 @@ public class ParserHelper {
 			return new String[] { "string", null };
 		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
 			return new String[] { "boolean", null };
-		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
+
+		} else if (javaType.equalsIgnoreCase("java.time.LocalDate")) {
+			return new String[] { "string", "date" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.Year")) {
+			return new String[] { "integer", "int32" };
+
+		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.time.LocalDateTime")
+				|| javaType.equalsIgnoreCase("java.time.OffsetDateTime") || javaType.equalsIgnoreCase("java.time.ZonedDateTime")
+				|| javaType.equalsIgnoreCase("java.time.Instant")) {
 			return new String[] { "string", "date-time" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.OffsetTime") || javaType.equalsIgnoreCase("java.time.Duration")
+				|| javaType.equalsIgnoreCase("java.time.MonthDay") || javaType.equalsIgnoreCase("java.time.Period")
+				|| javaType.equalsIgnoreCase("java.time.Month") || javaType.equalsIgnoreCase("java.time.DayOfWeek")
+				|| javaType.equalsIgnoreCase("java.time.YearMonth") || javaType.equalsIgnoreCase("java.time.ZoneId")
+				|| javaType.equalsIgnoreCase("java.time.ZoneOffset")) {
+			return new String[] { "string", null };
+
 		} else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
 			return new String[] { "string", "uuid" };
 		}
@@ -1507,6 +1524,31 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets an annotation value from the given class, it supports looking at super classes
+	 * @param classDoc The class to look for the annotation
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @return The value of the annotation or null if none was found
+	 */
+	public static List<String> getInheritableTagValues(ClassDoc classDoc, Collection<String> matchTags, DocletOptions options) {
+		ClassDoc currentClassDoc = classDoc;
+		while (currentClassDoc != null) {
+			List<String> values = getTagValues(currentClassDoc, matchTags, options);
+
+			if (values != null) {
+				return values;
+			}
+
+			currentClassDoc = currentClassDoc.superclass();
+			// ignore parent object class
+			if (!ParserHelper.hasAncestor(currentClassDoc)) {
+				break;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This gets values of any of the javadoc tags that are in the given collection
 	 * @param item The javadoc item to get the tags of
 	 * @param matchTags The names of the tags to get
@@ -1549,6 +1591,31 @@ public class ParserHelper {
 			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
+	}
+
+	/**
+	 * This gets an annotation value from the given class, it supports looking at super classes
+	 * @param classDoc The class to look for the annotation
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @return The value of the annotation or null if none was found
+	 */
+	public static String getInheritableTagValue(ClassDoc classDoc, Collection<String> matchTags, DocletOptions options) {
+		ClassDoc currentClassDoc = classDoc;
+		while (currentClassDoc != null) {
+			String value = getTagValue(currentClassDoc, matchTags, options);
+
+			if (value != null) {
+				return value;
+			}
+
+			currentClassDoc = currentClassDoc.superclass();
+			// ignore parent object class
+			if (!ParserHelper.hasAncestor(currentClassDoc)) {
+				break;
+			}
+		}
+		return null;
 	}
 
 	/**

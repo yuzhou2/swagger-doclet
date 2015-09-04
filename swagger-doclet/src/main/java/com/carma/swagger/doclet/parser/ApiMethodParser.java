@@ -137,6 +137,7 @@ public class ApiMethodParser {
 		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
 
 		OptionalName returnTypeOName = this.translator.typeName(returnType);
+
 		String returnTypeName = returnTypeOName.value();
 		String returnTypeFormat = returnTypeOName.getFormat();
 
@@ -208,6 +209,34 @@ public class ApiMethodParser {
 			addParameterizedModelTypes(returnType, varsToTypes);
 		}
 
+		// read extra details for the return type
+		FieldReader returnTypeReader = new FieldReader(this.options);
+
+		// set enum values
+		List<String> returnTypeAllowableValues = null;
+		if (returnType != null) {
+			returnTypeAllowableValues = ParserHelper.getAllowableValues(returnType.asClassDoc());
+			if (returnTypeAllowableValues != null) {
+				returnTypeName = "string";
+			}
+		}
+
+		Boolean returnTypeUniqueItems = null;
+		if (returnType != null && returnTypeName.equals("array")) {
+			if (ParserHelper.isSet(returnType.qualifiedTypeName())) {
+				returnTypeUniqueItems = Boolean.TRUE;
+			}
+		}
+
+		String tagFormat = returnTypeReader.getFieldFormatValue(this.methodDoc, returnType);
+		if (tagFormat != null) {
+			returnTypeFormat = tagFormat;
+		}
+
+		String returnTypeMinimum = returnTypeReader.getFieldMin(this.methodDoc, returnType);
+		String returnTypeMaximum = returnTypeReader.getFieldMax(this.methodDoc, returnType);
+		String returnTypeDefaultValue = returnTypeReader.getFieldDefaultValue(this.methodDoc, returnType);
+
 		if (modelType != null && this.options.isParseModels()) {
 			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).addVarsToTypes(varsToTypes).parse());
 		}
@@ -249,7 +278,8 @@ public class ApiMethodParser {
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeFormat,
-				returnTypeItemsRef, returnTypeItemsType, returnTypeItemsFormat, returnTypeItemsAllowableValues, consumes, produces, authorizations, deprecated);
+				returnTypeMinimum, returnTypeMaximum, returnTypeDefaultValue, returnTypeAllowableValues, returnTypeUniqueItems, returnTypeItemsRef,
+				returnTypeItemsType, returnTypeItemsFormat, returnTypeItemsAllowableValues, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {

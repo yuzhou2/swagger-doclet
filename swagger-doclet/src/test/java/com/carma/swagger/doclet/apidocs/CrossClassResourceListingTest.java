@@ -45,8 +45,6 @@ public class CrossClassResourceListingTest {
 	@Test
 	public void testDefaultOrder() throws IOException {
 
-		this.options.getResourceDescriptionTags().clear();
-		this.options.getResourcePriorityTags().clear();
 		this.options.setSortResourcesByPath(false);
 		this.options.setSortResourcesByPriority(false);
 
@@ -73,9 +71,6 @@ public class CrossClassResourceListingTest {
 	@Test
 	public void testPriorityOrder() throws IOException {
 
-		this.options.getResourceDescriptionTags().add("resourceDescription");
-		this.options.getResourcePriorityTags().add("resourcePriority");
-		this.options.getResourcePriorityTags().add("priority");
 		this.options.setSortResourcesByPath(false);
 		this.options.setSortResourcesByPriority(true);
 
@@ -90,8 +85,6 @@ public class CrossClassResourceListingTest {
 	@Test
 	public void testPathOrder() throws IOException {
 
-		this.options.getResourceDescriptionTags().add("resourceDescription");
-		this.options.getResourcePriorityTags().add("resourcePriority");
 		this.options.setSortResourcesByPath(true);
 		this.options.setSortResourcesByPriority(false);
 

@@ -68,12 +68,15 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Character.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Long.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Byte.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Date.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Map.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Collection.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Set.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.List.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigInteger.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigDecimal.class.getName()));
+
+			// TODO add new date types??
 
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();

@@ -121,7 +121,7 @@ public class CrossClassApiParser {
 		while (currentClassDoc != null) {
 
 			// read default error type for class
-			String defaultErrorTypeClass = ParserHelper.getTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags(), this.options);
+			String defaultErrorTypeClass = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags(), this.options);
 			Type defaultErrorType = ParserHelper.findModel(this.classes, defaultErrorTypeClass);
 
 			Set<Model> classModels = new HashSet<Model>();
@@ -130,9 +130,9 @@ public class CrossClassApiParser {
 			}
 
 			// read class level resource path, priority and description
-			String classResourcePath = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceTags(), this.options);
-			String classResourcePriority = ParserHelper.getTagValue(currentClassDoc, this.options.getResourcePriorityTags(), this.options);
-			String classResourceDescription = ParserHelper.getTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
+			String classResourcePath = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceTags(), this.options);
+			String classResourcePriority = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourcePriorityTags(), this.options);
+			String classResourceDescription = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
 
 			// check if its a sub resource
 			boolean isSubResourceClass = this.subResourceClasses != null && this.subResourceClasses.values().contains(currentClassDoc);

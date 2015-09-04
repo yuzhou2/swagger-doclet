@@ -30,6 +30,8 @@ public class PrimitivesTest {
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
+		this.options.setSortResourcesByPath(false);
+		this.options.setSortResourcesByPriority(true);
 	}
 
 	@Test
