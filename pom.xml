@@ -126,8 +126,6 @@
 		</profile>
 	</profiles>
 
-
-
 	<dependencies>
 
 		<!-- jaxrs doclet -->
@@ -308,7 +306,7 @@
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-
+			
 		</plugins>
 	</build>
 </project>
