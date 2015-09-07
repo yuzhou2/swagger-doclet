@@ -23,9 +23,17 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest production version is 1.1.0.
+The latest production version is 1.1.1.
 
 This contains the following fixes/features:
+
++ Fix incorrect detection of sub resource methods (also improves performance) (Issue 107)
++ Support new Java 8 Date Time types (Issue 104)
++ Fix readme in relation to resourceRootPath (Issue 102)
++ Group multiple response messages with same http status together for compatibility with swagger ui/spec (Issue 97)
++ Fix performance degradation (Issue 94)
+
+The fixes in the 1.1.0 version were as follows:
 
 + Support Java 8 (Issue 83)
 + Upgrade swagger UI to 2.1.0; fixes: 
@@ -105,7 +113,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.1.1-SNAPSHOT.
+The latest snapshot version is 1.1.2-SNAPSHOT.
 
 ## Usage
 
