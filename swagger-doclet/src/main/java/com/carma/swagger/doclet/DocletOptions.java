@@ -135,6 +135,8 @@ public class DocletOptions {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
+			} else if (option[0].equals("-logDebug")) {
+				parsedOptions.logDebug = true;
 			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
 				parsedOptions.modelFieldsRequiredByDefault = true;
 			} else if (option[0].equals("-disableModelFieldsXmlAccessType")) {
@@ -431,6 +433,7 @@ public class DocletOptions {
 	private boolean excludeDeprecatedFields = true;
 	private boolean excludeDeprecatedParams = true;
 
+	private boolean logDebug = false;
 	private boolean parseModels = true;
 	private boolean modelFieldsRequiredByDefault = false;
 	private boolean modelFieldsXmlAccessTypeEnabled = true;
@@ -1610,6 +1613,14 @@ public class DocletOptions {
 	 */
 	public void setProfileMode(boolean profileMode) {
 		this.profileMode = profileMode;
+	}
+
+	/**
+	 * This gets the logDebug
+	 * @return the logDebug
+	 */
+	public boolean isLogDebug() {
+		return this.logDebug;
 	}
 
 	/**

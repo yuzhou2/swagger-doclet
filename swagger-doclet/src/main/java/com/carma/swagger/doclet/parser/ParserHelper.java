@@ -164,7 +164,7 @@ public class ParserHelper {
 	}
 
 	/**
-	 * Resolves tha @Path for the ClassDoc supporting inheritance
+	 * Resolves the @Path for the ClassDoc supporting inheritance
 	 * @param classDoc The class to be processed
 	 * @param options Doclet options
 	 * @return The resolved path

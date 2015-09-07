@@ -799,6 +799,8 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-requiredFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is required. The default list contains javax.validation.constraints.NotNull.</td></tr>
 	
 	<tr><td>-optionalFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is optional. The default list contains javax.validation.constraints.Null.</td></tr>
+	
+	<tr><td>-logDebug</td><td>This turns on debug level logging which gives more verbose output.</td></tr>
 
 </table>
 

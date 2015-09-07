@@ -23,6 +23,7 @@ import com.carma.swagger.doclet.ServiceDoclet;
 import com.carma.swagger.doclet.model.Api;
 import com.carma.swagger.doclet.model.ApiDeclaration;
 import com.carma.swagger.doclet.model.HttpMethod;
+import com.carma.swagger.doclet.model.Operation;
 import com.carma.swagger.doclet.model.ResourceListing;
 import com.carma.swagger.doclet.model.ResourceListingAPI;
 import com.google.common.base.Strings;
@@ -59,6 +60,7 @@ public class JaxRsAnnotationParser {
 		try {
 
 			// setup additional classes needed for processing, generally these are java ones such as java.lang.String
+			// adding them here allows them to be used in @outputType
 			Collection<ClassDoc> typeClasses = new ArrayList<ClassDoc>();
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.String.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Integer.class.getName()));
@@ -75,8 +77,22 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.List.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigInteger.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigDecimal.class.getName()));
-
-			// TODO add new date types??
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.UUID.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.DayOfWeek.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Duration.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Instant.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.LocalDate.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.LocalDateTime.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Month.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.MonthDay.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.OffsetDateTime.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.OffsetTime.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Period.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Year.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.YearMonth.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneId.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneOffset.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZonedDateTime.class.getName()));
 
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
@@ -138,9 +154,14 @@ public class JaxRsAnnotationParser {
 				while (currentClassDoc != null) {
 
 					for (MethodDoc method : currentClassDoc.methods()) {
-						if (ParserHelper.resolveMethodPath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
+						// if the method has @Path but no Http method then its an entry point to a sub resource
+						if (!ParserHelper.resolveMethodPath(method, this.options).isEmpty() && HttpMethod.fromMethod(method) == null) {
 							ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 							if (subResourceClassDoc != null) {
+								if (this.options.isLogDebug()) {
+									System.out.println("Adding return type as sub resource class : " + subResourceClassDoc.name() + " for method "
+											+ method.name() + " of referencing class " + currentClassDoc.name());
+								}
 								subResourceClasses.put(method.returnType(), subResourceClassDoc);
 							}
 						}
@@ -163,6 +184,19 @@ public class JaxRsAnnotationParser {
 				classParser.parse(resourceToDeclaration);
 			}
 			Collection<ApiDeclaration> declarationColl = resourceToDeclaration.values();
+
+			if (this.options.isLogDebug()) {
+				System.out.println("After parse phase api declarations are: ");
+				for (ApiDeclaration apiDec : declarationColl) {
+					System.out.println("Api Dec: base path " + apiDec.getBasePath() + ", res path: " + apiDec.getResourcePath());
+					for (Api api : apiDec.getApis()) {
+						System.out.println("Api path:" + api.getPath());
+						for (Operation op : api.getOperations()) {
+							System.out.println("Api nick name:" + op.getNickname() + " method " + op.getMethod());
+						}
+					}
+				}
+			}
 
 			// add any extra declarations
 			if (this.options.getExtraApiDeclarations() != null && !this.options.getExtraApiDeclarations().isEmpty()) {

@@ -117,8 +117,30 @@ public class CrossClassApiParser {
 
 		ClassDocCache classCache = new ClassDocCache(allClasses);
 
+		// see if this is a resource class, it is if either it has class level @Path or has @GET etc on one of its methods
+		// (sub resource classes don't have @Path but will have method annotations)
+		if (this.rootPath.isEmpty()) {
+			boolean methodFound = false;
+			for (MethodDoc method : this.classDoc.methods()) {
+				if (ParserHelper.resolveMethodHttpMethod(method) != null) {
+					methodFound = true;
+					break;
+				}
+			}
+			if (!methodFound) {
+				if (this.options.isLogDebug()) {
+					System.out.println("ignoring non resource class: " + this.classDoc.name());
+				}
+				return;
+			}
+		}
+
 		ClassDoc currentClassDoc = this.classDoc;
 		while (currentClassDoc != null) {
+
+			if (this.options.isLogDebug()) {
+				System.out.println("processing resource class: " + currentClassDoc.name());
+			}
 
 			// read default error type for class
 			String defaultErrorTypeClass = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags(), this.options);
@@ -140,13 +162,24 @@ public class CrossClassApiParser {
 			// dont process a subresource outside the context of its parent method
 			if (isSubResourceClass && this.parentMethod == null) {
 				// skip
+				if (this.options.isLogDebug()) {
+					System.out.println("skipping class as its a sub resource class and we are outside of the parent method context.");
+				}
 			} else {
 				for (MethodDoc method : currentClassDoc.methods()) {
+
+					if (this.options.isLogDebug()) {
+						System.out.println("processing method: " + method.name());
+					}
+
 					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, allClasses,
 							defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, allClasses, defaultErrorTypeClass);
 
 					Method parsedMethod = methodParser.parse();
 					if (parsedMethod == null) {
+						if (this.options.isLogDebug()) {
+							System.out.println("skipping method: " + method.name() + " as it was not parsed to an api method");
+						}
 						continue;
 					}
 
@@ -155,6 +188,9 @@ public class CrossClassApiParser {
 					String resourcePath = buildResourcePath(classResourcePath, method);
 
 					if (parsedMethod.isSubResource()) {
+						if (this.options.isLogDebug()) {
+							System.out.println("parsing method: " + method.name() + " as a subresource");
+						}
 						ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 						if (subResourceClassDoc != null) {
 							// delete class from the dictionary to handle recursive sub-resources
@@ -174,6 +210,13 @@ public class CrossClassApiParser {
 						declaration.setApis(new ArrayList<Api>());
 						declaration.setModels(new HashMap<String, Model>());
 						declarations.put(resourcePath, declaration);
+						if (this.options.isLogDebug()) {
+							System.out.println("creating new api declaration for method: " + method.name());
+						}
+					} else {
+						if (this.options.isLogDebug()) {
+							System.out.println("reusing api declaration (" + declaration.getResourcePath() + ") for method: " + method.name());
+						}
 					}
 
 					// look for a priority tag for the resource listing and set on the resource if the resource hasn't had one set
@@ -189,6 +232,10 @@ public class CrossClassApiParser {
 					Set<Model> methodModels = methodParser.models();
 					Map<String, Model> idToModels = addApiModels(classModels, methodModels, method);
 					declaration.getModels().putAll(idToModels);
+
+					if (this.options.isLogDebug()) {
+						System.out.println("finished processing for method: " + method.name());
+					}
 				}
 			}
 			currentClassDoc = currentClassDoc.superclass();

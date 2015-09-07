@@ -104,6 +104,9 @@ public class ApiMethodParser {
 	public Method parse() {
 		String methodPath = ParserHelper.resolveMethodPath(this.methodDoc, this.options);
 		if (this.httpMethod == null && methodPath.isEmpty()) {
+			if (this.options.isLogDebug()) {
+				System.out.println("skipping method: " + this.methodDoc.name() + " as it has neither @Path nor a http method annotation");
+			}
 			return null;
 		}
 
@@ -111,6 +114,9 @@ public class ApiMethodParser {
 		boolean deprecated = false;
 		if (ParserHelper.isInheritableDeprecated(this.methodDoc, this.options)) {
 			if (this.options.isExcludeDeprecatedOperations()) {
+				if (this.options.isLogDebug()) {
+					System.out.println("skipping method: " + this.methodDoc.name() + " as it is deprecated and configuration excludes deprecated methods");
+				}
 				return null;
 			}
 			deprecated = true;
@@ -118,6 +124,9 @@ public class ApiMethodParser {
 
 		// exclude if it has exclusion tags
 		if (ParserHelper.hasInheritableTag(this.methodDoc, this.options.getExcludeOperationTags())) {
+			if (this.options.isLogDebug()) {
+				System.out.println("skipping method: " + this.methodDoc.name() + " as it has an exclusion tag");
+			}
 			return null;
 		}
 
@@ -275,6 +284,10 @@ public class ApiMethodParser {
 		// ************************************
 		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
 		List<String> produces = ParserHelper.getProduces(this.methodDoc, this.options);
+
+		if (this.options.isLogDebug()) {
+			System.out.println("finished parsing method: " + this.methodDoc.name());
+		}
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeFormat,
