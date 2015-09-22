@@ -3,9 +3,6 @@ package com.carma.swagger.doclet.translator;
 import static com.carma.swagger.doclet.translator.Translator.OptionalName.ignored;
 import static com.carma.swagger.doclet.translator.Translator.OptionalName.presentOrMissing;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.carma.swagger.doclet.DocletOptions;
 import com.carma.swagger.doclet.parser.AnnotationParser;
 import com.carma.swagger.doclet.parser.ParserHelper;
@@ -23,8 +20,6 @@ import com.sun.javadoc.Type;
  */
 public class AnnotationAwareTranslator implements Translator {
 
-	private final Map<QualifiedType, OptionalName> typeNameCache;
-
 	private String ignore;
 	private String element;
 	private String elementProperty;
@@ -38,7 +33,6 @@ public class AnnotationAwareTranslator implements Translator {
 	 */
 	public AnnotationAwareTranslator(DocletOptions options) {
 		this.options = options;
-		this.typeNameCache = new HashMap<QualifiedType, OptionalName>();
 	}
 
 	/**
@@ -94,16 +88,12 @@ public class AnnotationAwareTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type,
+	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, ClassDoc[] views) {
 		if (paramType == null) {
 			paramType = parameter.type();
-		}
-		QualifiedType cacheKey = new QualifiedType(String.valueOf(multipart), paramType);
-
-		if (this.typeNameCache.containsKey(cacheKey)) {
-			return this.typeNameCache.get(cacheKey);
 		}
 
 		// look for File data types
@@ -111,12 +101,11 @@ public class AnnotationAwareTranslator implements Translator {
 			boolean isFileDataType = ParserHelper.isFileParameterDataType(parameter, this.options);
 			if (isFileDataType) {
 				OptionalName res = presentOrMissing("File");
-				this.typeNameCache.put(cacheKey, res);
 				return res;
 			}
 		}
 
-		return typeName(cacheKey);
+		return typeName(paramType, views);
 	}
 
 	/**
@@ -128,10 +117,6 @@ public class AnnotationAwareTranslator implements Translator {
 	}
 
 	private OptionalName typeName(QualifiedType type) {
-		if (this.typeNameCache.containsKey(type)) {
-			return this.typeNameCache.get(type);
-		}
-
 		if (ParserHelper.isPrimitive(type.getType(), this.options) || type.getType().asClassDoc() == null) {
 			return null;
 		}
@@ -142,7 +127,6 @@ public class AnnotationAwareTranslator implements Translator {
 		} else {
 			name = nameFor(this.rootElement, this.rootElementProperty, type.getType().asClassDoc(), false);
 		}
-		this.typeNameCache.put(type, name);
 		return name;
 	}
 

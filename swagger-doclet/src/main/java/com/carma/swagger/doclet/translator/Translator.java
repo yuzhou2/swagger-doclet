@@ -14,7 +14,7 @@ public interface Translator {
 
 	OptionalName typeName(Type type);
 
-	OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType);
+	OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, ClassDoc[] views);
 
 	OptionalName fieldName(FieldDoc field);
 

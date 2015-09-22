@@ -891,6 +891,53 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets the json views for the given method paramater, it supports deriving the views from an overridden method
+	 * @param methodDoc The method
+	 * @param param The parameter
+	 * @param options The doclet options
+	 * @return The json views for the given method/overridden method or null if there were none
+	 */
+	public static ClassDoc[] getInheritableJsonViews(com.sun.javadoc.ExecutableMemberDoc methodDoc, Parameter param, DocletOptions options) {
+
+		int paramIdx = -1;
+		int i = 0;
+		for (Parameter methodParam : methodDoc.parameters()) {
+			if (methodParam.name().equals(param.name())) {
+				paramIdx = i;
+				break;
+			}
+			i++;
+		}
+
+		if (paramIdx == -1) {
+			throw new IllegalArgumentException("Invalid method param: " + param + " it is not a parameter of the given method: " + methodDoc);
+		}
+
+		ClassDoc[] result = null;
+		while (result == null && methodDoc != null) {
+			result = getJsonViews(param, options);
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			param = methodDoc == null ? null : methodDoc.parameters()[paramIdx];
+		}
+		return result;
+	}
+
+	/**
+	 * This gets the json views for the given method parameter
+	 * @param param
+	 * @param options The doclet options
+	 * @return The json views for the given param or null if there were none
+	 */
+	public static ClassDoc[] getJsonViews(Parameter param, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(param, options);
+		ClassDoc[] viewClasses = p.getAnnotationClassDocValues("com.fasterxml.jackson.annotation.JsonView", "value");
+		if (viewClasses == null) {
+			viewClasses = p.getAnnotationClassDocValues("org.codehaus.jackson.map.annotate.JsonView", "value");
+		}
+		return viewClasses;
+	}
+
+	/**
 	 * This gets whether the given method/field has a json view on it
 	 * @param doc The method/field to check
 	 * @param options The doclet options

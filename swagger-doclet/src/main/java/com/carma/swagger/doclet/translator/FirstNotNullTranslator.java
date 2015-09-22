@@ -53,13 +53,14 @@ public class FirstNotNullTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type,
+	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(final boolean multipart, final Parameter parameter, final Type paramType) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, ClassDoc[] views) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
-				return translator.parameterTypeName(multipart, parameter, paramType);
+				return translator.parameterTypeName(multipart, parameter, paramType, views);
 			}
 		});
 	}

@@ -30,9 +30,10 @@ public class NameBasedTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type,
+	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, ClassDoc[] views) {
 		if (paramType == null) {
 			paramType = parameter.type();
 		}
@@ -45,7 +46,7 @@ public class NameBasedTranslator implements Translator {
 			}
 		}
 
-		return typeName(paramType);
+		return typeName(paramType, views);
 	}
 
 	/**

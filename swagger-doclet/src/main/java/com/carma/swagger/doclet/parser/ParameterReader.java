@@ -242,8 +242,9 @@ public class ParameterReader {
 						List<String> itemsAllowableValues = property.getItems() == null ? null : property.getItems().getAllowableValues();
 
 						ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues, property.getUniqueItems(),
-								property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
+								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues,
+								property.getUniqueItems(), property.getAllowableValues(), property.getMinimum(), property.getMaximum(),
+								property.getDefaultValue());
 
 						res.add(param);
 					}
@@ -253,13 +254,15 @@ public class ParameterReader {
 			return res;
 		}
 
+		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(method, parameter, this.options);
+
 		// look for a custom input type for body params
 		if ("body".equals(paramCategory)) {
 			String customParamType = ParserHelper.getInheritableTagValue(method, this.options.getInputTypeTags(), this.options);
-			paramType = readCustomParamType(customParamType, paramType, models);
+			paramType = readCustomParamType(customParamType, paramType, models, viewClasses);
 		}
 
-		OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType);
+		OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType, viewClasses);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
@@ -288,7 +291,7 @@ public class ParameterReader {
 
 			if (this.options.isParseModels()) {
 				Type modelType = containerOf == null ? paramType : containerOf;
-				models.addAll(new ApiModelParser(this.options, this.translator, modelType).parse());
+				models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).parse());
 			}
 
 			// set enum values
@@ -535,14 +538,14 @@ public class ParameterReader {
 		return type;
 	}
 
-	private Type readCustomParamType(String customTypeName, Type defaultType, Set<Model> models) {
+	private Type readCustomParamType(String customTypeName, Type defaultType, Set<Model> models, ClassDoc[] viewClasses) {
 		if (customTypeName != null) {
 			// lookup the type from the doclet classes
 			Type customType = ParserHelper.findModel(this.allClasses, customTypeName);
 			if (customType != null) {
 				// also add this custom return type to the models
 				if (this.options.isParseModels()) {
-					models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
+					models.addAll(new ApiModelParser(this.options, this.translator, customType, viewClasses).parse());
 				}
 				return customType;
 			}
