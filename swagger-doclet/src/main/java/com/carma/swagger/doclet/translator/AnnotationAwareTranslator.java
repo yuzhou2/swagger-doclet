@@ -69,12 +69,8 @@ public class AnnotationAwareTranslator implements Translator {
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
-	 */
-	public OptionalName typeName(Type type, ClassDoc[] views) {
-		OptionalName name = typeName(type);
+	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
+		OptionalName name = typeName(type, useFqn);
 
 		if (views != null && views.length > 0 && name != null && name.isPresent() && !ParserHelper.isPrimitive(type, this.options)) {
 			StringBuilder nameWithViews = new StringBuilder(name.value()).append("-");
@@ -88,10 +84,10 @@ public class AnnotationAwareTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type,
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type, boolean,
 	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, ClassDoc[] views) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views) {
 		if (paramType == null) {
 			paramType = parameter.type();
 		}
@@ -105,14 +101,14 @@ public class AnnotationAwareTranslator implements Translator {
 			}
 		}
 
-		return typeName(paramType, views);
+		return typeName(paramType, useFqn, views);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean)
 	 */
-	public OptionalName typeName(Type type) {
+	public OptionalName typeName(Type type, boolean useFqn) {
 		return typeName(new QualifiedType("typeName", type));
 	}
 

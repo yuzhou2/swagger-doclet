@@ -145,7 +145,7 @@ public class ApiMethodParser {
 		// first check if its a wrapper type and if so replace with the wrapped type
 		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
 
-		OptionalName returnTypeOName = this.translator.typeName(returnType);
+		OptionalName returnTypeOName = this.translator.typeName(returnType, this.options.isUseFullModelIds());
 
 		String returnTypeName = returnTypeOName.value();
 		String returnTypeFormat = returnTypeOName.getFormat();
@@ -178,7 +178,7 @@ public class ApiMethodParser {
 				returnTypeName = "array";
 				// its a model collection, add the container of type to the model
 				modelType = nameToType.containerOf;
-				returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, viewClasses).value();
+				returnTypeItemsRef = this.translator.typeName(nameToType.containerOf, this.options.isUseFullModelIds(), viewClasses).value();
 			} else if (nameToType.containerOfPrimitiveType != null) {
 				returnTypeName = "array";
 				// its a primitive collection
@@ -200,16 +200,16 @@ public class ApiMethodParser {
 			} else {
 				// set the items type or ref
 				if (ParserHelper.isPrimitive(containerOf, this.options)) {
-					OptionalName oName = this.translator.typeName(containerOf);
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
 					returnTypeItemsType = oName.value();
 					returnTypeItemsFormat = oName.getFormat();
 				} else {
-					returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
+					returnTypeItemsRef = this.translator.typeName(containerOf, this.options.isUseFullModelIds(), viewClasses).value();
 				}
 			}
 		} else {
 			// if its not a container then adjust the return type name for any views
-			returnTypeOName = this.translator.typeName(returnType, viewClasses);
+			returnTypeOName = this.translator.typeName(returnType, this.options.isUseFullModelIds(), viewClasses);
 			returnTypeName = returnTypeOName.value();
 			returnTypeFormat = returnTypeOName.getFormat();
 
@@ -405,7 +405,7 @@ public class ApiMethodParser {
 						if (responseModelClass != null) {
 							Type responseType = ParserHelper.findModel(this.classes, responseModelClass);
 							if (responseType != null) {
-								responseModel = this.translator.typeName(responseType).value();
+								responseModel = this.translator.typeName(responseType, this.options.isUseFullModelIds()).value();
 								if (this.options.isParseModels()) {
 									this.models.addAll(new ApiModelParser(this.options, this.translator, responseType).parse());
 								}
@@ -559,6 +559,8 @@ public class ApiMethodParser {
 			Type[] paramTypes = null;
 			Type customType = null;
 
+			boolean useFqn = this.options.isUseFullModelIds();
+
 			// split it into container and container of, if its in the form X<Y>
 			Matcher matcher = GENERIC_RESPONSE_PATTERN.matcher(customTypeName);
 			if (matcher.find()) {
@@ -569,7 +571,7 @@ public class ApiMethodParser {
 					String containerOfPrimitiveType = null;
 					String containerOfPrimitiveTypeFormat = null;
 					if (ParserHelper.isPrimitive(containerOfType, this.options)) {
-						String[] typeFormat = ParserHelper.typeOf(containerOfType, this.options);
+						String[] typeFormat = ParserHelper.typeOf(containerOfType, useFqn, this.options);
 						containerOfPrimitiveType = typeFormat[0];
 						containerOfPrimitiveTypeFormat = typeFormat[1];
 					} else {
@@ -580,7 +582,7 @@ public class ApiMethodParser {
 					}
 
 					NameToType res = new NameToType();
-					String[] nameFormat = ParserHelper.typeOf(customTypeName, this.options);
+					String[] nameFormat = ParserHelper.typeOf(customTypeName, useFqn, this.options);
 					res.returnTypeName = nameFormat[0];
 					res.returnTypeFormat = nameFormat[1];
 					res.returnType = null;
@@ -590,7 +592,7 @@ public class ApiMethodParser {
 					return res;
 				} else if (ParserHelper.isMap(customTypeName)) {
 					NameToType res = new NameToType();
-					String[] nameFormat = ParserHelper.typeOf(customTypeName, this.options);
+					String[] nameFormat = ParserHelper.typeOf(customTypeName, useFqn, this.options);
 					res.returnTypeName = nameFormat[0];
 					res.returnTypeFormat = nameFormat[1];
 					res.returnType = null;
@@ -634,7 +636,7 @@ public class ApiMethodParser {
 					}
 				}
 
-				OptionalName translated = this.translator.typeName(customType, viewClasses);
+				OptionalName translated = this.translator.typeName(customType, this.options.isUseFullModelIds(), viewClasses);
 				if (translated != null && translated.value() != null) {
 					NameToType res = new NameToType();
 					res.returnTypeName = translated.value();

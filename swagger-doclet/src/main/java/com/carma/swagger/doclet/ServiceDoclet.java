@@ -164,6 +164,7 @@ public class ServiceDoclet {
 
 		options.put("-logDebug", 1);
 		options.put("-disableModels", 1);
+		options.put("-useFullModelIds", 1);
 		options.put("-modelFieldsRequiredByDefault", 1);
 		options.put("-modelFieldsNamingConvention", 2);
 		options.put("-disableModelFieldsXmlAccessType", 1);

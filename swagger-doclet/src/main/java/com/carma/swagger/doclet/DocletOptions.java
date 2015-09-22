@@ -135,6 +135,8 @@ public class DocletOptions {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
+			} else if (option[0].equals("-useFullModelIds")) {
+				parsedOptions.useFullModelIds = true;
 			} else if (option[0].equals("-logDebug")) {
 				parsedOptions.logDebug = true;
 			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
@@ -435,6 +437,7 @@ public class DocletOptions {
 
 	private boolean logDebug = false;
 	private boolean parseModels = true;
+	private boolean useFullModelIds = false;
 	private boolean modelFieldsRequiredByDefault = false;
 	private boolean modelFieldsXmlAccessTypeEnabled = true;
 	private boolean modelFieldsDefaultXmlAccessTypeEnabled = false;
@@ -1067,6 +1070,23 @@ public class DocletOptions {
 	 */
 	public boolean isParseModels() {
 		return this.parseModels;
+	}
+
+	/**
+	 * This is whether to use FQN of classes for model ids, only needed if your model uses
+	 * same name classes from different packages.
+	 * @return the useFullModelIds
+	 */
+	public boolean isUseFullModelIds() {
+		return this.useFullModelIds;
+	}
+
+	/**
+	 * This sets the useFullModelIds
+	 * @param useFullModelIds the useFullModelIds to set
+	 */
+	public void setUseFullModelIds(boolean useFullModelIds) {
+		this.useFullModelIds = useFullModelIds;
 	}
 
 	/**

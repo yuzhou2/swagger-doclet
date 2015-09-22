@@ -335,11 +335,14 @@ public class ParserHelper {
 	 * boolean boolean
 	 * date string, date
 	 * dateTime string, date-time
-	 * @param javaType The java type to get the swagger type and format of
+	 * @param javaType The FQN of the java type to get the swagger type and format of
+	 * @param useFqn whether to return a name for the type based on the FQN of the type,
+	 *            for example if given a java type of com.me.Data then if useFqn is false it will return Data
+	 *            but if true will return com-me-Data
 	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(String javaType, DocletOptions options) {
+	public static String[] typeOf(String javaType, boolean useFqn, DocletOptions options) {
 		String[] simpleType = primitiveTypeOf(javaType, options);
 
 		if (simpleType != null) {
@@ -353,6 +356,9 @@ public class ParserHelper {
 		} else if (javaType.equalsIgnoreCase("java.io.File")) {
 			// special handling of files, the datatype File is reserved for multipart
 			return new String[] { "JavaFile", null };
+		} else if (useFqn) {
+			String typeName = javaType.replace(".", "-");
+			return new String[] { typeName, null };
 		} else {
 
 			// support inner classes, for this we use case sensitivity
@@ -395,12 +401,15 @@ public class ParserHelper {
 	 * date string, date
 	 * dateTime string, date-time
 	 * @param type The java type to get the swagger type and format of
+	 * @param useFqn whether to return a name for the type based on the FQN of the type,
+	 *            for example if given a java type of com.me.Data then if useFqn is false it will return Data
+	 *            but if true will return com-me-Data
 	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(Type type, DocletOptions options) {
+	public static String[] typeOf(Type type, boolean useFqn, DocletOptions options) {
 		String javaType = getQualifiedTypeName(type);
-		return typeOf(javaType, options);
+		return typeOf(javaType, useFqn, options);
 	}
 
 	/**

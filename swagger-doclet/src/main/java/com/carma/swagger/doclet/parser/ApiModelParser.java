@@ -110,7 +110,8 @@ public class ApiModelParser {
 				List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
 				if (annSubTypes != null) {
 					for (ClassDoc subType : annSubTypes) {
-						if (this.translator.typeName(rootType.asClassDoc()).value().equals(this.translator.typeName(subType).value())) {
+						if (this.translator.typeName(rootType.asClassDoc(), this.options.isUseFullModelIds()).value()
+								.equals(this.translator.typeName(subType, this.options.isUseFullModelIds()).value())) {
 							inheritFields = false;
 						}
 					}
@@ -224,7 +225,7 @@ public class ApiModelParser {
 
 		if (!elements.isEmpty() || classDoc.superclass() != null) {
 
-			String modelId = this.translator.typeName(type, this.viewClasses).value();
+			String modelId = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses).value();
 
 			List<String> requiredFields = null;
 			List<String> optionalFields = null;
@@ -254,7 +255,7 @@ public class ApiModelParser {
 				List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
 				if (annSubTypes != null) {
 					for (ClassDoc subType : annSubTypes) {
-						String subTypeName = this.translator.typeName(subType).value();
+						String subTypeName = this.translator.typeName(subType, this.options.isUseFullModelIds()).value();
 						if (subTypeName != null) {
 							subTypes.add(subTypeName);
 							// add model for subtype
@@ -299,7 +300,7 @@ public class ApiModelParser {
 	 * @return The id of the root model
 	 */
 	public String getRootModelId() {
-		return this.translator.typeName(this.rootType, this.viewClasses).value();
+		return this.translator.typeName(this.rootType, this.options.isUseFullModelIds(), this.viewClasses).value();
 	}
 
 	static class TypeRef {
@@ -724,9 +725,9 @@ public class ApiModelParser {
 			ClassDoc typeClassDoc = type.asClassDoc();
 
 			// change type name based on parent view
-			OptionalName propertyTypeFormat = this.translator.typeName(type);
+			OptionalName propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds());
 			if (typeRef.hasView && this.viewClasses != null) {
-				propertyTypeFormat = this.translator.typeName(type, this.viewClasses);
+				propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses);
 			}
 
 			String propertyType = propertyTypeFormat.value();
@@ -747,7 +748,7 @@ public class ApiModelParser {
 				if (itemsAllowableValues != null) {
 					itemsType = "string";
 				} else {
-					OptionalName oName = this.translator.typeName(containerOf);
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
 						itemsType = oName.value();
 						itemsFormat = oName.getFormat();
@@ -885,11 +886,13 @@ public class ApiModelParser {
 		}
 
 		final Type typeToCheck = type;
+		final ClassDoc[] viewClasses = this.viewClasses;
+		final String modelId = this.translator.typeName(typeToCheck, this.options.isUseFullModelIds(), viewClasses).value();
 
 		return filter(this.models, new Predicate<Model>() {
 
 			public boolean apply(Model model) {
-				return model.getId().equals(ApiModelParser.this.translator.typeName(typeToCheck).value());
+				return model.getId().equals(modelId);
 			}
 		}).size() > 0;
 	}

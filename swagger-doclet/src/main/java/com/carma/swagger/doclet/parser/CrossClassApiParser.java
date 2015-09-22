@@ -288,7 +288,9 @@ public class CrossClassApiParser {
 				}
 			});
 		} catch (Exception ex) {
-			throw new IllegalStateException("dupe models, method : " + method + ", models: " + methodModels, ex);
+			throw new IllegalStateException(
+					"Detected duplicate models, if you use classes with the same name from different packages please set the doclet option -useFullModelIds and retry. The problematic method was : "
+							+ method + ", and models were: " + methodModels, ex);
 		}
 		return idToModels;
 	}

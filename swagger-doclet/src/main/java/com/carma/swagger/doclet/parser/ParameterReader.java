@@ -262,7 +262,8 @@ public class ParameterReader {
 			paramType = readCustomParamType(customParamType, paramType, models, viewClasses);
 		}
 
-		OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType, viewClasses);
+		OptionalName paramTypeFormat = this.translator
+				.parameterTypeName(consumesMultipart, parameter, paramType, this.options.isUseFullModelIds(), viewClasses);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
@@ -368,7 +369,7 @@ public class ParameterReader {
 				if (itemsAllowableValues != null) {
 					itemsType = "string";
 				} else {
-					OptionalName oName = this.translator.typeName(containerOf);
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds(), viewClasses);
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
 						itemsType = oName.value();
 						itemsFormat = oName.getFormat();
@@ -407,7 +408,7 @@ public class ParameterReader {
 
 		Type paramType = field.type();
 
-		OptionalName paramTypeFormat = this.translator.typeName(paramType);
+		OptionalName paramTypeFormat = this.translator.typeName(paramType, this.options.isUseFullModelIds(), null);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
@@ -442,7 +443,7 @@ public class ParameterReader {
 			if (itemsAllowableValues != null) {
 				itemsType = "string";
 			} else {
-				OptionalName oName = this.translator.typeName(containerOf);
+				OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
 				if (ParserHelper.isPrimitive(containerOf, this.options)) {
 					itemsType = oName.value();
 					itemsFormat = oName.getFormat();
