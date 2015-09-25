@@ -688,6 +688,17 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	<tr><td>-serializationFeatures</td><td>The default value for this is INDENT_OUTPUT:true. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.SerializationFeature for futher details.</td></tr>
 
 	<tr><td>-deserializationFeatures</td><td>There is no default value for this. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.DeserializationFeature for futher details.</td></tr>	
+	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. and org.joda.time. which means a) that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type and that b) Joda Time date classes like DateTime and LocalDate are given a type of string.</td></tr>
+	
+	<tr><td>-responseMessageSortMode</td><td>This controls how response messages are sorted. This can be one of: 
+	<ul>
+	<li>CODE_ASC this is the default, it means in ascending order of the HTTP status code so success codes would come before error codes</li>
+	<li>CODE_DESC means in descending order of the HTTP status code so error codes would come before success codes</li>
+	<li>AS_APPEARS same order as they appear in the javadoc</li>
+	</ul>
+	</td></tr>
+	
+	<tr><td>-authOperationScopes</td><td>If an operation has "@authentication required" on it then it needs to know which scopes are required. This default set of scopes can be set via this option.</td></tr>
 	
 </table>
 
@@ -698,19 +709,9 @@ These are options that you typically won't need to use unless for example, you w
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
 	
-	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context</td></tr>
+	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context, javax.ws.rs.CookieParam, javax.ws.rs.MatrixParam, javax.ws.rs.container.Suspended</td></tr>
 	
 	<tr><td>-responseMessageTags</td><td>This adds additional tags to the set of javadoc tags used for response messages. The default set contains responseMessage, status, errorResponse, errorCode, successResponse, successCode. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
-	
-	
-	
-	<tr><td>-responseMessageSortMode</td><td>This controls how response messages are sorted. This can be one of: 
-	<ul>
-	<li>CODE_ASC this is the default, it means in ascending order of the HTTP status code so success codes would come before error codes</li>
-	<li>CODE_DESC means in descending order of the HTTP status code so error codes would come before success codes</li>
-	<li>AS_APPEARS same order as they appear in the javadoc</li>
-	</ul>
-	</td></tr>
 	
 	<tr><td>-excludeOperationTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operations. The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
@@ -750,8 +751,6 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-authOperationTags</td><td>This adds additional tags to the list of javadoc tags used for the alternative way of indicating whether an operation requires or does not require auhtorization. The default list contains authentication, authorization. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-authOperationScopes</td><td>If an operation has "@authentication required" on it then it needs to know which scopes are required. This default set of scopes can be set via this option.</td></tr>
-	
 	<tr><td>-requiredParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are required. The default list contains requiredParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
@@ -783,8 +782,6 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-parameterNameAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used for the name of resource parameters. These take precedence over the default parameter name from the method signature. They are superceded by any of the paramsNameTags javadoc tags for a given parameter.</td></tr>
 	
 	<tr><td>-paramsNameTags</td><td>This adds additional tags to the list of javadoc tags used for setting custom names for parameters. These supercede both the default parameter name from the method signature as well as any annotations used for the parameter name. The default list contains paramsName and overrideParamsName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
-	
-	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. and org.joda.time. which means a) that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type and that b) Joda Time date classes like DateTime and LocalDate are given a type of string.</td></tr>
 	
 	<tr><td>-compositeParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote a parameter class as being a composite parameter class. The default list contains javax.ws.rs.BeanParam.</td></tr>
 	
