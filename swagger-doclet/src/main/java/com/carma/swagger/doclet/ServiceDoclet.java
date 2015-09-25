@@ -186,6 +186,9 @@ public class ServiceDoclet {
 		// flags params as multiple
 		options.put("-csvParamsTags", 2);
 
+		// allows extra params on method
+		options.put("-implicitParamTags", 2);
+
 		// legacy no longer needed
 		options.put("-crossClassResources", 1);
 

@@ -219,6 +219,9 @@ public class DocletOptions {
 			} else if (option[0].equals("-csvParamsTags")) {
 				addTagsOption(parsedOptions.csvParamsTags, option);
 
+			} else if (option[0].equals("-implicitParamTags")) {
+				addTagsOption(parsedOptions.implicitParamTags, option);
+
 			} else if (option[0].equals("-paramsFormatTags")) {
 				addTagsOption(parsedOptions.paramsFormatTags, option);
 
@@ -377,6 +380,7 @@ public class DocletOptions {
 	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
 	private List<String> csvParamsTags;
+	private List<String> implicitParamTags;
 	private List<String> paramsFormatTags;
 	private List<String> paramsMinValueTags;
 	private List<String> paramMinValueAnnotations;
@@ -562,6 +566,11 @@ public class DocletOptions {
 
 		this.csvParamsTags = new ArrayList<String>();
 		this.csvParamsTags.add("csvParams");
+
+		this.implicitParamTags = new ArrayList<String>();
+		this.implicitParamTags.add("implicitParam");
+		this.implicitParamTags.add("additionalParam");
+		this.implicitParamTags.add("extraParam");
 
 		this.paramsFormatTags = new ArrayList<String>();
 		this.paramsFormatTags.add("paramsFormat");
@@ -863,6 +872,10 @@ public class DocletOptions {
 	 */
 	public List<String> getCsvParamsTags() {
 		return this.csvParamsTags;
+	}
+
+	public List<String> getImplicitParamTags() {
+		return this.implicitParamTags;
 	}
 
 	/**

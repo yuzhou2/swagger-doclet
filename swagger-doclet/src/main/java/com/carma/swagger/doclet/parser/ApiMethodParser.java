@@ -519,6 +519,10 @@ public class ApiMethodParser {
 		List<ApiParameter> classLevelParams = paramReader.readClassLevelParameters(this.models);
 		addUniqueParam(addedParamNames, classLevelParams, parameters);
 
+		// add on any implicit params
+		List<ApiParameter> implicitParams = paramReader.readImplicitParameters(this.methodDoc, consumesMultipart, this.models);
+		addUniqueParam(addedParamNames, implicitParams, parameters);
+
 		return parameters;
 	}
 
@@ -552,6 +556,8 @@ public class ApiMethodParser {
 		Map<String, Type> varsToTypes;
 	}
 
+	// TODO refactor building type details from a string into a common class for reuse
+	// across various parts of the doclet
 	NameToType readCustomReturnType(String customTypeName, ClassDoc[] viewClasses) {
 		if (customTypeName != null && customTypeName.trim().length() > 0) {
 			customTypeName = customTypeName.trim();

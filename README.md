@@ -380,6 +380,22 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the Swagger UI does not support this at present. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td></td></tr>
 	
+	<tr><td>@implicitParam</td><td>Defines an extra parameter that should be added to a resource method. A method or class can have 0 to many of these. If placed at the class level then all methods of the resource class will have the parameter added. This could for example be used for a common security header. The format for the tag is as follows: <br>
+	<pre>
+	name|dataType|paramType|required|defaultValue|minValue|maxValue|allowableValues|allowMultiple|description
+	</pre><br>
+ The name and datatype are required. All other fields can be left empty.
+ The format for the allowableValues if present is a CSV.<br>
+ Here are some examples:<br>
+ 1. A simple header param:<br>
+ @implicitParam p1|header|query<br>
+ 2. An int query param with default min and max values that is required and has a description:<br>
+ @implicitParam p2|int|query|true|5|1|10||true|test dec<br>
+ 3. A string path param with allowable values A and B and a default value of A and a description:
+ @implicitParam p3|string|path|true|A|||A,B||test<br>
+</td><td>operations, resource class</td><td>@additionalParam,@extraParam</td></tr>
+	
+	
 	<tr><td>@paramsFormat</td><td>Defines the format for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1Format param2Name param2Format. Note that this is only used for types that do not already map to a predefined format; which primarily means string type. NOTE2: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@formats</td></tr>
 	
 	<tr><td>@paramsMinValue</td><td>Defines the minimum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MinValue param2Name param2MinValue. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@paramsMinimumValue, @minValues</td></tr>
@@ -756,6 +772,8 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-csvParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are csv/multi valued. The default list contains csvParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-implicitParamTags</td><td>This adds additional tags to the list of javadoc tags used for adding additional resource method parameters. The default list contains implicitParam,additionalParam,extraParam. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-paramsFormatTags</td><td>This adds additional tags to the list of javadoc tags used for setting formats for operation parameters. The default list contains paramsFormat, formats. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
