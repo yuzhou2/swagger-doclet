@@ -388,7 +388,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
  The format for the allowableValues if present is a CSV.<br>
  Here are some examples:<br>
  1. A simple header param:<br>
- @implicitParam p1|header|query<br>
+ @implicitParam p1|string|header<br>
  2. An int query param with default min and max values that is required and has a description:<br>
  @implicitParam p2|int|query|true|5|1|10||true|test dec<br>
  3. A string path param with allowable values A and B and a default value of A and a description:
