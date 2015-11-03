@@ -68,6 +68,7 @@ public class ServiceDoclet {
 
 		options.put("-compositeParamAnnotations", 2);
 		options.put("-compositeParamTypes", 2);
+		options.put("-subTypesAnnotations", 2);
 
 		options.put("-responseTypeTags", 2);
 		options.put("-inputTypeTags", 2);
