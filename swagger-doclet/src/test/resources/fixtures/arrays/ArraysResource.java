@@ -37,5 +37,17 @@ public class ArraysResource {
 	public ArrayItem[] getArrayOfItems() {
 		return null;
 	}
+	
+	@POST
+	@Path("/itemwitharrays")
+	public void setItemWithArrays(ItemWithArrays item) {
+		// noop
+	}
+	
+	@GET
+	@Path("/itemwitharrays")
+	public ItemWithArrays getItemWithArrays() {
+		return null;
+	}
 
 }

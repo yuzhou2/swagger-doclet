@@ -4,23 +4,23 @@
     "basePath": "http://localhost:8080",
     "resourcePath": "/arrays",
     "apis": [
-    	{
-        	"path": "/arrays/arrayofints",
+        {
+            "path": "/arrays/arrayofints",
             "operations": [
-               {
+                {
                     "method": "POST",
                     "nickname": "setArrayOfInts",
                     "type": "void",
                     "parameters": [
                         {
-                            "paramType": "body",
-                            "name": "items",
                             "type": "array",
                             "items": {
-                    			"type": "integer",
-                            	"format": "int32"
-                    		},
-                    		"required" : true
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "paramType": "body",
+                            "name": "items",
+                            "required": true
                         }
                     ]
                 },
@@ -29,71 +29,112 @@
                     "nickname": "getArrayOfInts",
                     "type": "array",
                     "items": {
-                    			"type": "integer",
-                            	"format": "int32"
-                    		}
+                        "type": "integer",
+                        "format": "int32"
+                    }
                 }
             ]
         },
         {
-        	"path": "/arrays/arrayofitems",
+            "path": "/arrays/arrayofitems",
             "operations": [
-               {
+                {
                     "method": "POST",
                     "nickname": "setArrayOfItems",
                     "type": "void",
                     "parameters": [
                         {
-                            "paramType": "body",
-                            "name": "items",
                             "type": "array",
                             "items": {
-                    			"$ref": "arrayItem"
-                    		},
-                    		"required" : true
+                                "$ref": "arrayItem"
+                            },
+                            "paramType": "body",
+                            "name": "items",
+                            "required": true
                         }
                     ]
                 },
-               {
+                {
                     "method": "GET",
                     "nickname": "getArrayOfItems",
                     "type": "array",
                     "items": {
-                    			"$ref": "arrayItem"
-                    		}
+                        "$ref": "arrayItem"
+                    }
                 }
             ]
         },
-    	{
-        	"path": "/arrays/arrayofstrings",
+        {
+            "path": "/arrays/arrayofstrings",
             "operations": [
-               {
+                {
                     "method": "POST",
                     "nickname": "setArrayOfStrings",
                     "type": "void",
                     "parameters": [
                         {
-                            "paramType": "body",
-                            "name": "items",
                             "type": "array",
                             "items": {
-                    			"type": "string"
-                    		},
-                    		"required" : true
+                                "type": "string"
+                            },
+                            "paramType": "body",
+                            "name": "items",
+                            "required": true
                         }
                     ]
                 }
             ]
+        },
+        {
+            "path": "/arrays/itemwitharrays",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "setItemWithArrays",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "type": "ItemWithArrays",
+                            "paramType": "body",
+                            "name": "item",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "method": "GET",
+                    "nickname": "getItemWithArrays",
+                    "type": "ItemWithArrays"
+                }
+            ]
         }
-    ], 
+    ],
     "models": {
-    	"arrayItem": {
+        "arrayItem": {
             "id": "arrayItem",
             "properties": {
-            	"name" : {
-            		"type": "string"
-          		}
-         	}
-         }
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ItemWithArrays": {
+            "id": "ItemWithArrays",
+            "properties": {
+                "intArray": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "stringArray": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
     }
 }
