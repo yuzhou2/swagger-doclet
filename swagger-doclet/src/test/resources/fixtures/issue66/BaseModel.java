@@ -12,7 +12,6 @@ public class BaseModel {
 		this.id = "";
 	}
 
-	@JsonProperty("id")
 	public final String getId() {
 		return this.id;
 	}

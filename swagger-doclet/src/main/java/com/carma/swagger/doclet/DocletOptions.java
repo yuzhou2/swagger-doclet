@@ -739,8 +739,8 @@ public class DocletOptions {
 								.rootElement("com.fasterxml.jackson.annotation.JsonRootName", "value"))
 
 				.addNext(
-						new AnnotationAwareTranslator(this).ignore("org.codehaus.jackson.map.annotate.JsonIgnore")
-								.element("org.codehaus.jackson.map.annotate.JsonProperty", "value")
+						new AnnotationAwareTranslator(this).ignore("org.codehaus.jackson.annotate.JsonIgnore")
+								.element("org.codehaus.jackson.annotate.JsonProperty", "value")
 								.rootElement("org.codehaus.jackson.map.annotate.JsonRootName", "value")).addNext(new NameBasedTranslator(this));
 
 		fnnTranslator.addNext(new NameBasedTranslator(this));
