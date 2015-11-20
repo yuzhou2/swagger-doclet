@@ -148,7 +148,7 @@ public class CrossClassApiParser {
 
 			Set<Model> classModels = new HashSet<Model>();
 			if (this.options.isParseModels() && defaultErrorType != null) {
-				classModels.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
+				classModels.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType, null, this.classes).parse());
 			}
 
 			// read class level resource path, priority and description

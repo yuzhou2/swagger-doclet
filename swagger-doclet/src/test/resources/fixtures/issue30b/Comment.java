@@ -25,4 +25,29 @@ public class Comment {
 
 	@JsonView(Comment.CommentThreadView.class)
 	protected CommentThread commentThread;
+
+	public String getText() {
+		return this.text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public User getUser() {
+		return this.user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public CommentThread getCommentThread() {
+		return this.commentThread;
+	}
+
+	public void setCommentThread(CommentThread commentThread) {
+		this.commentThread = commentThread;
+	}
+
 }

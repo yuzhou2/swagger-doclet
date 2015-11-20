@@ -24,4 +24,21 @@ public class User {
 
 	@JsonView(User.CommentView.class)
 	protected Collection<Comment> comments;
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Collection<Comment> getComments() {
+		return this.comments;
+	}
+
+	public void setComments(Collection<Comment> comments) {
+		this.comments = comments;
+	}
+
 }

@@ -20,4 +20,21 @@ public class CommentThread {
 
 	@JsonView(CommentThread.CommentView.class)
 	protected List<Comment> comments;
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<Comment> getComments() {
+		return this.comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+
 }

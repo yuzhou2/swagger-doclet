@@ -965,10 +965,12 @@ public class ParserHelper {
 	 */
 	public static boolean isItemPartOfView(ClassDoc[] operationViews, ClassDoc[] itemsViews) {
 		if (operationViews != null && itemsViews != null) {
-			// check that one of the operation views is a subclass of an item view
+			// check that one of the item views is a superclass of an operation view
 			for (ClassDoc operationView : operationViews) {
-				if (isAssignableFrom(itemsViews, operationView)) {
-					return true;
+				for (ClassDoc itemView : itemsViews) {
+					if (isAssignableFrom(itemView, operationView)) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -976,39 +978,22 @@ public class ParserHelper {
 		return true;
 	}
 
-	/**
-	 * This checks if the given clazz is the same as or implments or is a subclass/sub interface of
-	 * any of the given classes
-	 * @param superClasses the classes to check if they are super classes/super interfaces of the given class
-	 * @param clazz The class to check if it extends/implements any of the given classes
-	 * @return True if the given class extends/implements any of the given classes/interfaces
-	 */
-	public static boolean isAssignableFrom(ClassDoc[] superClasses, ClassDoc clazz) {
-		if (superClasses != null) {
-			for (ClassDoc superClazz : superClasses) {
-				if (isAssignableFrom(superClazz, clazz)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	private static boolean isAssignableFrom(ClassDoc superClass, ClassDoc clazz) {
-		if (clazz.subclassOf(superClass)) {
+		if (clazz == superClass || clazz.subclassOf(superClass)) {
 			return true;
 		}
-		if (superClass.isInterface()) {
-			// if one of the classes interfaces is the super class interface
-			// or a subclass interface of the super class then its assignable
-			ClassDoc[] subInterfaces = clazz.interfaces();
-			if (subInterfaces != null) {
-				for (ClassDoc subInterface : subInterfaces) {
-					if (subInterface.subclassOf(superClass)) {
+		if (clazz.isInterface()) {
+			// check if one of the interfaces it extends match the view class
+			ClassDoc[] interfaces = clazz.interfaces();
+			if (interfaces != null) {
+				for (ClassDoc parentInterface : interfaces) {
+					boolean implementsIntf = isAssignableFrom(superClass, parentInterface);
+					if (implementsIntf) {
 						return true;
 					}
 				}
 			}
+
 		}
 		return false;
 	}

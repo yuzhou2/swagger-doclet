@@ -7,19 +7,23 @@ import com.fasterxml.jackson.annotation.JsonView;
 @SuppressWarnings("javadoc")
 public class User {
 
-	public interface UserView {
+	public interface UserView extends NameView, CommentView {
 		// noop
 	}
 
-	public interface CommentView extends Comment.UserView {
+	public interface NameView {
 		// noop
 	}
 
-	@JsonView(User.UserView.class)
-	String name;
+	public interface CommentView extends Comment.CommentView {
+		// noop
+	}
+
+	@JsonView(User.NameView.class)
+	protected String name;
 
 	@JsonView(User.CommentView.class)
-	Collection<Comment> comments;
+	protected Collection<Comment> comments;
 
 	/**
 	 * This gets the name

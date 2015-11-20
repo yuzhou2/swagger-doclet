@@ -292,7 +292,7 @@ public class ParameterReader {
 
 			if (this.options.isParseModels()) {
 				Type modelType = containerOf == null ? paramType : containerOf;
-				models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).parse());
+				models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses, this.allClasses).parse());
 			}
 
 			// set enum values
@@ -466,7 +466,7 @@ public class ParameterReader {
 								+ "for example if it is in a dependent project then you should copy the source to the doclet calling project using the maven-dependency-plugin's unpack goal,"
 								+ " and then add it to the source using the build-helper-maven-plugin's add-source goal.");
 			}
-			models.addAll(new ApiModelParser(this.options, this.translator, modelType, null).parse());
+			models.addAll(new ApiModelParser(this.options, this.translator, modelType, null, this.allClasses).parse());
 		}
 
 		String paramCategory = parts[2];
@@ -652,7 +652,7 @@ public class ParameterReader {
 			if (customType != null) {
 				// also add this custom return type to the models
 				if (this.options.isParseModels()) {
-					models.addAll(new ApiModelParser(this.options, this.translator, customType, viewClasses).parse());
+					models.addAll(new ApiModelParser(this.options, this.translator, customType, viewClasses, this.allClasses).parse());
 				}
 				return customType;
 			}

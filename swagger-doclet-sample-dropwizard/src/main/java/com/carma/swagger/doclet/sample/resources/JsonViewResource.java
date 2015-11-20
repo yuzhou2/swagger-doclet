@@ -2,7 +2,7 @@ package com.carma.swagger.doclet.sample.resources;
 
 import java.util.ArrayList;
 
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 import com.carma.swagger.doclet.sample.api.Comment;
@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 @SuppressWarnings("javadoc")
 public class JsonViewResource {
 
-	@POST
-	@JsonView(Comment.UserView.class)
-	public Comment postComment(Comment comment) {
+	@GET
+	@JsonView(User.UserView.class)
+	public User getUser() {
 		User u = new User();
 		u.setName("Name");
 		u.setComments(new ArrayList<Comment>(1));
@@ -33,6 +33,6 @@ public class JsonViewResource {
 		u.getComments().add(c);
 		t.getComments().add(c);
 
-		return c;
+		return u;
 	}
 }
