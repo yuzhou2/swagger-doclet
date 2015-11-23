@@ -74,7 +74,7 @@ public class Issue30bTest {
 		Assert.assertTrue(result.contains("comments"));
 	}
 
-	// @Test
+	@Test
 	public void testInheritance() throws IOException {
 
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue30b");
@@ -91,7 +91,8 @@ public class Issue30bTest {
 		Assert.assertFalse(ParserHelper.isItemPartOfView(new ClassDoc[] { methodView }, new ClassDoc[] { fieldView }));
 
 		fieldView = rootDoc.classNamed(User.CommentView.class.getName());
-		Assert.assertTrue(ParserHelper.isItemPartOfView(new ClassDoc[] { methodView }, new ClassDoc[] { fieldView }));
+		Assert.assertFalse(ParserHelper.isItemPartOfView(new ClassDoc[] { methodView }, new ClassDoc[] { fieldView }));
+		Assert.assertTrue(ParserHelper.isItemPartOfView(new ClassDoc[] { fieldView }, new ClassDoc[] { methodView }));
 
 	}
 }

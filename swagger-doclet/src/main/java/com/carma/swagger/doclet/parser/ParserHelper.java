@@ -968,7 +968,7 @@ public class ParserHelper {
 			// check that one of the item views is a superclass of an operation view
 			for (ClassDoc operationView : operationViews) {
 				for (ClassDoc itemView : itemsViews) {
-					if (isAssignableFrom(itemView, operationView)) {
+					if (isAssignableFrom(operationView, itemView)) {
 						return true;
 					}
 				}
