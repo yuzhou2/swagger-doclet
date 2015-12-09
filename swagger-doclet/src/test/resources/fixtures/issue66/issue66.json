@@ -25,7 +25,7 @@
     "UserModel" : {
       "id" : "UserModel",
       "properties" : {
-        "id" : {
+        "_id" : {
           "type" : "string"
         }
       }
