@@ -1,4 +1,4 @@
-package fixtures.issue30b;
+package com.carma.swagger.doclet.parser.jsonview;
 
 @SuppressWarnings("javadoc")
 public class Comment {

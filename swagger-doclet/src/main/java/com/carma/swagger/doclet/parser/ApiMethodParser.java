@@ -135,8 +135,10 @@ public class ApiMethodParser {
 		// build params
 		List<ApiParameter> parameters = this.generateParameters();
 
+		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(this.methodDoc, this.options);
+
 		// build response messages
-		List<ApiResponseMessage> responseMessages = generateResponseMessages();
+		List<ApiResponseMessage> responseMessages = generateResponseMessages(viewClasses);
 
 		// ************************************
 		// Return type
@@ -151,8 +153,6 @@ public class ApiMethodParser {
 		String returnTypeFormat = returnTypeOName.getFormat();
 
 		Type modelType = returnType;
-
-		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(this.methodDoc, this.options);
 
 		// now see if it is a collection if so the return type will be array and the
 		// containerOf will be added to the model
@@ -215,7 +215,7 @@ public class ApiMethodParser {
 
 			// add parameterized types to the model
 			// TODO: support variables e.g. for inherited or sub resources
-			addParameterizedModelTypes(returnType, varsToTypes);
+			addParameterizedModelTypes(returnType, varsToTypes, viewClasses);
 		}
 
 		// read extra details for the return type
@@ -247,7 +247,7 @@ public class ApiMethodParser {
 		String returnTypeDefaultValue = returnTypeReader.getFieldDefaultValue(this.methodDoc, returnType);
 
 		if (modelType != null && this.options.isParseModels()) {
-			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).addVarsToTypes(varsToTypes).parse());
+			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses, this.classes).addVarsToTypes(varsToTypes).parse());
 		}
 
 		// ************************************
@@ -370,7 +370,7 @@ public class ApiMethodParser {
 		return authorizations;
 	}
 
-	private List<ApiResponseMessage> generateResponseMessages() {
+	private List<ApiResponseMessage> generateResponseMessages(ClassDoc[] viewClasses) {
 		List<ApiResponseMessage> responseMessages = new ArrayList<ApiResponseMessage>();
 
 		Map<Integer, Integer> codeToMessageIdx = new HashMap<Integer, Integer>();
@@ -407,7 +407,7 @@ public class ApiMethodParser {
 							if (responseType != null) {
 								responseModel = this.translator.typeName(responseType, this.options.isUseFullModelIds()).value();
 								if (this.options.isParseModels()) {
-									this.models.addAll(new ApiModelParser(this.options, this.translator, responseType).parse());
+									this.models.addAll(new ApiModelParser(this.options, this.translator, responseType, viewClasses, this.classes).parse());
 								}
 							}
 						}
@@ -636,7 +636,8 @@ public class ApiMethodParser {
 					for (Type type : paramTypes) {
 						if (this.classes.contains(type)) {
 							if (this.options.isParseModels()) {
-								this.models.addAll(new ApiModelParser(this.options, this.translator, type).addVarsToTypes(varsToTypes).parse());
+								this.models.addAll(new ApiModelParser(this.options, this.translator, type, viewClasses, this.classes).addVarsToTypes(
+										varsToTypes).parse());
 							}
 						}
 					}
@@ -656,13 +657,13 @@ public class ApiMethodParser {
 		return null;
 	}
 
-	private void addParameterizedModelTypes(Type returnType, Map<String, Type> varsToTypes) {
+	private void addParameterizedModelTypes(Type returnType, Map<String, Type> varsToTypes, ClassDoc[] viewClasses) {
 		// TODO support variable types e.g. parameterize sub resources or inherited resources
 		List<Type> parameterizedTypes = ParserHelper.getParameterizedTypes(returnType, varsToTypes);
 		for (Type type : parameterizedTypes) {
 			if (this.classes.contains(type)) {
 				if (this.options.isParseModels()) {
-					this.models.addAll(new ApiModelParser(this.options, this.translator, type).addVarsToTypes(varsToTypes).parse());
+					this.models.addAll(new ApiModelParser(this.options, this.translator, type, viewClasses, null).addVarsToTypes(varsToTypes).parse());
 				}
 			}
 		}

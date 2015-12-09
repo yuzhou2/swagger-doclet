@@ -40,6 +40,7 @@ public class ApiModelParser {
 	private final Set<Model> models;
 	private final Set<Model> parentModels = new LinkedHashSet<>();
 	private final ClassDoc[] viewClasses;
+	private final Collection<ClassDoc> docletClasses;
 	private final boolean inheritFields;
 
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
@@ -51,24 +52,45 @@ public class ApiModelParser {
 	private List<ClassDoc> subTypeClasses = new ArrayList<ClassDoc>();
 
 	/**
-	 * This creates a ApiModelParser
+	 * This creates a ApiModelParser that inherits fields from super types
 	 * @param options
 	 * @param translator
 	 * @param rootType
+	 * @param viewClasses
+	 * @param docletClasses
 	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType) {
-		this(options, translator, rootType, null, true);
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, Collection<ClassDoc> docletClasses) {
+		this(options, translator, rootType, viewClasses, docletClasses, true);
 	}
 
 	/**
-	 * This creates a ApiModelParser
+	 * This creates a ApiModelParser for use when using composite parameter model parsing
 	 * @param options
 	 * @param translator
 	 * @param rootType
+	 * @param consumesMultipart
 	 * @param inheritFields whether to inherit fields from super types
 	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean inheritFields) {
-		this(options, translator, rootType, null, inheritFields);
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean consumesMultipart, boolean inheritFields) {
+		this(options, translator, rootType, null, null, inheritFields);
+		this.consumesMultipart = consumesMultipart;
+		this.composite = true;
+	}
+
+	/**
+	 * This creates an ApiModelParser for use only by sub model parsing
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param viewClasses
+	 * @param inheritFields whether to inherit fields from super types
+	 * @param parentModels parent type models
+	 */
+	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, boolean inheritFields, Set<Model> parentModels) {
+
+		this(options, translator, rootType, viewClasses, null, inheritFields);
+		this.parentModels.clear();
+		this.parentModels.addAll(parentModels);
 	}
 
 	/**
@@ -77,20 +99,11 @@ public class ApiModelParser {
 	 * @param translator
 	 * @param rootType
 	 * @param viewClasses
-	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses) {
-		this(options, translator, rootType, viewClasses, true);
-	}
-
-	/**
-	 * This creates a ApiModelParser
-	 * @param options
-	 * @param translator
-	 * @param rootType
-	 * @param viewClasses
+	 * @param docletClasses
 	 * @param inheritFields whether to inherit fields from super types
 	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, boolean inheritFields) {
+	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, Collection<ClassDoc> docletClasses,
+			boolean inheritFields) {
 		this.options = options;
 		this.translator = translator;
 		this.rootType = rootType;
@@ -103,6 +116,7 @@ public class ApiModelParser {
 				this.viewClasses[i++] = view;
 			}
 		}
+		this.docletClasses = docletClasses;
 		this.models = new LinkedHashSet<Model>();
 
 		if (rootType.asClassDoc() != null && rootType.asClassDoc().superclass() != null) {
@@ -121,36 +135,6 @@ public class ApiModelParser {
 		}
 
 		this.inheritFields = inheritFields;
-	}
-
-	/**
-	 * This creates a ApiModelParser for use when using composite parameter model parsing
-	 * @param options
-	 * @param translator
-	 * @param rootType
-	 * @param consumesMultipart
-	 * @param inheritFields whether to inherit fields from super types
-	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean consumesMultipart, boolean inheritFields) {
-		this(options, translator, rootType, null, inheritFields);
-		this.consumesMultipart = consumesMultipart;
-		this.composite = true;
-	}
-
-	/**
-	 * This creates a ApiModelParser
-	 * @param options
-	 * @param translator
-	 * @param rootType
-	 * @param viewClasses
-	 * @param inheritFields whether to inherit fields from super types
-	 * @param parentModels parent type models
-	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType,
-						  ClassDoc[] viewClasses, boolean inheritFields, Set<Model> parentModels) {
-		this(options, translator, rootType, viewClasses, inheritFields);
-		this.parentModels.clear();
-		this.parentModels.addAll(parentModels);
 	}
 
 	/**
@@ -175,7 +159,8 @@ public class ApiModelParser {
 
 		// process sub types
 		for (ClassDoc subType : this.subTypeClasses) {
-			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, null, false, models);
+
+			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, this.viewClasses, false, this.models);
 			Set<Model> subTypeModesl = subTypeParser.parse();
 			this.models.addAll(subTypeModesl);
 		}
@@ -742,10 +727,8 @@ public class ApiModelParser {
 			ClassDoc typeClassDoc = type.asClassDoc();
 
 			// change type name based on parent view
-			OptionalName propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds());
-			if (typeRef.hasView && this.viewClasses != null) {
-				propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses);
-			}
+			ClassDoc[] views = typeRef.hasView ? this.viewClasses : null;
+			OptionalName propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds(), views);
 
 			String propertyType = propertyTypeFormat.value();
 
@@ -755,7 +738,7 @@ public class ApiModelParser {
 				propertyType = "string";
 			}
 
-			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, this.subTypeClasses);
+			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, this.docletClasses);
 			String itemsRef = null;
 			String itemsType = null;
 			String itemsFormat = null;
@@ -765,7 +748,7 @@ public class ApiModelParser {
 				if (itemsAllowableValues != null) {
 					itemsType = "string";
 				} else {
-					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds(), views);
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
 						itemsType = oName.value();
 						itemsFormat = oName.getFormat();

@@ -33,16 +33,12 @@ public class Issue30bTest {
 	@Test
 	public void testStart() throws IOException {
 
-		// FIXME reenable...
-		boolean enabled = false;
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue30b");
+		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		if (enabled) {
-			final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue30b");
-			new JaxRsAnnotationParser(this.options, rootDoc).run();
+		final ApiDeclaration api = loadFixture("/fixtures/issue30b/issue30b.json", ApiDeclaration.class);
+		verify(this.recorderMock).record(any(File.class), eq(api));
 
-			final ApiDeclaration api = loadFixture("/fixtures/issue30b/issue30b.json", ApiDeclaration.class);
-			verify(this.recorderMock).record(any(File.class), eq(api));
-		}
 	}
 
 }

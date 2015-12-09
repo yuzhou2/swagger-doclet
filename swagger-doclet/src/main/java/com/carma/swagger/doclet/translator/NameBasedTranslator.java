@@ -56,7 +56,7 @@ public class NameBasedTranslator implements Translator {
 	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
 		String[] typeFormat = ParserHelper.typeOf(type, useFqn, this.options);
 
-		if (views != null && views.length > 0 && !ParserHelper.isPrimitive(type, this.options)) {
+		if (views != null && views.length > 0 && !ParserHelper.isPrimitive(type, this.options) && !"array".equals(typeFormat[0])) {
 			StringBuilder nameWithView = new StringBuilder(typeFormat[0]).append("-");
 			for (ClassDoc view : views) {
 				nameWithView.append(view.name());

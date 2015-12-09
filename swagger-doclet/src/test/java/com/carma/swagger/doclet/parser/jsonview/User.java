@@ -1,4 +1,4 @@
-package fixtures.issue30b;
+package com.carma.swagger.doclet.parser.jsonview;
 
 import java.util.Collection;
 
