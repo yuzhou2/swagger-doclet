@@ -393,6 +393,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
  @implicitParam p2|int|query|true|5|1|10||true|test dec<br>
  3. A string path param with allowable values A and B and a default value of A and a description:
  @implicitParam p3|string|path|true|A|||A,B||test<br>
+ <br><b>Note that if you want to add a non primitive e.g. object type as an implicit parameter it must be given the paramType of body.</b>
 </td><td>operations, resource class</td><td>@additionalParam,@extraParam</td></tr>
 	
 	
