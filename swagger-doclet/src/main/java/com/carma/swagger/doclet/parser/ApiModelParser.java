@@ -52,7 +52,7 @@ public class ApiModelParser {
 	private List<ClassDoc> subTypeClasses = new ArrayList<ClassDoc>();
 
 	/**
-	 * This creates a ApiModelParser
+	 * This creates a ApiModelParser that inherits fields from super types
 	 * @param options
 	 * @param translator
 	 * @param rootType
@@ -64,6 +64,36 @@ public class ApiModelParser {
 	}
 
 	/**
+	 * This creates a ApiModelParser for use when using composite parameter model parsing
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param consumesMultipart
+	 * @param inheritFields whether to inherit fields from super types
+	 */
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean consumesMultipart, boolean inheritFields) {
+		this(options, translator, rootType, null, null, inheritFields);
+		this.consumesMultipart = consumesMultipart;
+		this.composite = true;
+	}
+
+	/**
+	 * This creates an ApiModelParser for use only by sub model parsing
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param viewClasses
+	 * @param inheritFields whether to inherit fields from super types
+	 * @param parentModels parent type models
+	 */
+	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, boolean inheritFields, Set<Model> parentModels) {
+
+		this(options, translator, rootType, viewClasses, null, inheritFields);
+		this.parentModels.clear();
+		this.parentModels.addAll(parentModels);
+	}
+
+	/**
 	 * This creates a ApiModelParser
 	 * @param options
 	 * @param translator
@@ -72,7 +102,7 @@ public class ApiModelParser {
 	 * @param docletClasses
 	 * @param inheritFields whether to inherit fields from super types
 	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, Collection<ClassDoc> docletClasses,
+	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, Collection<ClassDoc> docletClasses,
 			boolean inheritFields) {
 		this.options = options;
 		this.translator = translator;
@@ -108,36 +138,6 @@ public class ApiModelParser {
 	}
 
 	/**
-	 * This creates a ApiModelParser for use when using composite parameter model parsing
-	 * @param options
-	 * @param translator
-	 * @param rootType
-	 * @param consumesMultipart
-	 * @param inheritFields whether to inherit fields from super types
-	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType, boolean consumesMultipart, boolean inheritFields) {
-		this(options, translator, rootType, null, null, inheritFields);
-		this.consumesMultipart = consumesMultipart;
-		this.composite = true;
-	}
-
-	/**
-	 * This creates a ApiModelParser
-	 * @param options
-	 * @param translator
-	 * @param rootType
-	 * @param viewClasses
-	 * @param inheritFields whether to inherit fields from super types
-	 * @param parentModels parent type models
-	 */
-	public ApiModelParser(DocletOptions options, Translator translator, Type rootType,
-						  ClassDoc[] viewClasses, boolean inheritFields, Set<Model> parentModels) {
-		this(options, translator, rootType, viewClasses, inheritFields);
-		this.parentModels.clear();
-		this.parentModels.addAll(parentModels);
-	}
-
-	/**
 	 * This adds the given vars to types to the ones used by this model
 	 * @param varsToTypes
 	 * @return This
@@ -159,11 +159,8 @@ public class ApiModelParser {
 
 		// process sub types
 		for (ClassDoc subType : this.subTypeClasses) {
-<<<<<<< HEAD
-			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, this.viewClasses, this.docletClasses, false);
-=======
-			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, null, false, models);
->>>>>>> master
+
+			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, this.viewClasses, false, this.models);
 			Set<Model> subTypeModesl = subTypeParser.parse();
 			this.models.addAll(subTypeModesl);
 		}
