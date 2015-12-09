@@ -1,7 +1,7 @@
 package com.carma.swagger.doclet.model;
 
 import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
 
 public enum HttpMethod {
 
@@ -34,7 +34,7 @@ public enum HttpMethod {
 	 * @param method The java method to check
 	 * @return The HTTP method or null if there is not HTTP method annotation on the java method
 	 */
-	public static HttpMethod fromMethod(MethodDoc method) {
+	public static HttpMethod fromMethod(ExecutableMemberDoc method) {
 		for (AnnotationDesc annotation : method.annotations()) {
 			String qName = annotation.annotationType().qualifiedTypeName();
 			for (HttpMethod value : HttpMethod.values()) {

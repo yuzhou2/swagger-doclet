@@ -175,17 +175,18 @@ public class ParserHelper {
 	}
 
 	/**
-	 * Resolves tha @Path for the MethodDoc respecting the overriden methods
+	 * Resolves the @Path for the MethodDoc respecting the overriden methods
 	 * @param methodDoc The method to be processed
 	 * @param options Doclet options
 	 * @return The resolved path
 	 */
-	public static String resolveMethodPath(MethodDoc methodDoc, DocletOptions options) {
+	public static String resolveMethodPath(ExecutableMemberDoc methodDoc, DocletOptions options) {
+
 		String path = null;
 		while (path == null && methodDoc != null) {
 			AnnotationParser p = new AnnotationParser(methodDoc, options);
 			path = p.getAnnotationValue(JAX_RS_PATH, "value");
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return normalisePath(path);
 	}
@@ -538,8 +539,9 @@ public class ParserHelper {
 		// note in java 8 we can do this directly, however for now the only solution is to look it up via the model classes
 		if (ParserHelper.isArray(type)) {
 			ClassDoc foundModel = findModel(classes, type.qualifiedTypeName());
-			if (foundModel != null)
+			if (foundModel != null) {
 				result = foundModel;
+			}
 		}
 
 		return result;
@@ -879,11 +881,11 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return The json views for the given method/overridden method or null if there were none
 	 */
-	public static ClassDoc[] getInheritableJsonViews(MethodDoc methodDoc, DocletOptions options) {
+	public static ClassDoc[] getInheritableJsonViews(ExecutableMemberDoc methodDoc, DocletOptions options) {
 		ClassDoc[] result = null;
 		while (result == null && methodDoc != null) {
 			result = getJsonViews(methodDoc, options);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -904,7 +906,7 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This gets the json views for the given method paramater, it supports deriving the views from an overridden method
+	 * This gets the json views for the given method parameter, it supports deriving the views from an overridden method
 	 * @param methodDoc The method
 	 * @param param The parameter
 	 * @param options The doclet options
@@ -929,7 +931,7 @@ public class ParserHelper {
 		ClassDoc[] result = null;
 		while (result == null && methodDoc != null) {
 			result = getJsonViews(param, options);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 			param = methodDoc == null ? null : methodDoc.parameters()[paramIdx];
 		}
 		return result;
@@ -1045,7 +1047,7 @@ public class ParserHelper {
 		List<String> result = null;
 		while (result == null && methodDoc != null) {
 			result = listValues(methodDoc, qualifiedAnnotationType, annotationValueName, options);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1140,7 +1142,7 @@ public class ParserHelper {
 		boolean result = false;
 		while (!result && methodDoc != null) {
 			result = hasTag(methodDoc, matchTags);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1206,7 +1208,7 @@ public class ParserHelper {
 		while (methodDoc != null) {
 			Set<String> subResult = getParametersWithAnnotation(methodDoc, annotations);
 			result.addAll(subResult);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1265,7 +1267,7 @@ public class ParserHelper {
 		do {
 			parameter = methodDoc.parameters()[paramIndex];
 			found = (parameter.annotations() != null && parameter.annotations().length > 0);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		} while (methodDoc != null && !found);
 		return (found) ? parameter : fallbackParameter;
 	}
@@ -1312,7 +1314,7 @@ public class ParserHelper {
 					res.put(p.name(), value);
 				}
 			}
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return res;
 	}
@@ -1500,11 +1502,11 @@ public class ParserHelper {
 	 * @param methodDoc The method to be processed
 	 * @return The resolved HttpMethod
 	 */
-	public static HttpMethod resolveMethodHttpMethod(MethodDoc methodDoc) {
+	public static HttpMethod resolveMethodHttpMethod(ExecutableMemberDoc methodDoc) {
 		HttpMethod result = null;
 		while (result == null && methodDoc != null) {
 			result = HttpMethod.fromMethod(methodDoc);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1528,9 +1530,7 @@ public class ParserHelper {
 				result = firstSentences;
 			}
 
-			if (methodDoc instanceof MethodDoc){				
-				methodDoc = getInheritedMember((MethodDoc)methodDoc);
-			}
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1548,32 +1548,38 @@ public class ParserHelper {
 			if (commentText != null && !commentText.isEmpty()) {
 				result = commentText;
 			}
-			
-			if (methodDoc instanceof MethodDoc){				
-				methodDoc = getInheritedMember((MethodDoc)methodDoc);
-			}
+
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
-	
+
 	/**
-	 * Finds a methods definition on any ancestor, be it interface or class. 
+	 * Finds a methods definition on any ancestor, be it interface or class.
+	 * @param execMethodDoc The method to get the inherited member of
 	 * @return Null if there is no ancestor.
 	 */
-	public static ExecutableMemberDoc getInheritedMember(MethodDoc methodDoc){		
-		// only provides parent class overrides, but does not include interfaces
-		if (methodDoc.overriddenMethod() != null) {
-			return methodDoc.overriddenMethod();
-		}
-		
-		// search for method on interfaces by looping through. I arbitrarily decided that 
-		// the first match wins in case there are multiple. One could consider joining the
-		// various documentations...
-		for (ClassDoc intf : methodDoc.containingClass().interfaces()) {
-			MethodDoc intfMethod = tryGetMethod(intf, methodDoc);
-			if (intfMethod != null){
-				return intfMethod;
+	public static ExecutableMemberDoc getAncestorMethod(ExecutableMemberDoc execMethodDoc) {
+
+		if (execMethodDoc instanceof MethodDoc) {
+
+			MethodDoc methodDoc = (MethodDoc) execMethodDoc;
+
+			// only provides parent class overrides, but does not include interfaces
+			if (methodDoc.overriddenMethod() != null) {
+				return methodDoc.overriddenMethod();
 			}
+
+			// search for method on interfaces by looping through. I arbitrarily decided that
+			// the first match wins in case there are multiple. One could consider joining the
+			// various documentations...
+			for (ClassDoc intf : methodDoc.containingClass().interfaces()) {
+				MethodDoc intfMethod = findInterfaceMethod(intf, methodDoc);
+				if (intfMethod != null) {
+					return intfMethod;
+				}
+			}
+
 		}
 		return null;
 	}
@@ -1584,12 +1590,12 @@ public class ParserHelper {
 	 * @param method The name and signature of the method you are searching for
 	 * @return Null if no method matches.
 	 */
-	private static MethodDoc tryGetMethod(ClassDoc object, MethodDoc method) {
+	private static MethodDoc findInterfaceMethod(ClassDoc object, MethodDoc method) {
 		for (MethodDoc intfMethod : object.methods()) {
 			if (intfMethod.name().equals(method.name())) {
-				if (intfMethod.flatSignature().equals(method.flatSignature())){
-					// xxx: do we need to consider more compllicated cases like contravariance? 
-					return intfMethod;					
+				if (intfMethod.flatSignature().equals(method.flatSignature())) {
+					// xxx: do we need to consider more compllicated cases like contravariance?
+					return intfMethod;
 				}
 			}
 		}
@@ -1607,7 +1613,7 @@ public class ParserHelper {
 		List<String> result = null;
 		while (result == null && methodDoc != null) {
 			result = getTagValues(methodDoc, matchTags, options);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1677,7 +1683,7 @@ public class ParserHelper {
 		String result = null;
 		while (result == null && methodDoc != null) {
 			result = getTagValue(methodDoc, matchTags, options);
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
@@ -1747,11 +1753,11 @@ public class ParserHelper {
 	 * @param options The doclet options
 	 * @return True if the method or an overridden method has one of the given annotations
 	 */
-	public static boolean hasInheritableAnnotation(MethodDoc methodDoc, Collection<String> annotations, DocletOptions options) {
+	public static boolean hasInheritableAnnotation(ExecutableMemberDoc methodDoc, Collection<String> annotations, DocletOptions options) {
 		boolean result = false;
 		while (!result && methodDoc != null) {
 			result = hasAnnotation(methodDoc, annotations, options);
-			methodDoc = methodDoc.overriddenMethod();
+			methodDoc = getAncestorMethod(methodDoc);
 		}
 		return result;
 	}
