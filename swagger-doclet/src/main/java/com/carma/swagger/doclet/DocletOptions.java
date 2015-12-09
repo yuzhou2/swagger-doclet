@@ -492,6 +492,8 @@ public class DocletOptions {
 		this.stringTypePrefixes = new ArrayList<String>();
 		this.stringTypePrefixes.add("com.sun.jersey.core.header.");
 		this.stringTypePrefixes.add("org.joda.time.");
+		this.stringTypePrefixes.add("java.net.URI");
+		this.stringTypePrefixes.add("java.net.URL");
 
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();
