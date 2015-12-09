@@ -7,12 +7,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import org.codehaus.jackson.map.annotate.JsonView;
 
-@Path("/issue30")
+@Path("issue30b")
 @Produces({ MediaType.APPLICATION_JSON })
 @SuppressWarnings("javadoc")
-public class Resource {
+public class IssueResource {
 
 	@GET
 	@JsonView(User.UserView.class)
@@ -27,13 +27,12 @@ public class Resource {
 
 		Comment c = new Comment();
 		c.text = "Text";
-		c.user = u;
-		c.commentThread = t;
+		// c.user = u;
+		// c.commentThread = t;
 
 		u.comments.add(c);
 		t.comments.add(c);
 
 		return u;
 	}
-
 }

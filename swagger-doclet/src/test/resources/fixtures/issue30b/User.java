@@ -2,10 +2,12 @@ package fixtures.issue30b;
 
 import java.util.Collection;
 
-import org.codehaus.jackson.map.annotate.JsonView;
-
 @SuppressWarnings("javadoc")
 public class User {
+
+	public interface HiddenView {
+		// noop
+	}
 
 	public interface UserView extends NameView, CommentView {
 		// noop
@@ -19,10 +21,12 @@ public class User {
 		// noop
 	}
 
-	@JsonView(User.NameView.class)
+	@org.codehaus.jackson.map.annotate.JsonView(User.NameView.class)
+	@com.fasterxml.jackson.annotation.JsonView(User.NameView.class)
 	protected String name;
 
-	@JsonView(User.CommentView.class)
+	@org.codehaus.jackson.map.annotate.JsonView(User.CommentView.class)
+	@com.fasterxml.jackson.annotation.JsonView(User.CommentView.class)
 	protected Collection<Comment> comments;
 
 	public String getName() {

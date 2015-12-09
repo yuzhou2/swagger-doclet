@@ -15,10 +15,9 @@ public class JaxRsApplication extends ResourceConfig {
 
 		super(
 		// register resources
-				SimpleResource.class, BeanParamResource.class, JsonViewResource.class,
+				SimpleResource.class, BeanParamResource.class,
 				// register Jackson ObjectMapper resolver
 				MyObjectMapperProvider.class, JacksonFeature.class);
 
-		com.fasterxml.jackson.databind.AnnotationIntrospector x;
 	}
 }

@@ -1,4 +1,4 @@
-package fixtures.jsonviewhierarchy;
+package com.carma.swagger.doclet.parser.jsonview;
 
 /**
  * The Views represents a placeholder for json views
@@ -22,15 +22,15 @@ public class Views {
 	}
 
 	// interfaces
-	public static class PublicView {
+	public static interface PublicInterface {
 		// noop
 	}
 
-	public static class InternalView extends PublicView {
+	public static interface InternalInterface extends PublicInterface {
 		// noop
 	}
 
-	public static class PrivateView extends InternalView {
+	public static interface PrivateInterface extends InternalInterface {
 		// noop
 	}
 

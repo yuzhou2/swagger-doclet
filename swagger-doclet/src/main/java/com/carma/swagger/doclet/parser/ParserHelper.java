@@ -957,18 +957,18 @@ public class ParserHelper {
 	}
 
 	/**
-	 * This checks if an item view e.g optional json view that can be on a getter/field match any of the
-	 * given operation views, that is it can be the same or extend/implement one of the operation views.
+	 * This checks if a field is part of a resource object serialization view, it is if any of the views on the field
+	 * are superclasses of any of the operation views
 	 * @param operationViews The operation views that indicate which views apply to the operation.
-	 * @param itemsViews The views that are on the getter/field
+	 * @param fieldViews The views that are on the getter/field
 	 * @return True if the field/getter is part of the view
 	 */
-	public static boolean isItemPartOfView(ClassDoc[] operationViews, ClassDoc[] itemsViews) {
-		if (operationViews != null && itemsViews != null) {
-			// check that one of the item views is a superclass of an operation view
+	public static boolean isItemPartOfView(ClassDoc[] operationViews, ClassDoc[] fieldViews) {
+		if (operationViews != null && fieldViews != null) {
+			// check that one of the field views is a superclass of an operation view
 			for (ClassDoc operationView : operationViews) {
-				for (ClassDoc itemView : itemsViews) {
-					if (isAssignableFrom(operationView, itemView)) {
+				for (ClassDoc fieldView : fieldViews) {
+					if (isAssignableFrom(fieldView, operationView)) {
 						return true;
 					}
 				}

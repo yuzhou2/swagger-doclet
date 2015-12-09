@@ -1,11 +1,13 @@
-package com.carma.swagger.doclet.sample.api;
+package com.carma.swagger.doclet.parser.jsonview;
 
 import java.util.Collection;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
 @SuppressWarnings("javadoc")
 public class User {
+
+	public interface HiddenView {
+		// noop
+	}
 
 	public interface UserView extends NameView, CommentView {
 		// noop
@@ -19,40 +21,26 @@ public class User {
 		// noop
 	}
 
-	@JsonView(User.NameView.class)
+	@org.codehaus.jackson.map.annotate.JsonView(User.NameView.class)
+	@com.fasterxml.jackson.annotation.JsonView(User.NameView.class)
 	protected String name;
 
-	@JsonView(User.CommentView.class)
+	@org.codehaus.jackson.map.annotate.JsonView(User.CommentView.class)
+	@com.fasterxml.jackson.annotation.JsonView(User.CommentView.class)
 	protected Collection<Comment> comments;
 
-	/**
-	 * This gets the name
-	 * @return the name
-	 */
 	public String getName() {
 		return this.name;
 	}
 
-	/**
-	 * This sets the name
-	 * @param name the name to set
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * This gets the comments
-	 * @return the comments
-	 */
 	public Collection<Comment> getComments() {
 		return this.comments;
 	}
 
-	/**
-	 * This sets the comments
-	 * @param comments the comments to set
-	 */
 	public void setComments(Collection<Comment> comments) {
 		this.comments = comments;
 	}
