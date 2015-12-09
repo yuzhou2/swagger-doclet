@@ -524,6 +524,8 @@ public class ParserHelper {
 			if (typeArgs != null && typeArgs.length > 0) {
 				result = typeArgs[0];
 			}
+		} else if (ParserHelper.isArray(type)) {
+			result = type.getElementType();
 		}
 		// if its a ref to a param type replace with the type impl
 		if (result != null) {
@@ -535,7 +537,9 @@ public class ParserHelper {
 		// if its a non parameterized array then find the array type
 		// note in java 8 we can do this directly, however for now the only solution is to look it up via the model classes
 		if (ParserHelper.isArray(type)) {
-			result = findModel(classes, type.qualifiedTypeName());
+			ClassDoc foundModel = findModel(classes, type.qualifiedTypeName());
+			if (foundModel != null)
+				result = foundModel;
 		}
 
 		return result;
