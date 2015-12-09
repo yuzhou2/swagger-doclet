@@ -1539,7 +1539,9 @@ public class ParserHelper {
 				result = firstSentences;
 			}
 
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			if (methodDoc instanceof MethodDoc){				
+				methodDoc = getInheritedMember((MethodDoc)methodDoc);
+			}
 		}
 		return result;
 	}
@@ -1557,10 +1559,52 @@ public class ParserHelper {
 			if (commentText != null && !commentText.isEmpty()) {
 				result = commentText;
 			}
-
-			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			
+			if (methodDoc instanceof MethodDoc){				
+				methodDoc = getInheritedMember((MethodDoc)methodDoc);
+			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Finds a methods definition on any ancestor, be it interface or class. 
+	 * @return Null if there is no ancestor.
+	 */
+	public static ExecutableMemberDoc getInheritedMember(MethodDoc methodDoc){		
+		// only provides parent class overrides, but does not include interfaces
+		if (methodDoc.overriddenMethod() != null) {
+			return methodDoc.overriddenMethod();
+		}
+		
+		// search for method on interfaces by looping through. I arbitrarily decided that 
+		// the first match wins in case there are multiple. One could consider joining the
+		// various documentations...
+		for (ClassDoc intf : methodDoc.containingClass().interfaces()) {
+			MethodDoc intfMethod = tryGetMethod(intf, methodDoc);
+			if (intfMethod != null){
+				return intfMethod;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Tries to find a method with the correct signature and name on an interface.
+	 * @param object The class or interface on which you want to search for a method
+	 * @param method The name and signature of the method you are searching for
+	 * @return Null if no method matches.
+	 */
+	private static MethodDoc tryGetMethod(ClassDoc object, MethodDoc method) {
+		for (MethodDoc intfMethod : object.methods()) {
+			if (intfMethod.name().equals(method.name())) {
+				if (intfMethod.flatSignature().equals(method.flatSignature())){
+					// xxx: do we need to consider more compllicated cases like contravariance? 
+					return intfMethod;					
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
