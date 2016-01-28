@@ -1,0 +1,125 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/longdates",
+    "apis": [
+        {
+            "path": "/longdates",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "get",
+                    "type": "Data"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "post",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/longdates/calendar",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getCalendar",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setCalendar",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "integer",
+                    		"format": "int64",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/longdates/date",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getDate",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setDate",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "integer",
+                    		"format": "int64",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/longdates/sqldate",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getSqlDate",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setSqlDate",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "string",
+                    		"format": "date-time",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+    	"Data": {
+            "id": "Data",
+            "properties": {
+                "date": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "sqlDate": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "calendar": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        }
+    }
+}
