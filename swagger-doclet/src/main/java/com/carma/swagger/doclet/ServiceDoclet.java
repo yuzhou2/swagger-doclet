@@ -116,6 +116,7 @@ public class ServiceDoclet {
 		options.put("-fieldMinTags", 2);
 		options.put("-fieldMaxTags", 2);
 		options.put("-fieldDefaultTags", 2);
+		options.put("-fieldAllowableValuesTags", 2);
 
 		options.put("-requiredParamsTags", 2);
 		options.put("-optionalParamsTags", 2);

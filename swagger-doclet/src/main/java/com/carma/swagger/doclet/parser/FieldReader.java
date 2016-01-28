@@ -1,7 +1,9 @@
 package com.carma.swagger.doclet.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import com.carma.swagger.doclet.DocletOptions;
 import com.sun.javadoc.Type;
@@ -21,6 +23,28 @@ public class FieldReader {
 	 */
 	public FieldReader(DocletOptions options) {
 		this.options = options;
+	}
+
+	/**
+	 * This gets the allowable values for the given field/method
+	 * @param docItem The method/field
+	 * @return The allowable values or null if there are none
+	 */
+	public List<String> getFieldAllowableValues(com.sun.javadoc.MemberDoc docItem) {
+		String allowableValuesCsv = ParserHelper.getTagValue(docItem, this.options.getFieldAllowableValuesTags(), this.options);
+		if (allowableValuesCsv != null && !allowableValuesCsv.trim().isEmpty()) {
+			String[] allowableValues = allowableValuesCsv.trim().split(",");
+			if (allowableValues.length > 0) {
+				List<String> res = new ArrayList<>(allowableValues.length);
+				for (String val : allowableValues) {
+					if (!val.trim().isEmpty()) {
+						res.add(val.trim());
+					}
+				}
+				return res;
+			}
+		}
+		return null;
 	}
 
 	/**

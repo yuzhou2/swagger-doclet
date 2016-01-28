@@ -762,6 +762,10 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-fieldMaxTags</td><td>This adds additional tags to the list of javadoc tags used for setting the max value of a model field. The default list contains max, maximum. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
+	<tr><td>-fieldDefaultTags</td><td>This adds additional tags to the list of javadoc tags used for setting the default value of a model field. The default list contains default, defaultValue. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-fieldAllowableValuesTags</td><td>This adds additional tags to the list of javadoc tags used for setting the allowable values (a.k.a. enum values) of a model field. The default list contains allowableValues, valies, enum. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
 	<tr><td>-resourcePriorityTags</td><td>This adds additional tags to the list of javadoc tags used for setting the priority of a resource for order in the resource listing/service.json. The default list contains resourcePriority, resourceOrder. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-resourceDescriptionTags</td><td>This adds additional tags to the list of javadoc tags used for setting the description of a resource in the esource listing/service.json. The default list contains resourceDescription. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>

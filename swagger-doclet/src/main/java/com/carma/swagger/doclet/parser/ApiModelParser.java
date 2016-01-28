@@ -316,11 +316,12 @@ public class ApiModelParser {
 		String min;
 		String max;
 		String defaultValue;
+		List<String> allowableValues;
 		Boolean required;
 		boolean hasView;
 
 		TypeRef(String rawName, String paramCategory, String sourceDesc, Type type, String description, String format, String min, String max,
-				String defaultValue, Boolean required, boolean hasView) {
+				String defaultValue, List<String> allowableValues, Boolean required, boolean hasView) {
 			super();
 			this.rawName = rawName;
 			this.paramCategory = paramCategory;
@@ -331,8 +332,10 @@ public class ApiModelParser {
 			this.min = min;
 			this.max = max;
 			this.defaultValue = defaultValue;
+			this.allowableValues = allowableValues;
 			this.required = required;
 			this.hasView = hasView;
+
 		}
 	}
 
@@ -466,12 +469,13 @@ public class ApiModelParser {
 							boolean hasView = ParserHelper.hasJsonViews(field, this.options);
 
 							String defaultValue = fieldReader.getFieldDefaultValue(field, fieldType);
+							List<String> allowableValues = fieldReader.getFieldAllowableValues(field);
 
 							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
 									: null;
 
 							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, format, min,
-									max, defaultValue, required, hasView));
+									max, defaultValue, allowableValues, required, hasView));
 						}
 					}
 				}
@@ -522,6 +526,7 @@ public class ApiModelParser {
 					String min = returnTypeReader.getFieldMin(method, returnType);
 					String max = returnTypeReader.getFieldMax(method, returnType);
 					String defaultValue = returnTypeReader.getFieldDefaultValue(method, returnType);
+					List<String> allowableValues = returnTypeReader.getFieldAllowableValues(method);
 					Boolean required = returnTypeReader.getFieldRequired(method);
 					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
 
@@ -544,7 +549,7 @@ public class ApiModelParser {
 						if (typeRef == null) {
 							// its a getter/setter but without a corresponding field
 							typeRef = new TypeRef(rawFieldName, null, " method: " + method.name(), returnType, description, format, min, max, defaultValue,
-									required, false);
+									allowableValues, required, false);
 							elements.put(rawFieldName, typeRef);
 						}
 
@@ -572,6 +577,9 @@ public class ApiModelParser {
 						if (typeRef.defaultValue == null) {
 							typeRef.defaultValue = defaultValue;
 						}
+						if (typeRef.allowableValues == null) {
+							typeRef.allowableValues = allowableValues;
+						}
 						if (typeRef.required == null) {
 							typeRef.required = required;
 						}
@@ -588,7 +596,7 @@ public class ApiModelParser {
 						// its a non getter/setter
 						String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
 						elements.put(translatedNameViaMethod, new TypeRef(null, paramCategory, " method: " + method.name(), returnType, description, format,
-								min, max, defaultValue, required, hasView));
+								min, max, defaultValue, allowableValues, required, hasView));
 					}
 				}
 			}
@@ -732,8 +740,11 @@ public class ApiModelParser {
 
 			String propertyType = propertyTypeFormat.value();
 
-			// set enum values
-			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
+			// read allowableValues, either given via a javadoc tag, or for enums are automatically generated
+			List<String> allowableValues = typeRef.allowableValues;
+			if (allowableValues == null) {
+				allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
+			}
 			if (allowableValues != null) {
 				propertyType = "string";
 			}

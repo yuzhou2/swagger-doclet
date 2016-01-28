@@ -203,6 +203,13 @@
                 "falseFieldTag" : {
                     "type": "boolean",
                     "defaultValue" : false
+                },
+                "aValues" : {
+                    "type": "string",
+                    "enum": [
+						        "A",
+						        "B"
+						    ]
                 }
             }
         }

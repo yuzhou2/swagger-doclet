@@ -39,6 +39,11 @@ public class Data {
 	boolean falseFieldTag;
 
 	/**
+	 * @values A,B
+	 */
+	String aValues;
+
+	/**
 	 * This creates a Input
 	 */
 	public Data() {

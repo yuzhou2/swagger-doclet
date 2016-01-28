@@ -289,6 +289,9 @@ public class DocletOptions {
 			} else if (option[0].equals("-fieldDefaultTags")) {
 				addTagsOption(parsedOptions.fieldDefaultTags, option);
 
+			} else if (option[0].equals("-fieldAllowableValuesTags")) {
+				addTagsOption(parsedOptions.fieldAllowableValuesTags, option);
+
 			} else if (option[0].equals("-requiredParamsTags")) {
 				addTagsOption(parsedOptions.requiredParamsTags, option);
 
@@ -414,6 +417,7 @@ public class DocletOptions {
 	private List<String> fieldMaxTags;
 	private List<String> fieldMaxAnnotations;
 	private List<String> fieldDefaultTags;
+	private List<String> fieldAllowableValuesTags;
 
 	private List<String> requiredParamsTags;
 	private List<String> requiredParamAnnotations;
@@ -670,6 +674,11 @@ public class DocletOptions {
 		this.fieldDefaultTags = new ArrayList<String>();
 		this.fieldDefaultTags.add("default");
 		this.fieldDefaultTags.add("defaultValue");
+
+		this.fieldAllowableValuesTags = new ArrayList<String>();
+		this.fieldAllowableValuesTags.add("allowableValues");
+		this.fieldAllowableValuesTags.add("values");
+		this.fieldAllowableValuesTags.add("enum");
 
 		this.requiredParamsTags = new ArrayList<String>();
 		this.requiredParamsTags.add("requiredParams");
@@ -1336,6 +1345,14 @@ public class DocletOptions {
 	 */
 	public List<String> getFieldDefaultTags() {
 		return this.fieldDefaultTags;
+	}
+
+	/**
+	 * This gets the fieldAllowableValuesTags
+	 * @return the fieldAllowableValuesTags
+	 */
+	public List<String> getFieldAllowableValuesTags() {
+		return this.fieldAllowableValuesTags;
 	}
 
 	/**
