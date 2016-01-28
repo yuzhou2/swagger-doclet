@@ -15,6 +15,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.ws.rs.GET;
@@ -36,6 +37,30 @@ public class DatesResource {
 
 	@POST
 	public Response create(Date value) {
+		return Response.ok().build();
+	}
+
+	@GET
+	@Path("/sqldate")
+	public java.sql.Date getSqlDate() {
+		return null;
+	}
+
+	@POST
+	@Path("/sqldate")
+	public Response createSqlDate(java.sql.Date value) {
+		return Response.ok().build();
+	}
+
+	@GET
+	@Path("/calendar")
+	public Calendar getCalendar() {
+		return Calendar.getInstance();
+	}
+
+	@POST
+	@Path("/calendar")
+	public Response createCalendar(Calendar value) {
 		return Response.ok().build();
 	}
 
@@ -101,7 +126,7 @@ public class DatesResource {
 
 	@GET
 	@Path("/instant")
-	public OffsetDateTime getInstant() {
+	public Instant getInstant() {
 		return null;
 	}
 

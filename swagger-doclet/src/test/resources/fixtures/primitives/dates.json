@@ -30,6 +30,31 @@
             ]
         },
         {
+            "path": "/primitives/dates/calendar",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getCalendar",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "createCalendar",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "value",
+                            "type": "string",
+                            "format": "date-time",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/primitives/dates/dayofweek",
             "operations": [
                 {
@@ -87,8 +112,7 @@
                 {
                     "method": "GET",
                     "nickname": "getInstant",
-                    "type": "string",
-                    "format": "date-time"
+                    "type": "string"
                 },
                 {
                     "method": "POST",
@@ -99,7 +123,6 @@
                             "paramType": "body",
                             "name": "value",
                             "type": "string",
-                            "format": "date-time",
                             "required" : true
                         }
                     ]
@@ -273,6 +296,31 @@
                             "paramType": "body",
                             "name": "value",
                             "type": "string",
+                            "required" : true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/primitives/dates/sqldate",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getSqlDate",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "createSqlDate",
+                    "type": "Response",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "value",
+                            "type": "string",
+                            "format": "date-time",
                             "required" : true
                         }
                     ]

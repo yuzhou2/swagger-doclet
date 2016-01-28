@@ -155,6 +155,7 @@ public class ApiDeclaration {
 	 */
 	@Override
 	public boolean equals(Object obj) {
+
 		// NOTE priority and description should NOT be included in the hashcode/equals
 		// as they are not part of this object but rather used externally when building the resource listing
 		if (this == obj) {
@@ -163,10 +164,12 @@ public class ApiDeclaration {
 		if (obj == null) {
 			return false;
 		}
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		ApiDeclaration other = (ApiDeclaration) obj;
+
 		if (this.apiVersion == null) {
 			if (other.apiVersion != null) {
 				return false;

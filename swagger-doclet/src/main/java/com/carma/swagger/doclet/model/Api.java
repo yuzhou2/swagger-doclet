@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.google.common.base.Objects;
 
+@SuppressWarnings("javadoc")
 public class Api {
 
 	private String path;

@@ -71,6 +71,7 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Long.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Byte.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Date.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Calendar.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Map.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Collection.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.Set.class.getName()));
@@ -93,6 +94,8 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneId.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneOffset.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZonedDateTime.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.net.URI.class.getName()));
+			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.net.URL.class.getName()));
 
 			// filter the classes to process
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();

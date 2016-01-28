@@ -198,6 +198,19 @@ public class DocletOptions {
 
 			} else if (option[0].equals("-parameterNameAnnotations")) {
 				parsedOptions.parameterNameAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
+
+			} else if (option[0].equals("-longTypePrefixes")) {
+				parsedOptions.longTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+
+			} else if (option[0].equals("-intTypePrefixes")) {
+				parsedOptions.intTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+
+			} else if (option[0].equals("-floatTypePrefixes")) {
+				parsedOptions.floatTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+
+			} else if (option[0].equals("-doubleTypePrefixes")) {
+				parsedOptions.doubleTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
+
 			} else if (option[0].equals("-stringTypePrefixes")) {
 				parsedOptions.stringTypePrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 
@@ -430,6 +443,10 @@ public class DocletOptions {
 
 	private List<String> parameterNameAnnotations;
 
+	private List<String> longTypePrefixes; // list of type prefixes that are mapped to long data type
+	private List<String> intTypePrefixes; // list of type prefixes that are mapped to int data type
+	private List<String> floatTypePrefixes; // list of type prefixes that are mapped to float data type
+	private List<String> doubleTypePrefixes; // list of type prefixes that are mapped to double data type
 	private List<String> stringTypePrefixes; // list of type prefixes that are mapped to string data type, can be used for example to map header types to
 												// strings
 
@@ -488,12 +505,21 @@ public class DocletOptions {
 		this.excludeModelPrefixes.add("org.springframework.web.multipart.");
 		this.excludeModelPrefixes.add("org.jboss.resteasy.plugins.providers.multipart.");
 
-		// types which are mapped to strings
+		// custom types which are mapped to longs
+		this.longTypePrefixes = new ArrayList<String>();
+
+		// custom types which are mapped to ints
+		this.intTypePrefixes = new ArrayList<String>();
+
+		// custom types which are mapped to floats
+		this.floatTypePrefixes = new ArrayList<String>();
+
+		// custom types which are mapped to doubles
+		this.doubleTypePrefixes = new ArrayList<String>();
+
+		// custom types which are mapped to strings
 		this.stringTypePrefixes = new ArrayList<String>();
 		this.stringTypePrefixes.add("com.sun.jersey.core.header.");
-		this.stringTypePrefixes.add("org.joda.time.");
-		this.stringTypePrefixes.add("java.net.URI");
-		this.stringTypePrefixes.add("java.net.URL");
 
 		// types which simply wrap an entity
 		this.genericWrapperTypes = new ArrayList<String>();
@@ -1077,6 +1103,38 @@ public class DocletOptions {
 	 */
 	public List<String> getStringTypePrefixes() {
 		return this.stringTypePrefixes;
+	}
+
+	/**
+	 * This gets the longTypePrefixes
+	 * @return the longTypePrefixes
+	 */
+	public List<String> getLongTypePrefixes() {
+		return this.longTypePrefixes;
+	}
+
+	/**
+	 * This gets the intTypePrefixes
+	 * @return the intTypePrefixes
+	 */
+	public List<String> getIntTypePrefixes() {
+		return this.intTypePrefixes;
+	}
+
+	/**
+	 * This gets the floatTypePrefixes
+	 * @return the floatTypePrefixes
+	 */
+	public List<String> getFloatTypePrefixes() {
+		return this.floatTypePrefixes;
+	}
+
+	/**
+	 * This gets the doubleTypePrefixes
+	 * @return the doubleTypePrefixes
+	 */
+	public List<String> getDoubleTypePrefixes() {
+		return this.doubleTypePrefixes;
 	}
 
 	/**

@@ -26,6 +26,54 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/jodaTime/localdate",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getLocalDate",
+                    "type": "string",
+                    "format": "date"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setLocalDate",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "string",
+                            "format": "date",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/jodaTime/localtime",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "getLocalTime",
+                    "type": "string"
+                },
+                {
+                    "method": "POST",
+                    "nickname": "setLocalTime",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "string",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -33,16 +81,19 @@
             "id": "Data",
             "properties": {
                 "dateTimeField": {
-                    "type": "string"
-                },
-                "dateTimeField2": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "date-time"
                 },
                 "localDate": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "date"
                 },
                 "localTime": {
                     "type": "string"
+                },
+                "dateTimeField2": {
+                    "type": "string",
+                    "format": "date-time"
                 }
             }
         }

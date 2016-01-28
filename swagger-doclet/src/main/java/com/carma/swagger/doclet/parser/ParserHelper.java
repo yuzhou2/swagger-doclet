@@ -420,6 +420,7 @@ public class ParserHelper {
 	 * @return The swagger type and format or null if the java type is not a primitive
 	 */
 	public static String[] primitiveTypeOf(String javaType, DocletOptions options) {
+
 		if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
 			return new String[] { "string", "byte" };
 		} else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
@@ -439,27 +440,39 @@ public class ParserHelper {
 			return new String[] { "string", null };
 		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
 			return new String[] { "boolean", null };
-
-		} else if (javaType.equalsIgnoreCase("java.time.LocalDate")) {
-			return new String[] { "string", "date" };
-
-		} else if (javaType.equalsIgnoreCase("java.time.Year")) {
-			return new String[] { "integer", "int32" };
-
-		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.time.LocalDateTime")
-				|| javaType.equalsIgnoreCase("java.time.OffsetDateTime") || javaType.equalsIgnoreCase("java.time.ZonedDateTime")
-				|| javaType.equalsIgnoreCase("java.time.Instant")) {
-			return new String[] { "string", "date-time" };
-
-		} else if (javaType.equalsIgnoreCase("java.time.OffsetTime") || javaType.equalsIgnoreCase("java.time.Duration")
-				|| javaType.equalsIgnoreCase("java.time.MonthDay") || javaType.equalsIgnoreCase("java.time.Period")
-				|| javaType.equalsIgnoreCase("java.time.Month") || javaType.equalsIgnoreCase("java.time.DayOfWeek")
-				|| javaType.equalsIgnoreCase("java.time.YearMonth") || javaType.equalsIgnoreCase("java.time.ZoneId")
-				|| javaType.equalsIgnoreCase("java.time.ZoneOffset")) {
+		} else if (javaType.equalsIgnoreCase("java.net.URI") || javaType.equalsIgnoreCase("java.net.URL")) {
 			return new String[] { "string", null };
 
 		} else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
 			return new String[] { "string", "uuid" };
+		}
+
+		// see if its a special long type
+		for (String prefix : options.getLongTypePrefixes()) {
+			if (javaType.startsWith(prefix)) {
+				return new String[] { "integer", "int64" };
+			}
+		}
+
+		// see if its a special int type
+		for (String prefix : options.getIntTypePrefixes()) {
+			if (javaType.startsWith(prefix)) {
+				return new String[] { "integer", "int32" };
+			}
+		}
+
+		// see if its a special double type
+		for (String prefix : options.getDoubleTypePrefixes()) {
+			if (javaType.startsWith(prefix)) {
+				return new String[] { "number", "double" };
+			}
+		}
+
+		// see if its a special float type
+		for (String prefix : options.getDoubleTypePrefixes()) {
+			if (javaType.startsWith(prefix)) {
+				return new String[] { "number", "float" };
+			}
 		}
 
 		// see if its a special string type
@@ -467,6 +480,40 @@ public class ParserHelper {
 			if (javaType.startsWith(prefix)) {
 				return new String[] { "string", null };
 			}
+		}
+
+		// default date handling, note this can be overridden by long/int type prefixes if people wish
+		if (javaType.equalsIgnoreCase("java.time.LocalDate") || javaType.equalsIgnoreCase("org.joda.time.LocalDate")
+				|| javaType.equalsIgnoreCase("org.joda.time.YearMonthDay")) {
+			return new String[] { "string", "date" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.Year") || javaType.equalsIgnoreCase("org.joda.time.Years")
+				|| javaType.equalsIgnoreCase("org.joda.time.Months") || javaType.equalsIgnoreCase("org.joda.time.Weeks")
+				|| javaType.equalsIgnoreCase("org.joda.time.Days") || javaType.equalsIgnoreCase("org.joda.time.Hours")
+				|| javaType.equalsIgnoreCase("org.joda.time.Minutes") || javaType.equalsIgnoreCase("org.joda.time.Seconds")) {
+			return new String[] { "integer", "int32" };
+
+		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.sql.Date")
+				|| javaType.equalsIgnoreCase("java.util.Calendar") || javaType.equalsIgnoreCase("java.time.LocalDateTime")
+				|| javaType.equalsIgnoreCase("java.time.OffsetDateTime") || javaType.equalsIgnoreCase("java.time.ZonedDateTime")
+				|| javaType.equalsIgnoreCase("org.joda.time.DateMidnight") || javaType.equalsIgnoreCase("org.joda.time.DateTime")
+				|| javaType.equalsIgnoreCase("org.joda.time.LocalDateTime") || javaType.equalsIgnoreCase("org.joda.time.MutableDateTime")) {
+			return new String[] { "string", "date-time" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.OffsetTime") || javaType.equalsIgnoreCase("java.time.Duration")
+				|| javaType.equalsIgnoreCase("org.joda.time.Duration") || javaType.equalsIgnoreCase("java.time.MonthDay")
+				|| javaType.equalsIgnoreCase("java.time.Period") || javaType.equalsIgnoreCase("java.time.Month")
+				|| javaType.equalsIgnoreCase("java.time.DayOfWeek") || javaType.equalsIgnoreCase("java.time.YearMonth")
+				|| javaType.equalsIgnoreCase("java.time.ZoneId") || javaType.equalsIgnoreCase("java.time.ZoneOffset")
+				|| javaType.equalsIgnoreCase("java.time.Instant") || javaType.equalsIgnoreCase("java.time.LocalTime")
+				|| javaType.equalsIgnoreCase("org.joda.time.LocalTime") || javaType.equalsIgnoreCase("org.joda.time.Instant")
+				|| javaType.equalsIgnoreCase("org.joda.time.Interval") || javaType.equalsIgnoreCase("org.joda.time.MonthDay")
+				|| javaType.equalsIgnoreCase("org.joda.time.DateTimeZone") || javaType.equalsIgnoreCase("org.joda.time.MutableInterval")
+				|| javaType.equalsIgnoreCase("org.joda.time.Partial") || javaType.equalsIgnoreCase("org.joda.time.Period")
+				|| javaType.equalsIgnoreCase("org.joda.time.MutablePeriod") || javaType.equalsIgnoreCase("org.joda.time.PeriodType")
+				|| javaType.equalsIgnoreCase("org.joda.time.TimeOfDay") || javaType.equalsIgnoreCase("org.joda.time.YearMonth")) {
+			return new String[] { "string", null };
+
 		}
 
 		return null;
