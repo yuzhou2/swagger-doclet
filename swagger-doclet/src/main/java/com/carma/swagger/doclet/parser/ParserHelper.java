@@ -572,8 +572,6 @@ public class ParserHelper {
 			if (typeArgs != null && typeArgs.length > 0) {
 				result = typeArgs[0];
 			}
-		} else if (ParserHelper.isArray(type)) {
-			result = type.getElementType();
 		}
 		// if its a ref to a param type replace with the type impl
 		if (result != null) {

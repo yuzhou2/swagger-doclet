@@ -79,21 +79,6 @@ public class JaxRsAnnotationParser {
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigInteger.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.math.BigDecimal.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.util.UUID.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.DayOfWeek.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Duration.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Instant.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.LocalDate.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.LocalDateTime.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Month.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.MonthDay.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.OffsetDateTime.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.OffsetTime.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Period.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.Year.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.YearMonth.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneId.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZoneOffset.class.getName()));
-			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.time.ZonedDateTime.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.net.URI.class.getName()));
 			addIfNotNull(typeClasses, this.rootDoc.classNamed(java.net.URL.class.getName()));
 

@@ -42,7 +42,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * {@inheritDoc}
 	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean, com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
+	public OptionalName typeName(final Type type, final boolean useFqn, final ClassDoc[] views) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
@@ -56,7 +56,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type, boolean,
 	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views) {
+	public OptionalName parameterTypeName(final boolean multipart, final Parameter parameter, final Type paramType, final boolean useFqn, final ClassDoc[] views) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
@@ -69,7 +69,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * {@inheritDoc}
 	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean)
 	 */
-	public OptionalName typeName(Type type, boolean useFqn) {
+	public OptionalName typeName(final Type type, final boolean useFqn) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {

@@ -5,7 +5,7 @@
 	<groupId>com.carma</groupId>
 	<artifactId>swagger-doclet-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.1.2-SNAPSHOT</version>
+	<version>1.0.6-SNAPSHOT</version>
 	<name>Swagger Doclet</name>
 	<url>https://github.com/Carma-Public/swagger-jaxrs-doclet</url>
 	<description>
@@ -100,9 +100,6 @@
 								<goals>
 									<goal>jar</goal>
 								</goals>
-								<configuration>
-                					<additionalparam>-Xdoclint:none</additionalparam>
-            					</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -257,8 +254,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 

@@ -1,7 +1,5 @@
 package fixtures.returntypeattributes;
 
-import java.time.DayOfWeek;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
