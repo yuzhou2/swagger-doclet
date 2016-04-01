@@ -135,8 +135,11 @@ public class JaxRsAnnotationParser {
 					continue;
 				}
 
-				// see if excluded via a tag
+				// see if excluded via a tag or annotation
 				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+					continue;
+				}
+				if (ParserHelper.hasAnnotation(classDoc, this.options.getExcludeClassAnnotations(), this.options)) {
 					continue;
 				}
 

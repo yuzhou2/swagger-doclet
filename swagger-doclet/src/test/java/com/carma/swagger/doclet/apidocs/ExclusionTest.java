@@ -18,6 +18,8 @@ import com.carma.swagger.doclet.model.ApiDeclaration;
 import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
+import fixtures.exclusion.CustomExclude;
+
 @SuppressWarnings("javadoc")
 public class ExclusionTest {
 
@@ -28,6 +30,7 @@ public class ExclusionTest {
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
+		this.options.getExcludeFieldAnnotations().add(CustomExclude.class.getName());
 	}
 
 	@Test

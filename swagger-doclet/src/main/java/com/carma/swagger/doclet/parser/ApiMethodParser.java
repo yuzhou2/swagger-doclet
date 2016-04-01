@@ -122,10 +122,16 @@ public class ApiMethodParser {
 			deprecated = true;
 		}
 
-		// exclude if it has exclusion tags
+		// exclude if it has exclusion tags/annotations
 		if (ParserHelper.hasInheritableTag(this.methodDoc, this.options.getExcludeOperationTags())) {
 			if (this.options.isLogDebug()) {
 				System.out.println("skipping method: " + this.methodDoc.name() + " as it has an exclusion tag");
+			}
+			return null;
+		}
+		if (ParserHelper.hasInheritableAnnotation(this.methodDoc, this.options.getExcludeOperationAnnotations(), this.options)) {
+			if (this.options.isLogDebug()) {
+				System.out.println("skipping method: " + this.methodDoc.name() + " as it has an exclusion annotation");
 			}
 			return null;
 		}

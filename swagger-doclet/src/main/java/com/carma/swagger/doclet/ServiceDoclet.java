@@ -183,11 +183,14 @@ public class ServiceDoclet {
 		options.put("-excludeResourcePrefixes", 2);
 		options.put("-includeResourcePrefixes", 2);
 
-		options.put("-excludeParamAnnotations", 2);
 		options.put("-excludeClassTags", 2);
+		options.put("-excludeClassAnnotations", 2);
 		options.put("-excludeOperationTags", 2);
+		options.put("-excludeOperationAnnotations", 2);
 		options.put("-excludeFieldTags", 2);
+		options.put("-excludeFieldAnnotations", 2);
 		options.put("-excludeParamsTags", 2);
+		options.put("-excludeParamAnnotations", 2);
 
 		// flags params as multiple
 		options.put("-csvParamsTags", 2);

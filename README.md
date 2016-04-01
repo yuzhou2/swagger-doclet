@@ -670,15 +670,13 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	
 	<tr><td>-sortResourcesByPath</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their path. If neither this nor the -sortResourcesByPriority options are set then they will be listed in the order encountered by the parser. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td></tr>
 	
-	<tr><td>-disableDeprecatedResourceClassExclusion</td><td>By default resource classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	<tr><td>-excludeClassAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude classes (models and resources) from the documentation. The default set is empty.</td></tr>
 	
-	<tr><td>-disableDeprecatedModelClassExclusion</td><td>By default model classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	<tr><td>-excludeOperationAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operations from the documentation. The default set is empty.</td></tr>
 	
-	<tr><td>-disableDeprecatedOperationExclusion</td><td>By default operation methods which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
-	
-	<tr><td>-disableDeprecatedFieldExclusion</td><td>By default model fields which have either the @deprecated tag or @Deprecated annotation (either on the model field or method) are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
-	
-	<tr><td>-disableDeprecatedParamExclusion</td><td>By default operation parameters which have the @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	<tr><td>-excludeFieldAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude model fields/methods from the documentation. The default set is empty.</td></tr>
+
+<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context, javax.ws.rs.CookieParam, javax.ws.rs.MatrixParam, javax.ws.rs.container.Suspended</td></tr>
 	
 	<tr><td>-excludeModelPrefixes</td><td>This adds additional classes to the set of model classes that are NOT documented. The default set contains org.joda.time.DateTime, java.util.UUID, java.io. . This supports a full class name as well as prefixes of the fully qualified class names which means you can enter a package like com.foo to exclude all classes under the com.foo package. This replaces the -typesToTreatAsOpaque option but if that option is specified then those classes will be added to the excludeModelPrefixes set.</td></tr>
 	
@@ -730,9 +728,19 @@ These are options that you typically won't need to use unless for example, you w
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
 	
-	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context, javax.ws.rs.CookieParam, javax.ws.rs.MatrixParam, javax.ws.rs.container.Suspended</td></tr>
-	
 	<tr><td>-responseMessageTags</td><td>This adds additional tags to the set of javadoc tags used for response messages. The default set contains responseMessage, status, errorResponse, errorCode, successResponse, successCode. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-disableDeprecatedResourceClassExclusion</td><td>By default resource classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-disableDeprecatedModelClassExclusion</td><td>By default model classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-disableDeprecatedOperationExclusion</td><td>By default operation methods which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-disableDeprecatedFieldExclusion</td><td>By default model fields which have either the @deprecated tag or @Deprecated annotation (either on the model field or method) are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-disableDeprecatedParamExclusion</td><td>By default operation parameters which have the @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
+	
+	<tr><td>-excludeClassTags</td><td>This adds additional tags to the set of javadoc tags used for excluding classes (models and resources). The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-excludeOperationTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operations. The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

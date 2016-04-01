@@ -193,8 +193,11 @@ public class ApiModelParser {
 			return;
 		}
 
-		// see if excluded via a tag
+		// see if excluded explicitly
 		if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+			return;
+		}
+		if (ParserHelper.hasAnnotation(classDoc, this.options.getExcludeClassAnnotations(), this.options)) {
 			return;
 		}
 
@@ -680,6 +683,9 @@ public class ApiModelParser {
 		if (ParserHelper.hasTag(field, this.options.getExcludeFieldTags())) {
 			return true;
 		}
+		if (ParserHelper.hasAnnotation(field, this.options.getExcludeFieldAnnotations(), this.options)) {
+			return true;
+		}
 
 		// ignore fields that are for a different json view
 		ClassDoc[] jsonViews = ParserHelper.getJsonViews(field, this.options);
@@ -710,6 +716,9 @@ public class ApiModelParser {
 
 		// ignore methods we are to explicitly exclude
 		if (ParserHelper.hasTag(method, this.options.getExcludeFieldTags())) {
+			return true;
+		}
+		if (ParserHelper.hasAnnotation(method, this.options.getExcludeFieldAnnotations(), this.options)) {
 			return true;
 		}
 

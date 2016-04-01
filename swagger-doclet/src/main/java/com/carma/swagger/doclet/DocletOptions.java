@@ -131,8 +131,6 @@ public class DocletOptions {
 				parsedOptions.resourceRootPath = option[1];
 			} else if (option[0].equals("-responseMessageSortMode")) {
 				parsedOptions.responseMessageSortMode = ResponseMessageSortMode.valueOf(option[1]);
-			} else if (option[0].equals("-excludeParamAnnotations")) {
-				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
 			} else if (option[0].equals("-useFullModelIds")) {
@@ -220,14 +218,26 @@ public class DocletOptions {
 			} else if (option[0].equals("-excludeClassTags")) {
 				addTagsOption(parsedOptions.excludeClassTags, option);
 
+			} else if (option[0].equals("-excludeClassAnnotations")) {
+				addTagsOption(parsedOptions.excludeClassAnnotations, option);
+
 			} else if (option[0].equals("-excludeOperationTags")) {
 				addTagsOption(parsedOptions.excludeOperationTags, option);
+
+			} else if (option[0].equals("-excludeOperationAnnotations")) {
+				addTagsOption(parsedOptions.excludeOperationAnnotations, option);
 
 			} else if (option[0].equals("-excludeFieldTags")) {
 				addTagsOption(parsedOptions.excludeFieldTags, option);
 
+			} else if (option[0].equals("-excludeFieldAnnotations")) {
+				addTagsOption(parsedOptions.excludeFieldAnnotations, option);
+
 			} else if (option[0].equals("-excludeParamsTags")) {
 				addTagsOption(parsedOptions.excludeParamsTags, option);
+
+			} else if (option[0].equals("-excludeParamAnnotations")) {
+				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 
 			} else if (option[0].equals("-csvParamsTags")) {
 				addTagsOption(parsedOptions.csvParamsTags, option);
@@ -390,11 +400,18 @@ public class DocletOptions {
 	private List<String> discriminatorAnnotations;
 	private List<String> subTypesAnnotations;
 
-	private List<String> excludeParamAnnotations;
-	private List<String> excludeClassTags;
-	private List<String> excludeOperationTags;
-	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
+	private List<String> excludeParamAnnotations;
+
+	private List<String> excludeClassTags;
+	private List<String> excludeClassAnnotations;
+
+	private List<String> excludeOperationTags;
+	private List<String> excludeOperationAnnotations;
+
+	private List<String> excludeFieldTags;
+	private List<String> excludeFieldAnnotations;
+
 	private List<String> csvParamsTags;
 	private List<String> implicitParamTags;
 	private List<String> paramsFormatTags;
@@ -487,11 +504,6 @@ public class DocletOptions {
 	 * This creates a DocletOptions
 	 */
 	public DocletOptions() {
-		this.excludeParamAnnotations = new ArrayList<String>();
-		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
-		this.excludeParamAnnotations.add("javax.ws.rs.CookieParam");
-		this.excludeParamAnnotations.add("javax.ws.rs.MatrixParam");
-		this.excludeParamAnnotations.add("javax.ws.rs.container.Suspended");
 
 		this.responseMessageTags = new ArrayList<String>();
 		this.responseMessageTags.add("responseMessage");
@@ -581,20 +593,32 @@ public class DocletOptions {
 		this.excludeClassTags.add("hide");
 		this.excludeClassTags.add("exclude");
 
+		this.excludeClassAnnotations = new ArrayList<String>();
+
 		this.excludeOperationTags = new ArrayList<String>();
 		this.excludeOperationTags.add("hidden");
 		this.excludeOperationTags.add("hide");
 		this.excludeOperationTags.add("exclude");
+
+		this.excludeOperationAnnotations = new ArrayList<String>();
 
 		this.excludeFieldTags = new ArrayList<String>();
 		this.excludeFieldTags.add("hidden");
 		this.excludeFieldTags.add("hide");
 		this.excludeFieldTags.add("exclude");
 
+		this.excludeFieldAnnotations = new ArrayList<String>();
+
 		this.excludeParamsTags = new ArrayList<String>();
 		this.excludeParamsTags.add("excludeParams");
 		this.excludeParamsTags.add("hiddenParams");
 		this.excludeParamsTags.add("hideParams");
+
+		this.excludeParamAnnotations = new ArrayList<String>();
+		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
+		this.excludeParamAnnotations.add("javax.ws.rs.CookieParam");
+		this.excludeParamAnnotations.add("javax.ws.rs.MatrixParam");
+		this.excludeParamAnnotations.add("javax.ws.rs.container.Suspended");
 
 		this.csvParamsTags = new ArrayList<String>();
 		this.csvParamsTags.add("csvParams");
@@ -872,6 +896,14 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This gets the excludeOperationAnnotations
+	 * @return the excludeOperationAnnotations
+	 */
+	public List<String> getExcludeOperationAnnotations() {
+		return this.excludeOperationAnnotations;
+	}
+
+	/**
 	 * This gets the excludeClassTags
 	 * @return the excludeClassTags
 	 */
@@ -880,11 +912,27 @@ public class DocletOptions {
 	}
 
 	/**
+	 * This gets the excludeClassAnnotations
+	 * @return the excludeClassAnnotations
+	 */
+	public List<String> getExcludeClassAnnotations() {
+		return this.excludeClassAnnotations;
+	}
+
+	/**
 	 * This gets the excludeFieldTags
 	 * @return the excludeFieldTags
 	 */
 	public List<String> getExcludeFieldTags() {
 		return this.excludeFieldTags;
+	}
+
+	/**
+	 * This gets the excludeFieldAnnotations
+	 * @return the excludeFieldAnnotations
+	 */
+	public List<String> getExcludeFieldAnnotations() {
+		return this.excludeFieldAnnotations;
 	}
 
 	/**

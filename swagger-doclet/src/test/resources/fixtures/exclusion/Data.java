@@ -15,6 +15,10 @@ public class Data extends DataParent {
 	private String fieldExclusion;
 	private String getterExclusion;
 
+	@CustomExclude
+	private String fieldAnnotationExclusion;
+	private String getterAnnotationExclusion;
+
 	public String getField() {
 		return this.field;
 	}
@@ -51,6 +55,15 @@ public class Data extends DataParent {
 	 */
 	public String methodExclusion() {
 		return null;
+	}
+
+	@CustomExclude
+	public String getGetterAnnotationExclusion() {
+		return this.getterAnnotationExclusion;
+	}
+
+	public void setGetterAnnotationExclusion(String getterAnnotationExclusion) {
+		this.getterAnnotationExclusion = getterAnnotationExclusion;
 	}
 
 	public String getValue(int i) {
