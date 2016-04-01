@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.carma</groupId>
+        <groupId>com.tenxerconsulting</groupId>
 		<artifactId>swagger-doclet-parent</artifactId>
         <version>1.1.3-SNAPSHOT</version>
     </parent>
@@ -74,9 +74,9 @@
                         <id>generate-service-docs</id>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <doclet>com.carma.swagger.doclet.ServiceDoclet</doclet>
+                            <doclet>com.tenxerconsulting.swagger.doclet.ServiceDoclet</doclet>
                             <docletArtifact>
-                                <groupId>com.carma</groupId>
+                                <groupId>com.tenxerconsulting</groupId>
 								<artifactId>swagger-doclet</artifactId>
         						<version>${project.version}</version>
         					</docletArtifact>
@@ -130,7 +130,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.carma.swagger.doclet.sample.SampleService</mainClass>
+                                    <mainClass>com.tenxerconsulting.swagger.doclet.sample.SampleService</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

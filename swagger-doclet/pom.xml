@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.carma</groupId>
+		<groupId>com.tenxerconsulting</groupId>
 		<artifactId>swagger-doclet-parent</artifactId>
 		<version>1.1.3-SNAPSHOT</version>
 	</parent>
@@ -61,38 +61,6 @@
 	<build>
 		<plugins>
 
-			<!-- Carma developers, if you want to run against the carma client to test generation
-			manually uncomment this.
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-shared-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>com.avego.carma</groupId>
-									<artifactId>carma-api-client</artifactId>
-									<version>2.1926.0-SNAPSHOT</version>
-									<classifier>sources</classifier>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.basedir}/src/test/resources</outputDirectory>
-									<includes>**/*.java</includes>
-								</artifactItem>
-
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			 -->
-			 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
