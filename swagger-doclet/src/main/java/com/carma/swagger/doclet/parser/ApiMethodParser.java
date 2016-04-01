@@ -137,6 +137,9 @@ public class ApiMethodParser {
 		}
 
 		String path = this.parentPath + methodPath;
+                if ("".equals(path)) {
+                    path = "/";
+                }
 
 		// build params
 		List<ApiParameter> parameters = this.generateParameters();
