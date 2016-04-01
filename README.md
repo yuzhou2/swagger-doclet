@@ -23,9 +23,33 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest production version is 1.1.1.
+The latest production versions are 1.1.2 and 1.0.6.
 
-This contains the following fixes/features:
+The 1.1.2 (and 1.0.6) versions contain these fixes:
+
++ Support annotations for excluding fields/classes/operations (Issue 134)
++ Use / for empty api paths (courtesy of glucas) (Issue 131)
++ Support -longTypePrefixes option (Issue 130)
++ Support @allowableValues for listing enum vals (Issue 129)
++ Support v1 jackson annotations (courtesy of e99majo) (Issue 122)
++ Support calendar fields as date-time (Issue 119)
++ Fix reading of -subTypesAnnotations setting (Issue 116)
++ Exclude AsyncResponse from documented parameters (Issue 111)
++ Ability to add additional (implicit) params (Issue 108)
+
+The fixes merged from 1.1.1 and 1.1.0 to the 1.0.6 version were as follows:
+
++ Fix incorrect detection of sub resource methods (also improves performance) (Issue 107)
++ Fix readme in relation to resourceRootPath (Issue 102)
++ Group multiple response messages with same http status together for compatibility with swagger ui/spec (Issue 97)
++ Fix performance degradation (Issue 94)
++ Fix incorrect detection of sub resource methods (also improves performance) (Issue 107)
++ Upgrade swagger UI to 2.1.0; fixes: 
+	+ Api ordering in the embedded UI (Issue 70) 
+	+ Success code not being displayed (Issue 77)
++ Adding support for arrays of enums -courtesy of @tandrup (Issue 93) 
+
+The fixes in the 1.1.1 version were as follows:
 
 + Fix incorrect detection of sub resource methods (also improves performance) (Issue 107)
 + Support new Java 8 Date Time types (Issue 104)
@@ -151,7 +175,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0.5</version>
+        						<version>1.0.6</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -188,7 +212,7 @@ Here is an example build.gradle file that will generate the swagger JSON files i
 
 dependencies {
     doclet(
-        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.5'],
+        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.6'],
         [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
     ) 
 }
