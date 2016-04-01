@@ -27,6 +27,8 @@ The latest production versions are 1.1.3 and 1.0.7.
 The 1.1.3 version corresponds to the carma 1.1.2 version.
 The 1.0.7 version corresponds to the carma 1.0.6 version.
 
+**Note the package and group id have changed from com.carma to com.tenexerconsulting.**
+
 The 1.1.2 (and 1.0.6) versions contain these fixes:
 
 + Support annotations for excluding fields/classes/operations (Issue 134)
