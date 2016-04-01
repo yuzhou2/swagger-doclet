@@ -22,7 +22,10 @@ actively maintaining this fork instead and the Carma one is unlikely to be maint
 
 1.0.x Versions require Java 6/7
 
-The latest production versions are 1.1.2 and 1.0.6.
+The latest production versions are 1.1.3 and 1.0.7.
+
+The 1.1.3 version corresponds to the carma 1.1.2 version.
+The 1.0.7 version corresponds to the carma 1.0.7 version.
 
 The 1.1.2 (and 1.0.6) versions contain these fixes:
 
