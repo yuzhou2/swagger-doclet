@@ -20,16 +20,16 @@ actively maintaining this fork instead and the Carma one is unlikely to be maint
 
 1.1.x Versions and higher require Java 8
 
-1.0.x Versions require Java 6/7
+1.0.x Versions require Java 7
 
 The latest production versions are 1.1.3 and 1.0.7.
 
 The 1.1.3 version corresponds to the carma 1.1.2 version.
 The 1.0.7 version corresponds to the carma 1.0.6 version.
 
-**Note the package and group id have changed from com.carma to com.tenexerconsulting.**
+**Note from 1.1.3 and 1.0.7 the package and group id have changed from com.carma to com.tenexerconsulting.**
 
-The 1.1.2 (and 1.0.6) versions contain these fixes:
+The 1.1.2 (and 1.0.6) versions contained these fixes:
 
 + Support annotations for excluding fields/classes/operations (Issue 134)
 + Use / for empty api paths (courtesy of glucas) (Issue 131)
@@ -179,7 +179,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.tenxerconsulting</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0.6</version>
+        						<version>1.0.7</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -216,7 +216,7 @@ Here is an example build.gradle file that will generate the swagger JSON files i
 
 dependencies {
     doclet(
-        [group: 'com.tenxerconsulting', name: 'swagger-doclet', version: '1.0.6'],
+        [group: 'com.tenxerconsulting', name: 'swagger-doclet', version: '1.0.7'],
         [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
     ) 
 }
