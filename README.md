@@ -4,6 +4,8 @@
 
 This is a JavaDoc Doclet that can be used to generate a JSON Swagger resource listing suitable for feeding to the Swagger UI. It generates the resource listing from the source code of java JAXRS resources and entities.
 
+**This fork is the current actively maintained fork for this project.**
+
 ## History
 This was originally forked from [Ryan Kennedy's original doclet](https://github.com/ryankennedy/swagger-jaxrs-doclet) to add support for swagger 1.2 into [Carma's doclet] (https://github.com/teamcarma/swagger-jaxrs-doclet/). This fork has been forked from the Carma version as I have changed companies and will be
 actively maintaining this fork instead and the Carma one is unlikely to be maintained.
