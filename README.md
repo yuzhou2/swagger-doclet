@@ -1,6 +1,6 @@
 # Swagger Doclet 
 
-[![Build Status](https://travis-ci.org/conorroche/swagger-doclet.svg?branch=master)](https://travis-ci.org/conorroche/swagger-doclet)
+[![Build Status](https://travis-ci.org/conorroche/swagger-doclet.svg?branch=1.0.x_java7)](https://travis-ci.org/conorroche/swagger-doclet)
 
 This is a JavaDoc Doclet that can be used to generate a JSON Swagger resource listing suitable for feeding to the Swagger UI. It generates the resource listing from the source code of java JAXRS resources and entities.
 
