@@ -37,7 +37,7 @@ public class ResponseMessagesResource {
 	 * @errorCode 401|not_authC|If user not authenticated `fixtures.responsemessages.Response1
 	 */
 	@GET
-	public void carma() {
+	public void tenxer() {
 		// noop
 	}
 

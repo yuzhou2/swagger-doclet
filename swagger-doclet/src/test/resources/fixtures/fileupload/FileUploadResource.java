@@ -57,7 +57,7 @@ public class FileUploadResource {
 		return Response.ok().entity("Received param1: " + param1a + ", param2: " + param2a).build();
 	}
 
-	// NOTE in carma we expect the image data to be in a part named photo, we could rename the
+	// NOTE in this case we expect the image data to be in a part named photo, we could rename the
 	// method parameter from data to photo and that would work, however data is more correct
 	// and because it may be useful in other scenarios we use the new
 	// @paramsName option
