@@ -583,13 +583,17 @@ public class ParameterReader {
 		return param;
 
 	}
-
+	
 	private String commentForParameter(ExecutableMemberDoc method, Parameter parameter) {
-		for (ParamTag tag : method.paramTags()) {
-			if (tag.parameterName().equals(parameter.name())) {
-				return tag.parameterComment();
+		while (method != null) {
+			for (ParamTag tag : method.paramTags()) {
+				if (tag.parameterName().equals(parameter.name())) {
+					return tag.parameterComment();
+				}
 			}
-		}
+			// didn't find a documentation on this method, maybe we can find it on a method we inherited from.
+			method = ParserHelper.getAncestorMethod(method);
+		}		
 		return "";
 	}
 

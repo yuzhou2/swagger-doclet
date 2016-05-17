@@ -1,7 +1,5 @@
 package fixtures.interfacedocumentation;
 
-import javax.ws.rs.Path;
-
 @SuppressWarnings("javadoc")
 public class Implementation implements ParentInterface {
 
