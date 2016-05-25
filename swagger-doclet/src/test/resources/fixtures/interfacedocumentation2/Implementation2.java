@@ -1,25 +1,22 @@
-package fixtures.interfacedocumentation;
+package fixtures.interfacedocumentation2;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-@SuppressWarnings("javadoc")
 @Path("/users")
-public interface ParentInterface {
+@SuppressWarnings("javadoc")
+public class Implementation2 implements ParentInterface2 {
 
-	/**
-	 * first sentence.
-	 * remaining sentence
-	 * @param param my parameter documentation
-	 */
 	@Path("/query/{param}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.TEXT_PLAIN)
-	String findAll(@PathParam("param") String param);
+	@Override
+	public String findAll(@PathParam("param") String param) {
+		return null;
+	}
 }
